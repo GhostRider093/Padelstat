@@ -47,8 +47,10 @@ models/
 # Config locale (contient des chemins personnels)
 config.json
 
-# Backups locaux
-backup/
+# Archives lourdes
+*.zip
+*.7z
+*.tar.gz
 
 # Build
 build/
