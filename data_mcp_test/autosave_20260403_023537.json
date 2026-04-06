@@ -1,0 +1,640 @@
+{
+  "match": {
+    "date": "2026-04-03",
+    "joueurs": [
+      "Arnaud",
+      "Pierre",
+      "Thomas",
+      "Lucas"
+    ],
+    "video": null,
+    "position_changes": [
+      {
+        "timestamp": 0.0,
+        "positions": [
+          "gauche",
+          "gauche",
+          "gauche",
+          "gauche"
+        ]
+      }
+    ]
+  },
+  "points": [
+    {
+      "id": 1,
+      "type": "faute_directe",
+      "joueur": "Arnaud",
+      "type_coup": null,
+      "timestamp": 12.5,
+      "frame": 300,
+      "capture": null
+    }
+  ],
+  "stats": {
+    "Arnaud": {
+      "fautes_directes": 1,
+      "fautes_directes_detail": {
+        "service": 0,
+        "volee_coup_droit": 0,
+        "volee_revers": 0,
+        "volee_balle_haute": 0,
+        "fond_de_court_coup_droit": 0,
+        "fond_de_court_revers": 0,
+        "fond_de_court_balle_haute": 0,
+        "smash": 0,
+        "lobe": 0,
+        "amorti": 0,
+        "bandeja": 0,
+        "vibora": 0,
+        "autre": 1
+      },
+      "points_gagnants": 0,
+      "points_gagnants_detail": {
+        "service": 0,
+        "volee_coup_droit": 0,
+        "volee_revers": 0,
+        "volee_balle_haute": 0,
+        "fond_de_court_coup_droit": 0,
+        "fond_de_court_revers": 0,
+        "fond_de_court_balle_haute": 0,
+        "smash": 0,
+        "lobe": 0,
+        "amorti": 0,
+        "bandeja": 0,
+        "vibora": 0,
+        "autre": 0
+      },
+      "fautes_provoquees_subies": 0,
+      "fautes_provoquees_subies_detail": {
+        "service": 0,
+        "volee_coup_droit": 0,
+        "volee_revers": 0,
+        "volee_balle_haute": 0,
+        "fond_de_court_coup_droit": 0,
+        "fond_de_court_revers": 0,
+        "fond_de_court_balle_haute": 0,
+        "smash": 0,
+        "lobe": 0,
+        "amorti": 0,
+        "bandeja": 0,
+        "vibora": 0,
+        "autre": 0
+      },
+      "fautes_provoquees_generees": 0,
+      "fautes_provoquees_generees_detail": {
+        "service": 0,
+        "volee_coup_droit": 0,
+        "volee_revers": 0,
+        "volee_balle_haute": 0,
+        "fond_de_court_coup_droit": 0,
+        "fond_de_court_revers": 0,
+        "fond_de_court_balle_haute": 0,
+        "smash": 0,
+        "lobe": 0,
+        "amorti": 0,
+        "bandeja": 0,
+        "vibora": 0,
+        "autre": 0
+      },
+      "coups_coeur": {
+        "defense": 0,
+        "attaque": 0,
+        "spectaculaire": 0
+      },
+      "coups_techniques": {
+        "service": {
+          "total": 0,
+          "fautes": 0,
+          "gagnants": 0,
+          "fp_generees": 0,
+          "fp_subies": 0
+        },
+        "coup_droit": {
+          "total": 0,
+          "fautes": 0,
+          "gagnants": 0,
+          "fp_generees": 0,
+          "fp_subies": 0
+        },
+        "revers": {
+          "total": 0,
+          "fautes": 0,
+          "gagnants": 0,
+          "fp_generees": 0,
+          "fp_subies": 0
+        },
+        "balle_haute": {
+          "total": 0,
+          "fautes": 0,
+          "gagnants": 0,
+          "fp_generees": 0,
+          "fp_subies": 0
+        },
+        "smash": {
+          "total": 0,
+          "fautes": 0,
+          "gagnants": 0,
+          "fp_generees": 0,
+          "fp_subies": 0
+        },
+        "lobe": {
+          "total": 0,
+          "fautes": 0,
+          "gagnants": 0,
+          "fp_generees": 0,
+          "fp_subies": 0
+        },
+        "amorti": {
+          "total": 0,
+          "fautes": 0,
+          "gagnants": 0,
+          "fp_generees": 0,
+          "fp_subies": 0
+        },
+        "bandeja": {
+          "total": 0,
+          "fautes": 0,
+          "gagnants": 0,
+          "fp_generees": 0,
+          "fp_subies": 0
+        },
+        "vibora": {
+          "total": 0,
+          "fautes": 0,
+          "gagnants": 0,
+          "fp_generees": 0,
+          "fp_subies": 0
+        },
+        "volee": {
+          "total": 0,
+          "fautes": 0,
+          "gagnants": 0,
+          "fp_generees": 0,
+          "fp_subies": 0
+        },
+        "fond_de_court": {
+          "total": 0,
+          "fautes": 0,
+          "gagnants": 0,
+          "fp_generees": 0,
+          "fp_subies": 0
+        }
+      }
+    },
+    "Pierre": {
+      "fautes_directes": 0,
+      "fautes_directes_detail": {
+        "service": 0,
+        "volee_coup_droit": 0,
+        "volee_revers": 0,
+        "volee_balle_haute": 0,
+        "fond_de_court_coup_droit": 0,
+        "fond_de_court_revers": 0,
+        "fond_de_court_balle_haute": 0,
+        "smash": 0,
+        "lobe": 0,
+        "amorti": 0,
+        "bandeja": 0,
+        "vibora": 0,
+        "autre": 0
+      },
+      "points_gagnants": 0,
+      "points_gagnants_detail": {
+        "service": 0,
+        "volee_coup_droit": 0,
+        "volee_revers": 0,
+        "volee_balle_haute": 0,
+        "fond_de_court_coup_droit": 0,
+        "fond_de_court_revers": 0,
+        "fond_de_court_balle_haute": 0,
+        "smash": 0,
+        "lobe": 0,
+        "amorti": 0,
+        "bandeja": 0,
+        "vibora": 0,
+        "autre": 0
+      },
+      "fautes_provoquees_subies": 0,
+      "fautes_provoquees_subies_detail": {
+        "service": 0,
+        "volee_coup_droit": 0,
+        "volee_revers": 0,
+        "volee_balle_haute": 0,
+        "fond_de_court_coup_droit": 0,
+        "fond_de_court_revers": 0,
+        "fond_de_court_balle_haute": 0,
+        "smash": 0,
+        "lobe": 0,
+        "amorti": 0,
+        "bandeja": 0,
+        "vibora": 0,
+        "autre": 0
+      },
+      "fautes_provoquees_generees": 0,
+      "fautes_provoquees_generees_detail": {
+        "service": 0,
+        "volee_coup_droit": 0,
+        "volee_revers": 0,
+        "volee_balle_haute": 0,
+        "fond_de_court_coup_droit": 0,
+        "fond_de_court_revers": 0,
+        "fond_de_court_balle_haute": 0,
+        "smash": 0,
+        "lobe": 0,
+        "amorti": 0,
+        "bandeja": 0,
+        "vibora": 0,
+        "autre": 0
+      },
+      "coups_coeur": {
+        "defense": 0,
+        "attaque": 0,
+        "spectaculaire": 0
+      },
+      "coups_techniques": {
+        "service": {
+          "total": 0,
+          "fautes": 0,
+          "gagnants": 0,
+          "fp_generees": 0,
+          "fp_subies": 0
+        },
+        "coup_droit": {
+          "total": 0,
+          "fautes": 0,
+          "gagnants": 0,
+          "fp_generees": 0,
+          "fp_subies": 0
+        },
+        "revers": {
+          "total": 0,
+          "fautes": 0,
+          "gagnants": 0,
+          "fp_generees": 0,
+          "fp_subies": 0
+        },
+        "balle_haute": {
+          "total": 0,
+          "fautes": 0,
+          "gagnants": 0,
+          "fp_generees": 0,
+          "fp_subies": 0
+        },
+        "smash": {
+          "total": 0,
+          "fautes": 0,
+          "gagnants": 0,
+          "fp_generees": 0,
+          "fp_subies": 0
+        },
+        "lobe": {
+          "total": 0,
+          "fautes": 0,
+          "gagnants": 0,
+          "fp_generees": 0,
+          "fp_subies": 0
+        },
+        "amorti": {
+          "total": 0,
+          "fautes": 0,
+          "gagnants": 0,
+          "fp_generees": 0,
+          "fp_subies": 0
+        },
+        "bandeja": {
+          "total": 0,
+          "fautes": 0,
+          "gagnants": 0,
+          "fp_generees": 0,
+          "fp_subies": 0
+        },
+        "vibora": {
+          "total": 0,
+          "fautes": 0,
+          "gagnants": 0,
+          "fp_generees": 0,
+          "fp_subies": 0
+        },
+        "volee": {
+          "total": 0,
+          "fautes": 0,
+          "gagnants": 0,
+          "fp_generees": 0,
+          "fp_subies": 0
+        },
+        "fond_de_court": {
+          "total": 0,
+          "fautes": 0,
+          "gagnants": 0,
+          "fp_generees": 0,
+          "fp_subies": 0
+        }
+      }
+    },
+    "Thomas": {
+      "fautes_directes": 0,
+      "fautes_directes_detail": {
+        "service": 0,
+        "volee_coup_droit": 0,
+        "volee_revers": 0,
+        "volee_balle_haute": 0,
+        "fond_de_court_coup_droit": 0,
+        "fond_de_court_revers": 0,
+        "fond_de_court_balle_haute": 0,
+        "smash": 0,
+        "lobe": 0,
+        "amorti": 0,
+        "bandeja": 0,
+        "vibora": 0,
+        "autre": 0
+      },
+      "points_gagnants": 0,
+      "points_gagnants_detail": {
+        "service": 0,
+        "volee_coup_droit": 0,
+        "volee_revers": 0,
+        "volee_balle_haute": 0,
+        "fond_de_court_coup_droit": 0,
+        "fond_de_court_revers": 0,
+        "fond_de_court_balle_haute": 0,
+        "smash": 0,
+        "lobe": 0,
+        "amorti": 0,
+        "bandeja": 0,
+        "vibora": 0,
+        "autre": 0
+      },
+      "fautes_provoquees_subies": 0,
+      "fautes_provoquees_subies_detail": {
+        "service": 0,
+        "volee_coup_droit": 0,
+        "volee_revers": 0,
+        "volee_balle_haute": 0,
+        "fond_de_court_coup_droit": 0,
+        "fond_de_court_revers": 0,
+        "fond_de_court_balle_haute": 0,
+        "smash": 0,
+        "lobe": 0,
+        "amorti": 0,
+        "bandeja": 0,
+        "vibora": 0,
+        "autre": 0
+      },
+      "fautes_provoquees_generees": 0,
+      "fautes_provoquees_generees_detail": {
+        "service": 0,
+        "volee_coup_droit": 0,
+        "volee_revers": 0,
+        "volee_balle_haute": 0,
+        "fond_de_court_coup_droit": 0,
+        "fond_de_court_revers": 0,
+        "fond_de_court_balle_haute": 0,
+        "smash": 0,
+        "lobe": 0,
+        "amorti": 0,
+        "bandeja": 0,
+        "vibora": 0,
+        "autre": 0
+      },
+      "coups_coeur": {
+        "defense": 0,
+        "attaque": 0,
+        "spectaculaire": 0
+      },
+      "coups_techniques": {
+        "service": {
+          "total": 0,
+          "fautes": 0,
+          "gagnants": 0,
+          "fp_generees": 0,
+          "fp_subies": 0
+        },
+        "coup_droit": {
+          "total": 0,
+          "fautes": 0,
+          "gagnants": 0,
+          "fp_generees": 0,
+          "fp_subies": 0
+        },
+        "revers": {
+          "total": 0,
+          "fautes": 0,
+          "gagnants": 0,
+          "fp_generees": 0,
+          "fp_subies": 0
+        },
+        "balle_haute": {
+          "total": 0,
+          "fautes": 0,
+          "gagnants": 0,
+          "fp_generees": 0,
+          "fp_subies": 0
+        },
+        "smash": {
+          "total": 0,
+          "fautes": 0,
+          "gagnants": 0,
+          "fp_generees": 0,
+          "fp_subies": 0
+        },
+        "lobe": {
+          "total": 0,
+          "fautes": 0,
+          "gagnants": 0,
+          "fp_generees": 0,
+          "fp_subies": 0
+        },
+        "amorti": {
+          "total": 0,
+          "fautes": 0,
+          "gagnants": 0,
+          "fp_generees": 0,
+          "fp_subies": 0
+        },
+        "bandeja": {
+          "total": 0,
+          "fautes": 0,
+          "gagnants": 0,
+          "fp_generees": 0,
+          "fp_subies": 0
+        },
+        "vibora": {
+          "total": 0,
+          "fautes": 0,
+          "gagnants": 0,
+          "fp_generees": 0,
+          "fp_subies": 0
+        },
+        "volee": {
+          "total": 0,
+          "fautes": 0,
+          "gagnants": 0,
+          "fp_generees": 0,
+          "fp_subies": 0
+        },
+        "fond_de_court": {
+          "total": 0,
+          "fautes": 0,
+          "gagnants": 0,
+          "fp_generees": 0,
+          "fp_subies": 0
+        }
+      }
+    },
+    "Lucas": {
+      "fautes_directes": 0,
+      "fautes_directes_detail": {
+        "service": 0,
+        "volee_coup_droit": 0,
+        "volee_revers": 0,
+        "volee_balle_haute": 0,
+        "fond_de_court_coup_droit": 0,
+        "fond_de_court_revers": 0,
+        "fond_de_court_balle_haute": 0,
+        "smash": 0,
+        "lobe": 0,
+        "amorti": 0,
+        "bandeja": 0,
+        "vibora": 0,
+        "autre": 0
+      },
+      "points_gagnants": 0,
+      "points_gagnants_detail": {
+        "service": 0,
+        "volee_coup_droit": 0,
+        "volee_revers": 0,
+        "volee_balle_haute": 0,
+        "fond_de_court_coup_droit": 0,
+        "fond_de_court_revers": 0,
+        "fond_de_court_balle_haute": 0,
+        "smash": 0,
+        "lobe": 0,
+        "amorti": 0,
+        "bandeja": 0,
+        "vibora": 0,
+        "autre": 0
+      },
+      "fautes_provoquees_subies": 0,
+      "fautes_provoquees_subies_detail": {
+        "service": 0,
+        "volee_coup_droit": 0,
+        "volee_revers": 0,
+        "volee_balle_haute": 0,
+        "fond_de_court_coup_droit": 0,
+        "fond_de_court_revers": 0,
+        "fond_de_court_balle_haute": 0,
+        "smash": 0,
+        "lobe": 0,
+        "amorti": 0,
+        "bandeja": 0,
+        "vibora": 0,
+        "autre": 0
+      },
+      "fautes_provoquees_generees": 0,
+      "fautes_provoquees_generees_detail": {
+        "service": 0,
+        "volee_coup_droit": 0,
+        "volee_revers": 0,
+        "volee_balle_haute": 0,
+        "fond_de_court_coup_droit": 0,
+        "fond_de_court_revers": 0,
+        "fond_de_court_balle_haute": 0,
+        "smash": 0,
+        "lobe": 0,
+        "amorti": 0,
+        "bandeja": 0,
+        "vibora": 0,
+        "autre": 0
+      },
+      "coups_coeur": {
+        "defense": 0,
+        "attaque": 0,
+        "spectaculaire": 0
+      },
+      "coups_techniques": {
+        "service": {
+          "total": 0,
+          "fautes": 0,
+          "gagnants": 0,
+          "fp_generees": 0,
+          "fp_subies": 0
+        },
+        "coup_droit": {
+          "total": 0,
+          "fautes": 0,
+          "gagnants": 0,
+          "fp_generees": 0,
+          "fp_subies": 0
+        },
+        "revers": {
+          "total": 0,
+          "fautes": 0,
+          "gagnants": 0,
+          "fp_generees": 0,
+          "fp_subies": 0
+        },
+        "balle_haute": {
+          "total": 0,
+          "fautes": 0,
+          "gagnants": 0,
+          "fp_generees": 0,
+          "fp_subies": 0
+        },
+        "smash": {
+          "total": 0,
+          "fautes": 0,
+          "gagnants": 0,
+          "fp_generees": 0,
+          "fp_subies": 0
+        },
+        "lobe": {
+          "total": 0,
+          "fautes": 0,
+          "gagnants": 0,
+          "fp_generees": 0,
+          "fp_subies": 0
+        },
+        "amorti": {
+          "total": 0,
+          "fautes": 0,
+          "gagnants": 0,
+          "fp_generees": 0,
+          "fp_subies": 0
+        },
+        "bandeja": {
+          "total": 0,
+          "fautes": 0,
+          "gagnants": 0,
+          "fp_generees": 0,
+          "fp_subies": 0
+        },
+        "vibora": {
+          "total": 0,
+          "fautes": 0,
+          "gagnants": 0,
+          "fp_generees": 0,
+          "fp_subies": 0
+        },
+        "volee": {
+          "total": 0,
+          "fautes": 0,
+          "gagnants": 0,
+          "fp_generees": 0,
+          "fp_subies": 0
+        },
+        "fond_de_court": {
+          "total": 0,
+          "fautes": 0,
+          "gagnants": 0,
+          "fp_generees": 0,
+          "fp_subies": 0
+        }
+      }
+    }
+  },
+  "_meta": {
+    "saved_at": "2026-04-03T02:35:37",
+    "autosave_version": 2
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "expo": {
+    "name": "PadelVisionRecorder",
+    "slug": "padelvision-recorder",
+    "version": "0.1.0",
+    "platforms": [
+      "android",
+      "ios"
+    ],
+    "orientation": "landscape",
+    "jsEngine": "hermes",
+    "entryPoint": "./App.js",
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "android": {
+      "package": "com.anonymous.padelvisionrecorder",
+      "adaptiveIcon": {
+        "backgroundColor": "#FFFFFF"
+      }
+    }
+  }
+}

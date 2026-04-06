@@ -1,0 +1,12 @@
+{
+  "templates": [
+    {
+      "name": "Équipe A vs Équipe B",
+      "joueurs": ["Joueur A1", "Joueur A2", "Joueur B1", "Joueur B2"]
+    },
+    {
+      "name": "Match amical",
+      "joueurs": ["Pierre", "Paul", "Jacques", "Jean"]
+    }
+  ]
+}

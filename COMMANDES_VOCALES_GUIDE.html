@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guide Complet des Commandes Vocales - Padel Stats</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%);
+            color: #1a202c;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 16px;
+            padding: 48px;
+            margin-bottom: 32px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+            text-align: center;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .header h1 {
+            font-size: 2.75em;
+            font-weight: 800;
+            margin-bottom: 16px;
+            color: #0f172a;
+            letter-spacing: -0.02em;
+        }
+
+        .header h1::before {
+            content: '🎤 ';
+            font-size: 0.85em;
+        }
+
+        .header .subtitle {
+            font-size: 1.125em;
+            color: #64748b;
+            font-weight: 500;
+            margin-bottom: 24px;
+        }
+
+        .stats-banner {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 32px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-radius: 12px;
+            min-width: 140px;
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: 800;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-label {
+            color: #64748b;
+            font-size: 0.875em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 4px;
+        }
+
+        .search-box {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 32px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 16px 20px;
+            font-size: 1em;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            transition: all 0.2s;
+            background: #f8fafc;
+        }
+
+        .search-box input::placeholder {
+            color: #94a3b8;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        }
+
+        .section {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 32px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .section-title {
+            font-size: 1.875em;
+            font-weight: 700;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #e2e8f0;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            letter-spacing: -0.01em;
+        }
+
+        .section-icon {
+            font-size: 1.1em;
+        }
+
+        .command-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+            margin-top: 25px;
+        }
+
+        .command-card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 24px;
+            transition: all 0.2s;
+            border: 1px solid #e2e8f0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .command-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #3b82f6, #2563eb);
+        }
+
+        .command-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(0,0,0,0.1);
+            border-color: #3b82f6;
+        }
+
+        .command-type {
+            display: inline-block;
+            background: #3b82f6;
+            color: white;
+            padding: 6px 16px;
+            border-radius: 6px;
+            font-size: 0.75em;
+            font-weight: 700;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .command-type.simple { background: #10b981; }
+        .command-type.faute-directe { background: #ef4444; }
+        .command-type.point-gagnant { background: #22c55e; }
+        .command-type.faute-provoquee { background: #f59e0b; color: white; }
+
+        .command-text {
+            font-size: 1.125em;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 12px;
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            background: #f8fafc;
+            padding: 12px 16px;
+            border-radius: 8px;
+            border-left: 3px solid #3b82f6;
+        }
+
+        .command-description {
+            color: #64748b;
+            font-size: 0.9375em;
+            margin-top: 12px;
+            line-height: 1.6;
+        }
+
+        .example-box {
+            background: #eff6ff;
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 16px;
+            border-left: 3px solid #3b82f6;
+        }
+
+        .example-title {
+            font-weight: 700;
+            color: #1e40af;
+            margin-bottom: 10px;
+            font-size: 0.9375em;
+        }
+
+        .example-item {
+            color: #475569;
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            margin: 6px 0;
+            padding-left: 16px;
+            font-size: 0.875em;
+        }
+
+        .hierarchy-section {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-radius: 12px;
+            padding: 28px;
+            margin: 24px 0;
+            border: 1px solid #fde047;
+        }
+
+        .hierarchy-title {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #92400e;
+            margin-bottom: 18px;
+            letter-spacing: -0.01em;
+        }
+
+        .hierarchy-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .hierarchy-step {
+            background: white;
+            padding: 16px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            border: 1px solid #fef3c7;
+        }
+
+        .step-number {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-label {
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 4px;
+        }
+
+        .step-examples {
+            color: #64748b;
+            font-size: 0.875em;
+        }
+
+        .warning-box {
+            background: #fef2f2;
+            border: 2px solid #fecaca;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 24px 0;
+        }
+
+        .warning-title {
+            color: #dc2626;
+            font-weight: 700;
+            font-size: 1.25em;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .warning-content {
+            color: #64748b;
+            line-height: 1.6;
+        }
+
+        .success-box {
+            background: #f0fdf4;
+            border: 2px solid #bbf7d0;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 24px 0;
+        }
+
+        .success-title {
+            color: #16a34a;
+            font-weight: 700;
+            font-size: 1.25em;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .footer {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            margin-top: 32px;
+            text-align: center;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .footer h3 {
+            color: #0f172a;
+            font-weight: 700;
+        }
+
+        .badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.875em;
+            font-weight: 600;
+            margin: 6px;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .command-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-banner {
+                flex-direction: column;
+            }
+        }
+
+        .toc {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 32px;
+            border: 1px solid #bfdbfe;
+        }
+
+        .toc-title {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #1e40af;
+            margin-bottom: 20px;
+            letter-spacing: -0.01em;
+        }
+
+        .toc-list {
+            list-style: none;
+        }
+
+        .toc-item {
+            padding: 12px 16px;
+            margin: 6px 0;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+
+        .toc-item:hover {
+            background: #1e40af;
+            color: white;
+            transform: translateX(8px);
+            border-left-color: #60a5fa;
+        }
+
+        .toc-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- HEADER -->
+        <div class="header">
+            <h1>🎤 Guide Complet des Commandes Vocales</h1>
+            <p class="subtitle">Annotation mains libres pour NanoApp Stat - Padel</p>
+            
+            <div class="stats-banner">
+                <div class="stat-item">
+                    <div class="stat-number">50+</div>
+                    <div class="stat-label">Commandes</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">10</div>
+                    <div class="stat-label">Types de coups</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">100%</div>
+                    <div class="stat-label">Mains libres</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">3</div>
+                    <div class="stat-label">Types d'actions</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SEARCH -->
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="🔍 Rechercher une commande... (ex: 'smash', 'service', 'faute')" oninput="searchCommands()">
+        </div>
+
+        <!-- TABLE OF CONTENTS -->
+        <div class="section toc">
+            <div class="toc-title">📑 Table des matières</div>
+            <ul class="toc-list">
+                <li class="toc-item"><a href="#intro" class="toc-link">📖 Introduction</a></li>
+                <li class="toc-item"><a href="#simple" class="toc-link">⚡ Commandes Simples</a></li>
+                <li class="toc-item"><a href="#fautes-directes" class="toc-link">🔴 Fautes Directes</a></li>
+                <li class="toc-item"><a href="#points-gagnants" class="toc-link">🏆 Points Gagnants (Hiérarchie)</a></li>
+                <li class="toc-item"><a href="#fautes-provoquees" class="toc-link">⚔️ Fautes Provoquées</a></li>
+                <li class="toc-item"><a href="#validation" class="toc-link">✅ Validation Stricte</a></li>
+            </ul>
+        </div>
+
+        <!-- INTRODUCTION -->
+        <div class="section" id="intro">
+            <h2 class="section-title">
+                <span class="section-icon">📖</span>
+                Introduction
+            </h2>
+            
+            <div class="hierarchy-section">
+                <div class="hierarchy-title">🎯 Principe de fonctionnement</div>
+                <p style="color: #2d3436; margin-bottom: 15px;">
+                    Toutes les commandes vocales commencent par le mot-clé <strong>"OK"</strong> suivi de l'instruction.
+                    Le système utilise une validation stricte pour garantir que tous les champs obligatoires sont remplis.
+                </p>
+                
+                <div class="hierarchy-steps">
+                    <div class="hierarchy-step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <div class="step-label">Mot-clé de réveil</div>
+                            <div class="step-examples">Dire "OK" pour activer l'écoute</div>
+                        </div>
+                    </div>
+                    
+                    <div class="hierarchy-step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <div class="step-label">Type d'action</div>
+                            <div class="step-examples">Point gagnant, Faute directe, Faute provoquée, etc.</div>
+                        </div>
+                    </div>
+                    
+                    <div class="hierarchy-step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <div class="step-label">Joueur(s)</div>
+                            <div class="step-examples">Nom du/des joueur(s) concerné(s)</div>
+                        </div>
+                    </div>
+                    
+                    <div class="hierarchy-step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <div class="step-label">Type de coup (si applicable)</div>
+                            <div class="step-examples">Service, Smash, Volée, Fond de court, etc.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="success-box">
+                <div class="success-title">✅ Avantages</div>
+                <div class="warning-content">
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Annotation sans interrompre la vidéo</li>
+                        <li>Validation stricte : aucun point incomplet</li>
+                        <li>Feedback visuel immédiat (bandeau rouge si erreur)</li>
+                        <li>Plus de 50 commandes disponibles</li>
+                        <li>Interface intuitive et naturelle</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- COMMANDES SIMPLES -->
+        <div class="section" id="simple">
+            <h2 class="section-title">
+                <span class="section-icon">⚡</span>
+                Commandes Simples
+            </h2>
+            
+            <div class="command-grid">
+                <div class="command-card">
+                    <span class="command-type simple">Lecture</span>
+                    <div class="command-text">OK lecture</div>
+                    <div class="command-description">Démarre la lecture de la vidéo</div>
+                </div>
+
+                <div class="command-card">
+                    <span class="command-type simple">Pause</span>
+                    <div class="command-text">OK pause</div>
+                    <div class="command-description">Met la vidéo en pause</div>
+                </div>
+
+                <div class="command-card">
+                    <span class="command-type simple">Annuler</span>
+                    <div class="command-text">OK annuler</div>
+                    <div class="command-description">Annule le dernier point enregistré</div>
+                </div>
+
+                <div class="command-card">
+                    <span class="command-type simple">Supprimer</span>
+                    <div class="command-text">OK supprimer</div>
+                    <div class="command-description">Supprime le dernier point (utile après une erreur)</div>
+                </div>
+
+                <div class="command-card">
+                    <span class="command-type simple">Sauvegarder</span>
+                    <div class="command-text">OK sauvegarder</div>
+                    <div class="command-description">Sauvegarde les annotations actuelles</div>
+                </div>
+
+                <div class="command-card">
+                    <span class="command-type simple">Rapport</span>
+                    <div class="command-text">OK générer rapport</div>
+                    <div class="command-description">Génère le rapport HTML des statistiques</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FAUTES DIRECTES -->
+        <div class="section" id="fautes-directes">
+            <h2 class="section-title">
+                <span class="section-icon">🔴</span>
+                Fautes Directes
+            </h2>
+            
+            <div class="warning-box">
+                <div class="warning-title">⚠️ Validation Requise</div>
+                <div class="warning-content">
+                    <strong>Champs obligatoires :</strong>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>✅ Type d'action : "faute directe"</li>
+                        <li>✅ Nom du joueur fautif</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="command-grid">
+                <div class="command-card">
+                    <span class="command-type faute-directe">Faute Directe</span>
+                    <div class="command-text">OK faute directe [Joueur]</div>
+                    <div class="example-box">
+                        <div class="example-title">💡 Exemples :</div>
+                        <div class="example-item">• OK faute directe Arnaud</div>
+                        <div class="example-item">• OK faute directe Pierre</div>
+                        <div class="example-item">• OK faute directe Thomas</div>
+                        <div class="example-item">• OK faute directe Lucas</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- POINTS GAGNANTS -->
+        <div class="section" id="points-gagnants">
+            <h2 class="section-title">
+                <span class="section-icon">🏆</span>
+                Points Gagnants (Hiérarchie des menus)
+            </h2>
+
+            <div class="warning-box">
+                <div class="warning-title">⚠️ Validation Requise</div>
+                <div class="warning-content">
+                    <strong>Champs obligatoires :</strong>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>✅ Type d'action : "point gagnant"</li>
+                        <li>✅ Nom du joueur</li>
+                        <li>✅ Type de coup</li>
+                        <li>⚠️ Si "balle haute" → Sous-type requis (smash/bandeja/víbora)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="hierarchy-section">
+                <div class="hierarchy-title">📋 Hiérarchie complète des coups</div>
+                <p style="color: #2d3436; margin-bottom: 10px;">
+                    Les commandes suivent exactement l'ordre du menu de l'application :
+                </p>
+            </div>
+
+            <!-- Menu 1: Service -->
+            <h3 style="margin: 30px 0 20px 0; color: #667eea; font-size: 1.5em;">
+                [Menu 1] 🎾 Service
+            </h3>
+            <div class="command-grid">
+                <div class="command-card">
+                    <span class="command-type point-gagnant">Service</span>
+                    <div class="command-text">OK point gagnant [Joueur] service</div>
+                    <div class="example-box">
+                        <div class="example-title">💡 Exemples :</div>
+                        <div class="example-item">• OK point gagnant Arnaud service</div>
+                        <div class="example-item">• OK point gagnant Pierre service</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Menu 2: Volée coup droit -->
+            <h3 style="margin: 30px 0 20px 0; color: #667eea; font-size: 1.5em;">
+                [Menu 2] 🎾 Volée Coup Droit
+            </h3>
+            <div class="command-grid">
+                <div class="command-card">
+                    <span class="command-type point-gagnant">Volée CD</span>
+                    <div class="command-text">OK point gagnant [Joueur] volée coup droit</div>
+                    <div class="example-box">
+                        <div class="example-title">💡 Exemples :</div>
+                        <div class="example-item">• OK point gagnant Arnaud volée coup droit</div>
+                        <div class="example-item">• OK point gagnant Thomas vollée coup droit</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Menu 3: Volée revers -->
+            <h3 style="margin: 30px 0 20px 0; color: #667eea; font-size: 1.5em;">
+                [Menu 3] 🎾 Volée Revers
+            </h3>
+            <div class="command-grid">
+                <div class="command-card">
+                    <span class="command-type point-gagnant">Volée Revers</span>
+                    <div class="command-text">OK point gagnant [Joueur] volée revers</div>
+                    <div class="example-box">
+                        <div class="example-title">💡 Exemples :</div>
+                        <div class="example-item">• OK point gagnant Pierre volée revers</div>
+                        <div class="example-item">• OK point gagnant Lucas vollée revers</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Menu 4: Volée balle haute -->
+            <h3 style="margin: 30px 0 20px 0; color: #667eea; font-size: 1.5em;">
+                [Menu 4] 🎾 Volée Balle Haute
+            </h3>
+            <div class="command-grid">
+                <div class="command-card">
+                    <span class="command-type point-gagnant">Volée BH</span>
+                    <div class="command-text">OK point gagnant [Joueur] volée balle haute</div>
+                    <div class="example-box">
+                        <div class="example-title">💡 Exemples :</div>
+                        <div class="example-item">• OK point gagnant Arnaud volée balle haute</div>
+                        <div class="example-item">• OK point gagnant Pierre vollée balle haute</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Menu 5: Fond de court coup droit -->
+            <h3 style="margin: 30px 0 20px 0; color: #667eea; font-size: 1.5em;">
+                [Menu 5] ⚡ Fond de Court Coup Droit
+            </h3>
+            <div class="command-grid">
+                <div class="command-card">
+                    <span class="command-type point-gagnant">Fond CD</span>
+                    <div class="command-text">OK point gagnant [Joueur] fond de court coup droit</div>
+                    <div class="example-box">
+                        <div class="example-title">💡 Exemples :</div>
+                        <div class="example-item">• OK point gagnant Thomas fond de court coup droit</div>
+                        <div class="example-item">• OK point gagnant Lucas fond de court coup droit</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Menu 6: Fond de court revers -->
+            <h3 style="margin: 30px 0 20px 0; color: #667eea; font-size: 1.5em;">
+                [Menu 6] ⚡ Fond de Court Revers
+            </h3>
+            <div class="command-grid">
+                <div class="command-card">
+                    <span class="command-type point-gagnant">Fond Revers</span>
+                    <div class="command-text">OK point gagnant [Joueur] fond de court revers</div>
+                    <div class="example-box">
+                        <div class="example-title">💡 Exemples :</div>
+                        <div class="example-item">• OK point gagnant Arnaud fond de court revers</div>
+                        <div class="example-item">• OK point gagnant Pierre fond de court revers</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Menu 7: Fond de court balle haute -->
+            <h3 style="margin: 30px 0 20px 0; color: #667eea; font-size: 1.5em;">
+                [Menu 7] ⚡ Fond de Court Balle Haute
+            </h3>
+            <div class="command-grid">
+                <div class="command-card">
+                    <span class="command-type point-gagnant">Fond BH</span>
+                    <div class="command-text">OK point gagnant [Joueur] fond de court balle haute</div>
+                    <div class="example-box">
+                        <div class="example-title">💡 Exemples :</div>
+                        <div class="example-item">• OK point gagnant Thomas fond de court balle haute</div>
+                        <div class="example-item">• OK point gagnant Lucas fond de court balle haute</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Menu 8: Balle haute (avec sous-menu) -->
+            <h3 style="margin: 30px 0 20px 0; color: #667eea; font-size: 1.5em;">
+                [Menu 8] 💥 Balle Haute (avec sous-types obligatoires)
+            </h3>
+            <div class="warning-box" style="margin-bottom: 20px;">
+                <div class="warning-title">⚠️ Attention</div>
+                <div class="warning-content">
+                    Pour "balle haute", vous DEVEZ préciser le sous-type :
+                    <strong>smash</strong>, <strong>bandeja</strong> ou <strong>víbora</strong>
+                </div>
+            </div>
+            <div class="command-grid">
+                <div class="command-card">
+                    <span class="command-type point-gagnant">Smash</span>
+                    <div class="command-text">OK point gagnant [Joueur] balle haute smash</div>
+                    <div class="example-box">
+                        <div class="example-title">💡 Exemples :</div>
+                        <div class="example-item">• OK point gagnant Arnaud balle haute smash</div>
+                        <div class="example-item">• OK point gagnant Pierre balle haute smash</div>
+                    </div>
+                </div>
+
+                <div class="command-card">
+                    <span class="command-type point-gagnant">Bandeja</span>
+                    <div class="command-text">OK point gagnant [Joueur] balle haute bandeja</div>
+                    <div class="example-box">
+                        <div class="example-title">💡 Exemples :</div>
+                        <div class="example-item">• OK point gagnant Thomas balle haute bandeja</div>
+                        <div class="example-item">• OK point gagnant Lucas balle haute bandeja</div>
+                    </div>
+                </div>
+
+                <div class="command-card">
+                    <span class="command-type point-gagnant">Víbora</span>
+                    <div class="command-text">OK point gagnant [Joueur] balle haute víbora</div>
+                    <div class="example-box">
+                        <div class="example-title">💡 Exemples :</div>
+                        <div class="example-item">• OK point gagnant Arnaud balle haute víbora</div>
+                        <div class="example-item">• OK point gagnant Pierre balle haute vibora</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Menu 9: Lob -->
+            <h3 style="margin: 30px 0 20px 0; color: #667eea; font-size: 1.5em;">
+                [Menu 9] 🌙 Lob
+            </h3>
+            <div class="command-grid">
+                <div class="command-card">
+                    <span class="command-type point-gagnant">Lob</span>
+                    <div class="command-text">OK point gagnant [Joueur] lob</div>
+                    <div class="example-box">
+                        <div class="example-title">💡 Exemples :</div>
+                        <div class="example-item">• OK point gagnant Arnaud lob</div>
+                        <div class="example-item">• OK point gagnant Pierre lob</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Menu 10: Amorti -->
+            <h3 style="margin: 30px 0 20px 0; color: #667eea; font-size: 1.5em;">
+                [Menu 0/10] 🎯 Amorti
+            </h3>
+            <div class="command-grid">
+                <div class="command-card">
+                    <span class="command-type point-gagnant">Amorti</span>
+                    <div class="command-text">OK point gagnant [Joueur] amorti</div>
+                    <div class="example-box">
+                        <div class="example-title">💡 Exemples :</div>
+                        <div class="example-item">• OK point gagnant Thomas amorti</div>
+                        <div class="example-item">• OK point gagnant Lucas amorti</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FAUTES PROVOQUÉES -->
+        <div class="section" id="fautes-provoquees">
+            <h2 class="section-title">
+                <span class="section-icon">⚔️</span>
+                Fautes Provoquées
+            </h2>
+
+            <div class="warning-box">
+                <div class="warning-title">⚠️ Validation Requise</div>
+                <div class="warning-content">
+                    <strong>Champs obligatoires :</strong>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>✅ Type d'action : "faute provoquée"</li>
+                        <li>✅ Joueur attaquant (qui provoque)</li>
+                        <li>✅ Joueur défenseur/fautif (qui subit)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="command-grid">
+                <div class="command-card">
+                    <span class="command-type faute-provoquee">Faute Provoquée</span>
+                    <div class="command-text">OK faute provoquée [Attaquant] [Défenseur]</div>
+                    <div class="command-description">
+                        L'ordre est important : d'abord l'attaquant (qui provoque), puis le défenseur (qui fait la faute)
+                    </div>
+                    <div class="example-box">
+                        <div class="example-title">💡 Exemples :</div>
+                        <div class="example-item">• OK faute provoquée Arnaud Pierre</div>
+                        <div class="example-item">• OK faute provoquée Thomas Lucas</div>
+                        <div class="example-item">• OK faute provoquée Pierre Arnaud</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VALIDATION STRICTE -->
+        <div class="section" id="validation">
+            <h2 class="section-title">
+                <span class="section-icon">✅</span>
+                Validation Stricte
+            </h2>
+
+            <div class="success-box">
+                <div class="success-title">✅ Commandes VALIDES (acceptées)</div>
+                <div class="warning-content">
+                    <div style="font-family: 'Courier New', monospace; margin-top: 10px;">
+                        <div style="margin: 5px 0; color: #28a745;">✓ OK point gagnant Arnaud service</div>
+                        <div style="margin: 5px 0; color: #28a745;">✓ OK point gagnant Pierre balle haute smash</div>
+                        <div style="margin: 5px 0; color: #28a745;">✓ OK point gagnant Thomas fond de court coup droit</div>
+                        <div style="margin: 5px 0; color: #28a745;">✓ OK faute directe Lucas</div>
+                        <div style="margin: 5px 0; color: #28a745;">✓ OK faute provoquée Arnaud Pierre</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <div class="warning-title">❌ Commandes INVALIDES (rejetées)</div>
+                <div class="warning-content">
+                    Ces commandes seront <strong>bloquées</strong> et afficheront un <strong>bandeau rouge</strong> :
+                    <div style="font-family: 'Courier New', monospace; margin-top: 10px;">
+                        <div style="margin: 8px 0;">
+                            <div style="color: #dc3545;">✗ OK point gagnant Arnaud</div>
+                            <div style="color: #666; font-size: 0.9em; margin-left: 20px;">→ Manque : TYPE DE COUP</div>
+                        </div>
+                        <div style="margin: 8px 0;">
+                            <div style="color: #dc3545;">✗ OK point gagnant balle haute</div>
+                            <div style="color: #666; font-size: 0.9em; margin-left: 20px;">→ Manque : JOUEUR + SOUS-TYPE</div>
+                        </div>
+                        <div style="margin: 8px 0;">
+                            <div style="color: #dc3545;">✗ OK point gagnant Arnaud balle haute</div>
+                            <div style="color: #666; font-size: 0.9em; margin-left: 20px;">→ Manque : SOUS-TYPE (smash/bandeja/víbora)</div>
+                        </div>
+                        <div style="margin: 8px 0;">
+                            <div style="color: #dc3545;">✗ OK faute provoquée Arnaud</div>
+                            <div style="color: #666; font-size: 0.9em; margin-left: 20px;">→ Manque : DÉFENSEUR</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hierarchy-section">
+                <div class="hierarchy-title">🔄 Que faire en cas d'erreur ?</div>
+                <div class="hierarchy-steps">
+                    <div class="hierarchy-step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <div class="step-label">Bandeau rouge apparaît</div>
+                            <div class="step-examples">Indique les champs manquants</div>
+                        </div>
+                    </div>
+                    
+                    <div class="hierarchy-step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <div class="step-label">Vidéo en pause automatique</div>
+                            <div class="step-examples">Pour vous laisser le temps de corriger</div>
+                        </div>
+                    </div>
+                    
+                    <div class="hierarchy-step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <div class="step-label">Dire "OK supprimer"</div>
+                            <div class="step-examples">Pour annuler la tentative</div>
+                        </div>
+                    </div>
+                    
+                    <div class="hierarchy-step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <div class="step-label">Répéter la commande complète</div>
+                            <div class="step-examples">Avec tous les champs requis</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="footer">
+            <h3 style="margin-bottom: 20px; color: #667eea;">📌 Récapitulatif des catégories</h3>
+            <div>
+                <span class="badge">⚡ 6 Commandes Simples</span>
+                <span class="badge">🔴 Fautes Directes</span>
+                <span class="badge">🏆 10 Types de coups</span>
+                <span class="badge">⚔️ Fautes Provoquées</span>
+                <span class="badge">✅ Validation Stricte</span>
+            </div>
+            <p style="margin-top: 30px; color: #666;">
+                <strong>NanoApp Stat</strong> - Annotation vocale pour Padel<br>
+                Version 1.0.0 - Décembre 2025
+            </p>
+        </div>
+    </div>
+
+    <script>
+        function searchCommands() {
+            const input = document.getElementById('searchInput').value.toLowerCase();
+            const cards = document.querySelectorAll('.command-card');
+            
+            cards.forEach(card => {
+                const text = card.textContent.toLowerCase();
+                if (text.includes(input)) {
+                    card.style.display = 'block';
+                    card.style.animation = 'fadeIn 0.3s';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        // Smooth scroll pour les liens de la table des matières
+        document.querySelectorAll('.toc-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>🎤 Commandes Vocales — Padel Stat</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0f1117; color: #e8e8e8; padding: 24px; }
+  h1 { font-size: 1.6rem; color: #fff; margin-bottom: 6px; }
+  .subtitle { color: #888; font-size: 0.9rem; margin-bottom: 28px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; }
+  .card { background: #1a1d27; border-radius: 12px; padding: 18px 20px; border-left: 4px solid #444; }
+  .card.green  { border-color: #2ecc71; }
+  .card.red    { border-color: #e74c3c; }
+  .card.orange { border-color: #f39c12; }
+  .card.blue   { border-color: #3498db; }
+  .card.purple { border-color: #9b59b6; }
+  .card.teal   { border-color: #1abc9c; }
+  .card h2 { font-size: 0.82rem; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 12px; opacity: .7; }
+  table { width: 100%; border-collapse: collapse; }
+  td { padding: 5px 4px; font-size: 0.88rem; vertical-align: top; }
+  td:first-child { width: 52%; }
+  .cmd { background: #252836; border-radius: 6px; padding: 3px 8px; font-family: monospace; color: #f0e68c; display: inline-block; }
+  .arrow { color: #555; padding: 0 6px; }
+  .result { color: #aaa; font-size: 0.82rem; }
+  .badge { display: inline-block; font-size: 0.7rem; padding: 1px 6px; border-radius: 10px; margin-left: 4px; vertical-align: middle; }
+  .badge.opt { background: #2a2a3a; color: #888; }
+  .badge.req { background: #1e3a1e; color: #2ecc71; }
+  .rule { margin-top: 14px; padding-top: 12px; border-top: 1px solid #2a2d3a; font-size: 0.8rem; color: #888; line-height: 1.6; }
+  .rule b { color: #ccc; }
+  .ptt { background: #1a2535; border: 1px dashed #3498db; border-radius: 8px; padding: 12px 14px; margin-bottom: 22px; font-size: 0.88rem; line-height: 1.7; }
+  .ptt strong { color: #3498db; }
+  kbd { background: #252836; border: 1px solid #444; border-radius: 4px; padding: 1px 7px; font-size: 0.82rem; color: #f0e68c; }
+</style>
+</head>
+<body>
+
+<h1>🎤 Commandes Vocales — Padel Stat</h1>
+<p class="subtitle">Cheat sheet · PTT = touche <kbd>V</kbd> · Pas de mot de réveil requis</p>
+
+<div class="ptt">
+  <strong>Mode PTT (recommandé)</strong> &nbsp;·&nbsp;
+  <kbd>V</kbd> → parler → <kbd>V</kbd> → transcription automatique → point ajouté si reconnu<br>
+  🟩 <b>STAT RECONNUE</b> = commande valide et point enregistré &nbsp;|&nbsp;
+  🟥 <b>NON RECONNUE</b> = champ manquant (cliquer <em>🔍 REVIEW VOCAL</em> pour corriger)
+</div>
+
+<div class="grid">
+
+  <!-- FAUTE DIRECTE -->
+  <div class="card green">
+    <h2>⚠️ Faute Directe</h2>
+    <table>
+      <tr><td><span class="cmd">faute directe Arnaud</span></td><td class="result">faute → Arnaud</td></tr>
+      <tr><td><span class="cmd">faute directe Pierre</span></td><td class="result">faute → Pierre</td></tr>
+      <tr><td><span class="cmd">faute directe Thomas</span></td><td class="result">faute → Thomas</td></tr>
+      <tr><td><span class="cmd">faute directe Lucas</span></td><td class="result">faute → Lucas</td></tr>
+    </table>
+    <div class="rule">Obligatoire : <b>type de point</b> + <b>joueur</b><br>Coup optionnel ici.</div>
+  </div>
+
+  <!-- POINT GAGNANT SERVICE / LOB -->
+  <div class="card teal">
+    <h2>🏆 Point Gagnant — Service &amp; Lob</h2>
+    <table>
+      <tr><td><span class="cmd">point gagnant Arnaud service</span></td><td class="result">✅</td></tr>
+      <tr><td><span class="cmd">point gagnant Pierre service</span></td><td class="result">✅</td></tr>
+      <tr><td><span class="cmd">point gagnant Thomas lob</span></td><td class="result">✅</td></tr>
+      <tr><td><span class="cmd">point gagnant Lucas lob</span></td><td class="result">✅</td></tr>
+    </table>
+    <div class="rule">Obligatoire : <b>joueur</b> + <b>zone de frappe</b><br>Service et Lob = terminaux (pas de technique).</div>
+  </div>
+
+  <!-- POINT GAGNANT VOLEE -->
+  <div class="card teal">
+    <h2>🏆 Point Gagnant — Volée</h2>
+    <table>
+      <tr><td><span class="cmd">point gagnant Arnaud volée coup droit</span></td><td></td></tr>
+      <tr><td><span class="cmd">point gagnant Pierre volée revers</span></td><td></td></tr>
+      <tr><td><span class="cmd">point gagnant Thomas volée balle haute smash</span></td><td></td></tr>
+      <tr><td><span class="cmd">point gagnant Lucas volée balle haute bandeja</span></td><td></td></tr>
+      <tr><td><span class="cmd">point gagnant Arnaud volée balle haute víbora</span></td><td></td></tr>
+    </table>
+    <div class="rule">Si balle haute → sous-type <b>smash / bandeja / víbora</b> obligatoire.</div>
+  </div>
+
+  <!-- POINT GAGNANT FOND DE COURT -->
+  <div class="card teal">
+    <h2>🏆 Point Gagnant — Fond de court</h2>
+    <table>
+      <tr><td><span class="cmd">point gagnant Arnaud fond de court coup droit</span></td><td></td></tr>
+      <tr><td><span class="cmd">point gagnant Pierre fond de court revers</span></td><td></td></tr>
+      <tr><td><span class="cmd">point gagnant Thomas fond de court balle haute smash</span></td><td></td></tr>
+      <tr><td><span class="cmd">point gagnant Lucas fond de court balle haute bandeja</span></td><td></td></tr>
+      <tr><td><span class="cmd">point gagnant Arnaud fond de court balle haute víbora</span></td><td></td></tr>
+    </table>
+    <div class="rule">Même logique que volée.</div>
+  </div>
+
+  <!-- FAUTE PROVOQUEE -->
+  <div class="card orange">
+    <h2>🎯 Faute Provoquée</h2>
+    <table>
+      <tr><td><span class="cmd">faute provoquée Arnaud service Pierre</span></td><td class="result">Arnaud → Pierre</td></tr>
+      <tr><td><span class="cmd">faute provoquée Thomas volée coup droit Lucas</span></td><td></td></tr>
+      <tr><td><span class="cmd">faute provoquée Pierre fond de court revers Thomas</span></td><td></td></tr>
+      <tr><td><span class="cmd">faute provoquée Lucas volée balle haute smash Arnaud</span></td><td></td></tr>
+    </table>
+    <div class="rule">Format : <b>faute provoquée [attaquant] [coup] [défenseur]</b><br>Obligatoire : attaquant + défenseur.</div>
+  </div>
+
+  <!-- CONTROLE VIDEO -->
+  <div class="card blue">
+    <h2>🎬 Contrôle Vidéo</h2>
+    <table>
+      <tr><td><span class="cmd">pause</span></td><td class="result">⏸ pause</td></tr>
+      <tr><td><span class="cmd">lecture</span></td><td class="result">▶ play</td></tr>
+      <tr><td><span class="cmd">retour 10</span></td><td class="result">⏮ −10 s</td></tr>
+      <tr><td><span class="cmd">avance 10</span></td><td class="result">⏭ +10 s</td></tr>
+      <tr><td><span class="cmd">retour 2</span></td><td class="result">⏮ −2 s</td></tr>
+      <tr><td><span class="cmd">avance 2</span></td><td class="result">⏭ +2 s</td></tr>
+      <tr><td><span class="cmd">point précédent</span></td><td class="result">◀◀ annotation préc.</td></tr>
+      <tr><td><span class="cmd">point suivant</span></td><td class="result">▶▶ annotation suiv.</td></tr>
+      <tr><td><span class="cmd">vitesse lente</span></td><td class="result">🐢 ×0.5</td></tr>
+      <tr><td><span class="cmd">vitesse normale</span></td><td class="result">▶ ×1</td></tr>
+      <tr><td><span class="cmd">vitesse rapide</span></td><td class="result">🚀 ×2</td></tr>
+    </table>
+  </div>
+
+  <!-- STATS ET GESTION -->
+  <div class="card purple">
+    <h2>📊 Stats &amp; Gestion</h2>
+    <table>
+      <tr><td><span class="cmd">review vocal</span></td><td class="result">🔍 ouvre review</td></tr>
+      <tr><td><span class="cmd">stats</span></td><td class="result">📊 affiche stats</td></tr>
+      <tr><td><span class="cmd">annuler</span></td><td class="result">🗑 dernier point</td></tr>
+      <tr><td><span class="cmd">sauvegarder</span></td><td class="result">💾 sauvegarde</td></tr>
+      <tr><td><span class="cmd">générer rapport</span></td><td class="result">📄 rapport HTML</td></tr>
+    </table>
+  </div>
+
+  <!-- VARIANTES PHONETIQUES -->
+  <div class="card red">
+    <h2>🔊 Variantes reconnues automatiquement</h2>
+    <table>
+      <tr><td><span class="cmd">volets / volet / volley</span></td><td class="result">→ volée</td></tr>
+      <tr><td><span class="cmd">ball au / ballotte</span></td><td class="result">→ balle haute</td></tr>
+      <tr><td><span class="cmd">fond de cour / fin de cours</span></td><td class="result">→ fond de court</td></tr>
+      <tr><td><span class="cmd">franco rover</span></td><td class="result">→ fond de court revers</td></tr>
+      <tr><td><span class="cmd">faut / foot / ford</span></td><td class="result">→ faute</td></tr>
+      <tr><td><span class="cmd">foot provoquer</span></td><td class="result">→ faute provoquée</td></tr>
+      <tr><td><span class="cmd">lobe / l'aube</span></td><td class="result">→ lob</td></tr>
+      <tr><td><span class="cmd">rêveur / rover</span></td><td class="result">→ revers</td></tr>
+      <tr><td><span class="cmd">smach / smas</span></td><td class="result">→ smash</td></tr>
+    </table>
+    <div class="rule">Le normaliseur corrige automatiquement à la transcription.</div>
+  </div>
+
+</div>
+
+<p style="margin-top:28px; color:#444; font-size:0.78rem;">Padel Stat · 1 mars 2026 · PTT mode</p>
+</body>
+</html>

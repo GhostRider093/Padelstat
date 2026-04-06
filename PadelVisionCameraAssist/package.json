@@ -1,0 +1,22 @@
+{
+  "name": "PadelVisionCameraAssist",
+  "version": "0.1.0",
+  "private": true,
+  "main": "App.js",
+  "scripts": {
+    "start": "npx expo start",
+    "android": "npx expo run:android",
+    "ios": "npx expo run:ios",
+    "dev": "npx expo start --dev-client"
+  },
+  "dependencies": {
+    "expo": "^latest",
+    "react": "^18.2.0",
+    "react-native": "^0.74.4",
+    "expo-camera": "^latest",
+    "expo-sensors": "^latest",
+    "expo-speech": "^latest",
+    "react-native-opencv4": "^latest",
+    "base64-arraybuffer": "^1.0.2"
+  }
+}

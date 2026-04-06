@@ -1,0 +1,19 @@
+edge-tts
+opencv-python==4.9.0.80
+numpy==1.26.4
+Pillow==10.2.0
+python-vlc==3.0.20123
+
+# RAG System
+chromadb>=0.4.22
+PyPDF2>=3.0.1
+requests>=2.31.0
+
+# Commandes vocales (optionnel)
+# Installer avec: pip install SpeechRecognition pyaudio
+SpeechRecognition>=3.10.0  # Windows Speech Recognition (léger, instantané)
+pyaudio>=0.2.14  # Capture audio microphone
+
+# UI (Tkinter modernisé)
+ttkbootstrap>=1.10.1
+mcp>=1.0.0

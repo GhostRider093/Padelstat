@@ -1,0 +1,58 @@
+# Exemple de fichier .gitignore pour PFPADEL
+
+# Fichiers Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+
+# Fichiers de données générés
+data/*.json
+data/*.html
+data/screens/*.png
+
+# Fichiers IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environnement virtuel
+.venv/
+
+# Données lourdes (vidéos, JSONL)
+data/
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.jsonl
+
+# Modèles IA locaux
+models/
+*.pt
+*.pth
+*.bin
+*.gguf
+*.safetensors
+
+# Config locale (contient des chemins personnels)
+config.json
+
+# Backups locaux
+backup/
+
+# Build
+build/
+dist/
+*.egg-info/
+*.exe
+*.spec

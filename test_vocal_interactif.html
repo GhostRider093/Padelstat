@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎤 Test Commandes Vocales - NanoApp Stat</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        
+        .stat-box {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .stat-label {
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .category {
+            margin-bottom: 30px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            background: #fafafa;
+        }
+        
+        .category-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+        
+        .category-icon {
+            font-size: 2em;
+            margin-right: 15px;
+        }
+        
+        .category-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+            flex: 1;
+        }
+        
+        .category-count {
+            background: #667eea;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        
+        .command-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 10px;
+        }
+        
+        .command-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            background: white;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .command-item:hover {
+            border-color: #667eea;
+            transform: translateX(5px);
+        }
+        
+        .command-item.tested {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+        
+        .command-item.failed {
+            background: #f8d7da;
+            border-color: #dc3545;
+        }
+        
+        .checkbox {
+            width: 24px;
+            height: 24px;
+            border: 2px solid #999;
+            border-radius: 4px;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .command-item.tested .checkbox {
+            background: #28a745;
+            border-color: #28a745;
+        }
+        
+        .command-item.failed .checkbox {
+            background: #dc3545;
+            border-color: #dc3545;
+        }
+        
+        .checkbox-icon {
+            color: white;
+            font-size: 16px;
+            display: none;
+        }
+        
+        .command-item.tested .checkbox-icon.check,
+        .command-item.failed .checkbox-icon.cross {
+            display: block;
+        }
+        
+        .command-text {
+            flex: 1;
+            font-size: 0.95em;
+            color: #333;
+        }
+        
+        .reset-btn {
+            display: block;
+            margin: 30px auto 0;
+            padding: 15px 40px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .reset-btn:hover {
+            background: #c82333;
+            transform: scale(1.05);
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #e0e0e0;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745, #20c997);
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎤 Test Commandes Vocales</h1>
+        <p class="subtitle">Cliquez sur chaque commande après l'avoir testée vocalement (SANS "OK", SANS "le/la")</p>
+        
+        <div class="stats">
+            <div class="stat-box">
+                <div class="stat-value" id="totalCommands">0</div>
+                <div class="stat-label">Total Commandes</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" style="color: #28a745;" id="testedCount">0</div>
+                <div class="stat-label">✅ Testées</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" style="color: #ffc107;" id="remainingCount">0</div>
+                <div class="stat-label">⏳ Restantes</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" style="color: #667eea;" id="progressPercent">0%</div>
+                <div class="stat-label">Progression</div>
+            </div>
+        </div>
+        
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressBar" style="width: 0%;">
+                <span id="progressText">0%</span>
+            </div>
+        </div>
+        
+        <!-- CATÉGORIE 1: POINT -->
+        <div class="category">
+            <div class="category-header">
+                <span class="category-icon">🏆</span>
+                <span class="category-title">POINT (joueur + type de coup)</span>
+                <span class="category-count" id="count-point">0/0</span>
+            </div>
+            <div class="command-list" id="commands-point"></div>
+        </div>
+        
+        <!-- CATÉGORIE 2: FAUTE -->
+        <div class="category">
+            <div class="category-header">
+                <span class="category-icon">⚠️</span>
+                <span class="category-title">FAUTE (joueur + type de coup)</span>
+                <span class="category-count" id="count-faute">0/0</span>
+            </div>
+            <div class="command-list" id="commands-faute"></div>
+        </div>
+        
+        <!-- CATÉGORIE 3: FAUTE PROVOQUÉE -->
+        <div class="category">
+            <div class="category-header">
+                <span class="category-icon">🎯</span>
+                <span class="category-title">FAUTE PROVOQUÉE (provoquant + subit + type de coup)</span>
+                <span class="category-count" id="count-faute-provoquee">0/0</span>
+            </div>
+            <div class="command-list" id="commands-faute-provoquee"></div>
+        </div>
+        
+        <button class="reset-btn" onclick="resetAll()">🔄 Tout Réinitialiser</button>
+    </div>
+    
+    <script>
+        // Liste des joueurs
+        const joueurs = ['joueur1', 'joueur2'];
+        
+        // LES 8 TYPES DE COUPS
+        const typesCoups = [
+            'service',
+            'volée coup droit',
+            'volée revers',
+            'volée balle haute',
+            'fond de court coup droit',
+            'fond de court revers',
+            'fond de court balle haute',
+            'lob'
+        ];
+        
+        // Définition des commandes par catégorie
+        const commands = {
+            point: [],
+            faute: [],
+            fauteProvoquee: []
+        };
+        
+        // Générer les commandes POINT (joueur + type de coup)
+        joueurs.forEach(joueur => {
+            typesCoups.forEach(coup => {
+                commands.point.push(`point ${joueur} ${coup}`);
+            });
+        });
+        
+        // Générer les commandes FAUTE (joueur + type de coup)
+        joueurs.forEach(joueur => {
+            typesCoups.forEach(coup => {
+                commands.faute.push(`faute ${joueur} ${coup}`);
+            });
+        });
+        
+        // Générer les commandes FAUTE PROVOQUÉE (joueur1 + joueur2 + type de coup)
+        for (let i = 0; i < joueurs.length; i++) {
+            for (let j = 0; j < joueurs.length; j++) {
+                if (i !== j) {
+                    const provoquant = joueurs[i];
+                    const subit = joueurs[j];
+                    
+                    typesCoups.forEach(coup => {
+                        commands.fauteProvoquee.push(`faute provoquée ${provoquant} ${subit} ${coup}`);
+                    });
+                }
+            }
+        }
+        
+        // Créer les éléments HTML
+        function createCommandItems() {
+            ['point', 'faute', 'fauteProvoquee', 'controle'].forEach(category => {
+                const containerId = category === 'fauteProvoquee' ? 'commands-faute-provoquee' : `commands-${category}`;
+                const container = document.getElementById(containerId);
+                const cmds = commands[category];
+                
+                cmds.forEach((cmd, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'command-item';
+                    item.dataset.category = category;
+                    item.dataset.index = index;
+                    item.innerHTML = `
+                        <div class="checkbox">
+                            <span class="checkbox-icon check">✓</span>
+                            <span class="checkbox-icon cross">✗</span>
+                        </div>
+                        <div class="command-text">${cmd}</div>
+                    `;
+                    
+                    item.onclick = () => toggleCommand(category, index);
+                    container.appendChild(item);
+                });
+                
+                updateCategoryCount(category);
+            });
+            
+            updateStats();
+        }
+        
+        function toggleCommand(category, index) {
+            const containerId = category === 'fauteProvoquee' ? 'commands-faute-provoquee' : `commands-${category}`;
+            const container = document.getElementById(containerId);
+            const item = container.children[index];
+            
+            if (item.classList.contains('tested')) {
+                item.classList.remove('tested');
+                item.classList.add('failed');
+            } else if (item.classList.contains('failed')) {
+                item.classList.remove('failed');
+            } else {
+                item.classList.add('tested');
+            }
+            
+            updateCategoryCount(category);
+            updateStats();
+        }
+        
+        function updateCategoryCount(category) {
+            const containerId = category === 'fauteProvoquee' ? 'commands-faute-provoquee' : `commands-${category}`;
+            const countId = category === 'fauteProvoquee' ? 'count-faute-provoquee' : `count-${category}`;
+            
+            const container = document.getElementById(containerId);
+            const total = container.children.length;
+            const tested = Array.from(container.children).filter(item => item.classList.contains('tested')).length;
+            
+            document.getElementById(countId).textContent = `${tested}/${total}`;
+        }
+        
+        function updateStats() {
+            const allItems = document.querySelectorAll('.command-item');
+            const total = allItems.length;
+            const tested = document.querySelectorAll('.command-item.tested').length;
+            const remaining = total - tested;
+            const percent = total > 0 ? Math.round((tested / total) * 100) : 0;
+            
+            document.getElementById('totalCommands').textContent = total;
+            document.getElementById('testedCount').textContent = tested;
+            document.getElementById('remainingCount').textContent = remaining;
+            document.getElementById('progressPercent').textContent = percent + '%';
+            
+            const progressBar = document.getElementById('progressBar');
+            progressBar.style.width = percent + '%';
+            document.getElementById('progressText').textContent = percent + '%';
+        }
+        
+        function resetAll() {
+            if (confirm('Réinitialiser tous les tests ?')) {
+                document.querySelectorAll('.command-item').forEach(item => {
+                    item.classList.remove('tested', 'failed');
+                });
+                
+                ['point', 'faute', 'fauteProvoquee'].forEach(updateCategoryCount);
+                updateStats();
+            }
+        }
+        
+        // Initialiser au chargement
+        createCommandItems();
+    </script>
+</body>
+</html>
