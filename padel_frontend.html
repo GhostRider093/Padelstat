@@ -551,6 +551,34 @@ header {
 }
 .modal-panel.back { animation: panel-back .2s ease; }
 
+/* ═══ NUMPAD GRID ═══ */
+.numpad-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.numpad-2col { grid-template-columns: repeat(2, 1fr); }
+.numpad-cell {
+  position: relative;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 4px; padding: 16px 8px 12px;
+  background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+  border-radius: var(--radius-md); color: var(--text-primary);
+  cursor: pointer; transition: all .15s; text-align: center; min-height: 78px;
+}
+.numpad-cell:hover  { border-color: var(--accent); background: rgba(0,230,118,0.10); transform: scale(1.04); }
+.numpad-cell:active { transform: scale(.97); }
+.numpad-num {
+  position: absolute; top: 5px; left: 7px;
+  font-size: .62rem; font-weight: 900; font-family: var(--font-mono);
+  background: rgba(255,255,255,0.09); border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 5px; padding: 1px 5px; color: var(--accent); line-height: 1.4;
+}
+.numpad-emoji { font-size: 1.45rem; line-height: 1; }
+.numpad-label { font-size: .73rem; font-weight: 700; line-height: 1.2; }
+.numpad-sub   { font-size: .62rem; color: var(--text-muted); }
+
 /* Player pick grid */
 .player-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 4px; }
 .player-pick-btn {
@@ -652,6 +680,113 @@ header {
 .name-input:focus { border-color: var(--accent); }
 .team-sep { grid-column: 1/-1; height: 1px; background: var(--border); margin: 4px 0; }
 
+/* ═══ LOGIN SCREEN ═══ */
+#loginScreen {
+  position: fixed; inset: 0; z-index: 9999;
+  background: var(--bg-deep);
+  display: flex; align-items: center; justify-content: center;
+}
+#loginScreen::before {
+  content: '';
+  position: fixed; inset: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 10%, rgba(0,230,118,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(0,176,255,0.07) 0%, transparent 60%);
+  pointer-events: none;
+}
+.login-box {
+  position: relative; z-index: 1;
+  background: rgba(13,17,23,0.95); border: 1px solid var(--border-bright);
+  border-radius: var(--radius-xl); padding: 44px 48px;
+  width: 380px; max-width: 94vw;
+  box-shadow: 0 32px 80px rgba(0,0,0,.8);
+}
+.login-logo {
+  display: flex; align-items: center; gap: 12px;
+  justify-content: center; margin-bottom: 32px;
+}
+.login-logo-icon {
+  width: 48px; height: 48px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  border-radius: 14px; display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem; box-shadow: 0 0 30px rgba(0,230,118,0.35);
+}
+.login-logo-text { font-size: 1.5rem; font-weight: 900; letter-spacing: -0.5px; }
+.login-logo-text span { color: var(--accent); }
+.login-title { font-size: .8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; color: var(--text-muted); text-align: center; margin-bottom: 28px; }
+.login-field { margin-bottom: 16px; }
+.login-field label { display: block; font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text-secondary); margin-bottom: 7px; }
+.login-field input {
+  width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+  border-radius: var(--radius-md); padding: 12px 14px;
+  color: var(--text-primary); font-size: .88rem; font-family: var(--font);
+  outline: none; transition: border-color .2s;
+}
+.login-field input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,230,118,.1); }
+.login-error {
+  display: none; margin-bottom: 14px;
+  background: rgba(255,71,87,.12); border: 1px solid rgba(255,71,87,.4);
+  border-radius: var(--radius-sm); padding: 9px 13px;
+  font-size: .78rem; color: var(--danger);
+}
+.login-error.show { display: block; }
+.login-btn {
+  width: 100%; padding: 13px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  border: none; border-radius: var(--radius-md);
+  color: #000; font-size: .9rem; font-weight: 800;
+  cursor: pointer; transition: transform .15s, box-shadow .15s;
+  box-shadow: 0 0 24px rgba(0,230,118,.3); margin-top: 6px;
+}
+.login-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,230,118,.5); }
+.login-btn:active { transform: translateY(0); }
+
+/* ═══ MODAL PARTIES ═══ */
+#matchesModal .modal { max-width: 520px; width: 95%; max-height: 80vh; overflow-y: auto; }
+.matches-list { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+.match-row {
+  display: flex; align-items: center; gap: 10px;
+  background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+  border-radius: var(--radius-md); padding: 10px 12px; cursor: pointer;
+  transition: all .15s;
+}
+.match-row:hover { border-color: var(--accent); background: rgba(0,230,118,0.07); }
+.match-row-info { flex: 1; min-width: 0; }
+.match-row-name { font-weight: 700; font-size: .88rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.match-row-meta { font-size: .68rem; color: var(--text-muted); margin-top: 2px; }
+.match-row-del {
+  background: rgba(239,68,68,.12); border: 1px solid rgba(239,68,68,.3);
+  color: #ef4444; border-radius: 6px; padding: 4px 9px;
+  font-size: .73rem; cursor: pointer; flex-shrink: 0; transition: all .15s;
+}
+.match-row-del:hover { background: rgba(239,68,68,.25); }
+.matches-empty { text-align: center; color: var(--text-muted); font-size: .83rem; padding: 24px 0; }
+.new-match-row { display: flex; gap: 8px; margin-top: 4px; }
+.new-match-input {
+  flex: 1; background: rgba(255,255,255,0.06); border: 1px solid var(--border);
+  border-radius: var(--radius-md); color: var(--text-primary);
+  padding: 9px 12px; font-size: .83rem;
+}
+.new-match-input:focus { outline: none; border-color: var(--accent); }
+.import-json-label {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+  border-radius: var(--radius-md); padding: 10px 14px;
+  cursor: pointer; transition: all .15s; font-size: .82rem; color: var(--text-muted);
+  margin-top: 10px;
+}
+.import-json-label:hover { border-color: var(--accent); color: var(--text-primary); }
+
+/* ═══ AUTOSAVE BADGE ═══ */
+#autosaveBadge {
+  position: fixed; bottom: 14px; left: 14px; z-index: 800;
+  background: rgba(13,17,23,.9); border: 1px solid var(--border);
+  border-radius: 20px; padding: 5px 11px;
+  font-size: .68rem; color: var(--text-muted); display: flex; align-items: center; gap: 6px;
+  transition: opacity .4s;
+}
+#autosaveBadge.saved { border-color: rgba(0,230,118,.35); color: var(--accent); }
+
 /* ═══ TOASTS ═══ */
 #toast-container {
   position: fixed; top: 20px; right: 20px;
@@ -679,6 +814,75 @@ header {
 
 @keyframes count-up { from{opacity:0;transform:scale(.5)} to{opacity:1;transform:scale(1)} }
 
+/* ═══ TAILLES D'ÉCRAN ═══ */
+/* Mode COMPACT (tablette / petit écran) */
+body.sz-compact { font-size: 13px; }
+body.sz-compact .tab-content  { padding: 12px 14px 16px; }
+body.sz-compact header         { padding: 10px 14px 0; }
+body.sz-compact .tab-bar       { padding: 10px 14px 0; }
+body.sz-compact .stats-bar     { gap: 8px; margin-bottom: 12px; }
+body.sz-compact .stat-pill     { padding: 8px 10px; gap: 8px; }
+body.sz-compact .stat-pill-icon{ width: 28px; height: 28px; font-size: 1rem; }
+body.sz-compact .stat-num      { font-size: 1.1rem; }
+body.sz-compact .players-grid  { grid-template-columns: repeat(2,1fr); gap: 10px; }
+body.sz-compact .charts-grid   { grid-template-columns: 1fr; }
+body.sz-compact .terrain-grid  { grid-template-columns: 1fr; }
+body.sz-compact .annotation-bar{ padding: 8px 12px; gap: 6px; }
+body.sz-compact .anno-btn      { padding: 5px 10px; font-size: .72rem; }
+body.sz-compact .modal         { min-width: 320px; }
+body.sz-compact .team-score    { font-size: 1.6rem; }
+body.sz-compact .logo          { font-size: 1rem; }
+
+/* Mode NORMAL (défaut) — rien à surcharger */
+
+/* Mode LARGE (grand écran) */
+body.sz-large .tab-content  { padding: 24px 40px 32px; }
+body.sz-large header         { padding: 20px 40px 0; }
+body.sz-large .tab-bar       { padding: 18px 40px 0; }
+body.sz-large .players-grid  { grid-template-columns: repeat(4,1fr); gap: 20px; }
+body.sz-large .charts-grid   { grid-template-columns: 1fr 1fr; gap: 20px; }
+body.sz-large .terrain-grid  { grid-template-columns: 1fr 420px; }
+body.sz-large .stats-bar     { gap: 16px; margin-bottom: 24px; }
+body.sz-large .stat-pill     { padding: 16px 20px; }
+body.sz-large .stat-pill-icon{ width: 44px; height: 44px; font-size: 1.4rem; }
+body.sz-large .stat-num      { font-size: 1.8rem; }
+body.sz-large .anno-btn      { padding: 9px 18px; font-size: .85rem; }
+body.sz-large .team-score    { font-size: 2.8rem; }
+body.sz-large .card-title    { font-size: 1rem; }
+
+/* Mode CINÉMA (vidéo + stats côte à côte) */
+body.sz-cinema .tab-content  { padding: 16px 20px 20px; }
+body.sz-cinema header         { padding: 12px 20px 0; }
+body.sz-cinema .tab-bar       { padding: 12px 20px 0; }
+body.sz-cinema .video-tab-grid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 18px;
+  align-items: start;
+}
+body.sz-cinema .players-grid  { grid-template-columns: repeat(2,1fr); gap: 12px; }
+body.sz-cinema .charts-grid   { grid-template-columns: 1fr; }
+body.sz-cinema .terrain-grid  { grid-template-columns: 1fr; }
+body.sz-cinema .stats-bar     { gap: 8px; }
+body.sz-cinema .stat-pill     { padding: 9px 12px; gap: 8px; }
+body.sz-cinema .stat-num      { font-size: 1.2rem; }
+body.sz-cinema .annotation-bar{ flex-wrap: nowrap; overflow-x: auto; }
+
+/* Sélecteur de taille */
+.sz-picker {
+  display: flex; gap: 3px; align-items: center;
+  background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+  border-radius: var(--radius-md); padding: 3px;
+}
+.sz-btn {
+  padding: 4px 9px; border-radius: 7px; border: none;
+  background: none; color: var(--text-muted);
+  font-size: .72rem; font-weight: 700; cursor: pointer;
+  transition: all .15s; letter-spacing: .03em;
+}
+.sz-btn:hover { color: var(--text-primary); background: rgba(255,255,255,.07); }
+.sz-btn.active { background: var(--accent); color: #000; box-shadow: 0 0 10px rgba(0,230,118,.3); }
+
 @media (max-width: 1100px) {
   .players-grid { grid-template-columns: repeat(2,1fr); }
   .terrain-grid { grid-template-columns: 1fr; }
@@ -687,10 +891,63 @@ header {
 @media (max-width: 700px) {
   .stats-bar { flex-wrap: wrap; }
   .players-grid { grid-template-columns: 1fr 1fr; }
+  .sz-picker .sz-btn { padding: 4px 6px; font-size: .65rem; }
 }
 </style>
 </head>
 <body>
+
+<!-- ═══ LOGIN SCREEN ═══ -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="login-logo-icon">🎾</div>
+      <div class="login-logo-text">Padel<span>Stat</span></div>
+    </div>
+    <div class="login-title">Code d'accès</div>
+    <div class="login-field">
+      <label>Code PIN</label>
+      <input type="password" id="loginPin" placeholder="····" maxlength="10" autocomplete="current-password" inputmode="numeric" style="letter-spacing:.3em;font-size:1.4rem;text-align:center">
+    </div>
+    <div class="login-error" id="loginError">Code incorrect. Réessayez.</div>
+    <button class="login-btn" onclick="doLogin()">Accéder →</button>
+  </div>
+</div>
+
+<!-- ═══ AUTOSAVE BADGE ═══ -->
+<div id="autosaveBadge">💾 Sauvegarde auto</div>
+
+<!-- ═══ MODAL PARTIES ═══ -->
+<div class="modal-overlay" id="matchesModal" onclick="if(event.target===this)closeMatchesModal()">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-head-icon">🏆</div>
+      <div>
+        <div class="modal-head-title">Gestion des parties</div>
+        <div class="modal-head-sub">Créer, charger ou importer une partie</div>
+      </div>
+      <button class="modal-close-btn" onclick="closeMatchesModal()">✕</button>
+    </div>
+    <!-- Partie active -->
+    <div id="activeMatchBanner" style="display:none;background:rgba(0,230,118,.08);border:1px solid rgba(0,230,118,.3);border-radius:8px;padding:8px 12px;margin-bottom:10px;font-size:.8rem;">
+      <span style="color:var(--accent);font-weight:700;">▶ Partie active :</span> <span id="activeMatchName">—</span>
+    </div>
+    <!-- Nouvelle partie -->
+    <div style="font-size:.75rem;color:var(--text-muted);margin-bottom:6px;font-weight:600;">NOUVELLE PARTIE</div>
+    <div class="new-match-row">
+      <input class="new-match-input" id="newMatchNameInput" type="text" placeholder="Nom de la partie (ex: Arnaud/Laurent vs Fabrice/Ben)" maxlength="80" onkeydown="if(event.key==='Enter')createNewMatch()">
+      <button class="hdr-btn accent" style="white-space:nowrap" onclick="createNewMatch()">+ Créer</button>
+    </div>
+    <!-- Import JSON -->
+    <label class="import-json-label">
+      📂 Importer un fichier JSON (partie exportée)
+      <input type="file" accept=".json" style="display:none" onchange="importMatchJson(this)">
+    </label>
+    <!-- Parties sauvegardées -->
+    <div style="font-size:.75rem;color:var(--text-muted);margin:14px 0 6px;font-weight:600;">PARTIES SAUVEGARDÉES</div>
+    <div class="matches-list" id="matchesList"></div>
+  </div>
+</div>
 
 <!-- ═══ TOASTS ═══ -->
 <div id="toast-container"></div>
@@ -849,11 +1106,17 @@ header {
   </div>
 
   <div class="header-actions">
-    <div class="conn-status">
-      <div class="conn-dot" id="connDot"></div>
-      <span id="connLabel">Déconnecté</span>
+    <div class="live-badge">LIVE</div>
+    <!-- Sélecteur taille écran -->
+    <div class="sz-picker" title="Taille d'affichage">
+      <button class="sz-btn" onclick="setSize('compact')" id="sz-compact" title="Compact">S</button>
+      <button class="sz-btn active" onclick="setSize('normal')" id="sz-normal" title="Normal">M</button>
+      <button class="sz-btn" onclick="setSize('large')" id="sz-large" title="Large">L</button>
+      <button class="sz-btn" onclick="setSize('cinema')" id="sz-cinema" title="Cinéma">XL</button>
     </div>
-    <div class="live-badge">REC</div>
+    <button class="hdr-btn" onclick="openMatchesModal()" title="Gérer les parties" style="display:flex;align-items:center;gap:5px;">
+      🏆 <span id="hdrMatchName" style="max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.75rem;">Aucune partie</span>
+    </button>
     <button class="hdr-btn accent" onclick="openPlayersModal()">👥 Joueurs</button>
     <button class="hdr-btn fullscreen-btn" onclick="enterFullscreen()" title="Plein écran">⛶</button>
   </div>
@@ -1084,6 +1347,15 @@ const SHOTS = {
 };
 
 const ANNOTATION_MODAL_TREE = {
+  type: () => ({
+    title: 'Type de point',
+    subtitle: 'Choisir le type d\'annotation',
+    items: [
+      { key: '1', label: 'Point Gagnant',    emoji: '⚡', action: () => { setAnnotationType('point_gagnant');   STATE.modalStep = 'player'; renderAnnotationModal(); } },
+      { key: '2', label: 'Faute Directe',    emoji: '💥', action: () => { setAnnotationType('faute_directe');   STATE.modalStep = 'player'; renderAnnotationModal(); } },
+      { key: '3', label: 'Faute Provoquée',  emoji: '🎯', action: () => { setAnnotationType('faute_provoquee'); STATE.modalStep = 'player'; renderAnnotationModal(); } },
+    ]
+  }),
   player: () => ({
     title: 'Choisir le joueur',
     subtitle: STATE.currentAnnotationType === 'faute_provoquee'
@@ -1129,48 +1401,48 @@ const ANNOTATION_MODAL_TREE = {
     title: 'Type de coup',
     subtitle: 'Choisir la zone de frappe',
     items: [
-      { key: 'S', label: 'Service', emoji: '🎾', leaf: 'service' },
-      { key: 'L', label: 'Lob', emoji: '🎈', leaf: 'lob' },
-      { key: 'F', label: 'Fond de court', emoji: '⚡', next: 'fond' },
-      { key: 'V', label: 'Volée', emoji: '🏐', next: 'volee' },
-      { key: 'A', label: 'Amorti', emoji: '🎯', leaf: 'amorti' },
-      { key: 'O', label: 'Autre', emoji: '❓', leaf: 'autre' },
+      { key: '1', label: 'Service',      emoji: '🎾', leaf: 'service' },
+      { key: '2', label: 'Lob',           emoji: '🎈', leaf: 'lob' },
+      { key: '3', label: 'Fond de court', emoji: '⚡', next: 'fond' },
+      { key: '4', label: 'Volée',         emoji: '🏐', next: 'volee' },
+      { key: '5', label: 'Amorti',        emoji: '🎯', leaf: 'amorti' },
+      { key: '6', label: 'Autre',         emoji: '❓', leaf: 'autre' },
     ]
   }),
   fond: () => ({
     title: 'Fond de court',
     subtitle: 'Choisir la technique',
     items: [
-      { key: 'C', label: 'Coup droit', emoji: '⚡', leaf: 'fond_de_court_CD' },
-      { key: 'R', label: 'Revers', emoji: '⚡', leaf: 'fond_de_court_R' },
-      { key: 'B', label: 'Balle haute', emoji: '⚡🎯', next: 'fond_bh' },
+      { key: '1', label: 'Coup droit',  emoji: '⚡', leaf: 'fond_de_court_CD' },
+      { key: '2', label: 'Revers',      emoji: '⚡', leaf: 'fond_de_court_R' },
+      { key: '3', label: 'Balle haute', emoji: '⚡🎯', next: 'fond_bh' },
     ]
   }),
   volee: () => ({
     title: 'Volée',
     subtitle: 'Choisir la technique',
     items: [
-      { key: 'C', label: 'Coup droit', emoji: '🏐', leaf: 'volee_CD' },
-      { key: 'R', label: 'Revers', emoji: '🏐', leaf: 'volee_R' },
-      { key: 'B', label: 'Balle haute', emoji: '🏐🎯', next: 'volee_bh' },
+      { key: '1', label: 'Coup droit',  emoji: '🏐', leaf: 'volee_CD' },
+      { key: '2', label: 'Revers',      emoji: '🏐', leaf: 'volee_R' },
+      { key: '3', label: 'Balle haute', emoji: '🏐🎯', next: 'volee_bh' },
     ]
   }),
   fond_bh: () => ({
     title: 'Fond · Balle haute',
     subtitle: 'Choisir le coup final',
     items: [
-      { key: 'V', label: 'Víbora', emoji: '🐍', leaf: 'fond_de_court_BH_vibora' },
-      { key: 'B', label: 'Bandeja', emoji: '🔥', leaf: 'fond_de_court_BH_bandeja' },
-      { key: 'S', label: 'Smash', emoji: '💥', leaf: 'fond_de_court_BH_smash' },
+      { key: '1', label: 'Víbora',  emoji: '🐍', leaf: 'fond_de_court_BH_vibora' },
+      { key: '2', label: 'Bandeja', emoji: '🔥', leaf: 'fond_de_court_BH_bandeja' },
+      { key: '3', label: 'Smash',   emoji: '💥', leaf: 'fond_de_court_BH_smash' },
     ]
   }),
   volee_bh: () => ({
     title: 'Volée · Balle haute',
     subtitle: 'Choisir le coup final',
     items: [
-      { key: 'V', label: 'Víbora', emoji: '🐍', leaf: 'volee_BH_vibora' },
-      { key: 'B', label: 'Bandeja', emoji: '🔥', leaf: 'volee_BH_bandeja' },
-      { key: 'S', label: 'Smash', emoji: '💥', leaf: 'volee_BH_smash' },
+      { key: '1', label: 'Víbora',  emoji: '🐍', leaf: 'volee_BH_vibora' },
+      { key: '2', label: 'Bandeja', emoji: '🔥', leaf: 'volee_BH_bandeja' },
+      { key: '3', label: 'Smash',   emoji: '💥', leaf: 'volee_BH_smash' },
     ]
   }),
 };
@@ -1383,12 +1655,8 @@ function confirmPlayers() {
 }
 
 /* ═══ ANNOTATION FLOW ═══ */
-function openModal(type) {
+function setAnnotationType(type) {
   STATE.currentAnnotationType = type;
-  STATE.selectedPlayer = null;
-  STATE.selectedDefender = null;
-  STATE.modalStep = 'player';
-  STATE.modalBack = false;
   const titles = {
     point_gagnant:   ['⚡', 'Point Gagnant', 'Qui a marqué le point ?', 'win'],
     faute_directe:   ['💥', 'Faute Directe', 'Qui a commis la faute ?', 'fault'],
@@ -1402,6 +1670,29 @@ function openModal(type) {
   titleEl.textContent = title;
   titleEl.className = `modal-head-title ${cls}`;
   document.getElementById('modalHeadSub').textContent = sub;
+}
+
+function openModal(type) {
+  STATE.selectedPlayer = null;
+  STATE.selectedDefender = null;
+  STATE.modalBack = false;
+  if (type) {
+    // Appel direct depuis un bouton (boutons W/F/P de l'interface)
+    STATE.currentAnnotationType = type;
+    STATE.modalStep = 'player';
+    setAnnotationType(type);
+  } else {
+    // Ouverture depuis Enter/clavier → étape type en premier
+    STATE.currentAnnotationType = null;
+    STATE.modalStep = 'type';
+    const iconEl = document.getElementById('modalHeadIcon');
+    const titleEl = document.getElementById('modalHeadTitle');
+    iconEl.textContent = '📋';
+    iconEl.className = 'modal-head-icon';
+    titleEl.textContent = 'Annoter un point';
+    titleEl.className = 'modal-head-title';
+    document.getElementById('modalHeadSub').textContent = 'Choisir le type avec 1, 2 ou 3';
+  }
   renderAnnotationModal();
   document.getElementById('playerModal').classList.add('open');
 }
@@ -1431,11 +1722,11 @@ function renderAnnotationModal() {
   pill1.className = 'step-pill';
   pill2.className = 'step-pill';
   pill3.className = 'step-pill';
-  if (STATE.modalStep === 'player' || STATE.modalStep === 'defender') pill1.classList.add('active');
-  else { pill1.classList.add('done'); pill2.classList.add('active'); }
-  if (['fond', 'volee', 'fond_bh', 'volee_bh'].includes(STATE.modalStep)) { pill2.classList.add('done'); pill3.classList.add('active'); }
+  if (STATE.modalStep === 'type')                                           { pill1.classList.add('active'); }
+  else if (STATE.modalStep === 'player' || STATE.modalStep === 'defender') { pill1.classList.add('done'); pill2.classList.add('active'); }
+  else { pill1.classList.add('done'); pill2.classList.add('done'); pill3.classList.add('active'); }
 
-  backBtn.style.display = ['player'].includes(STATE.modalStep) ? 'none' : 'flex';
+  backBtn.style.display = STATE.modalStep === 'type' ? 'none' : 'flex';
 
   const playerSummary = STATE.selectedPlayer
     ? `<div class="kbd-hint" style="padding-top:0;justify-content:flex-start">
@@ -1444,35 +1735,44 @@ function renderAnnotationModal() {
       </div>`
     : '';
 
-  const listClass = (STATE.modalStep === 'player' || STATE.modalStep === 'defender') ? 'player-grid' : 'shot-list';
-  const itemHtml = config.items.map(item => {
+  const listClass = (STATE.modalStep === 'player' || STATE.modalStep === 'defender') ? 'numpad-grid numpad-2col' : 'numpad-grid';
+
+  // Tri visuel : disposition pavé numérique (1=bas-gauche, 9=haut-droit)
+  function numpadPos(key, cols) {
+    const k = parseInt(key);
+    if (cols === 2) { const o = {3:0,4:1,1:2,2:3}; return o[k] ?? 99; }
+    const o = {7:0,8:1,9:2,4:3,5:4,6:5,1:6,2:7,3:8};
+    return o[k] ?? 99;
+  }
+  const cols = (STATE.modalStep === 'player' || STATE.modalStep === 'defender') ? 2 : 3;
+  const sortedItems = [...config.items].sort((a,b) => numpadPos(a.key, cols) - numpadPos(b.key, cols));
+
+  const itemHtml = sortedItems.map(item => {
     const data = `data-key="${item.key}" data-value="${item.value || item.next || item.leaf || ''}"`;
+    const hasArrow = item.next ? `<div class="numpad-arrow">›</div>` : '';
     if (STATE.modalStep === 'player' || STATE.modalStep === 'defender') {
-      return `<button class="player-pick-btn" ${data} onclick="handleModalChoice('${item.key}')">
-        <span class="pick-avatar">${item.emoji}</span>
-        <div class="pick-info">
-          <div class="pick-name">${item.label}</div>
-          <div class="pick-team">${item.sublabel || ''}</div>
-        </div>
+      return `<button class="numpad-cell" ${data} onclick="handleModalChoice('${item.key}')">
+        <span class="numpad-num">${item.key}</span>
+        <span class="numpad-emoji">${item.emoji}</span>
+        <div class="numpad-label">${item.label}</div>
+        <div class="numpad-sub">${item.sublabel || ''}</div>
       </button>`;
     }
-    return `<div class="shot-item" ${data} onclick="handleModalChoice('${item.key}')">
-      <div class="shot-key">${item.key}</div>
-      <div class="shot-emoji">${item.emoji}</div>
-      <div class="shot-name">${item.label}</div>
-      ${item.next ? '<div class="shot-arrow">›</div>' : ''}
-    </div>`;
+    return `<button class="numpad-cell" ${data} onclick="handleModalChoice('${item.key}')">
+      <span class="numpad-num">${item.key}</span>
+      <span class="numpad-emoji">${item.emoji}</span>
+      <div class="numpad-label">${item.label}${item.next ? ' ›' : ''}</div>
+    </button>`;
   }).join('');
 
   body.innerHTML = `<div class="${panelClass}">
-    <div style="font-size:.95rem;font-weight:700;margin-bottom:6px;">${config.title}</div>
-    <div style="font-size:.75rem;color:var(--text-muted);margin-bottom:14px;">${config.subtitle}</div>
+    <div style="font-size:.95rem;font-weight:700;margin-bottom:4px;">${config.title}</div>
+    <div style="font-size:.73rem;color:var(--text-muted);margin-bottom:12px;">${config.subtitle}</div>
     ${playerSummary}
     <div class="${listClass}">${itemHtml}</div>
-    <div class="kbd-hint">
-      <span class="kbd"><kbd>1-4</kbd> Joueurs</span>
-      <span class="kbd"><kbd>Lettre</kbd> Sélection</span>
-      <span class="kbd"><kbd>Backspace</kbd> Retour</span>
+    <div class="kbd-hint" style="margin-top:10px">
+      <span class="kbd"><kbd>1–9</kbd> Sélection rapide</span>
+      <span class="kbd"><kbd>⌫</kbd> Retour</span>
       <span class="kbd"><kbd>Esc</kbd> Annuler</span>
     </div>
   </div>`;
@@ -1499,6 +1799,7 @@ function handleModalChoice(key) {
 
 function modalBack() {
   const previous = {
+    player: 'type',
     defender: 'player',
     zone: STATE.currentAnnotationType === 'faute_provoquee' ? 'defender' : 'player',
     fond: 'zone',
@@ -1561,7 +1862,296 @@ function refreshAll() {
   updateChart();
   updatePlayerChart();
   updateCourtStats();
+  autoSave();
 }
+
+/* ═══ AUTH ═══ */
+const USERS = {
+  'arnaud':  '464404',
+  'laurent': 'Padel34',
+  'fabrice': 'Padel34',
+  'ben':     'Padel34',
+};
+
+const PIN = '1234';
+
+function doLogin() {
+  const val = document.getElementById('loginPin').value;
+  const err = document.getElementById('loginError');
+  if (val === PIN) {
+    sessionStorage.setItem('ps_auth', '1');
+    document.getElementById('loginScreen').style.display = 'none';
+    err.classList.remove('show');
+    toast('Bienvenue !', 'win');
+    tryRestoreState();
+  } else {
+    err.classList.add('show');
+    document.getElementById('loginPin').value = '';
+    document.getElementById('loginPin').focus();
+  }
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('loginScreen')?.style.display !== 'none'
+      && !sessionStorage.getItem('ps_auth')) {
+    doLogin();
+  }
+});
+
+/* ═══ AUTOSAVE / GESTION DES PARTIES ═══ */
+const SAVE_KEY       = 'padelstat_save';       // clé de la partie active (rétrocompat)
+const MATCHES_INDEX  = 'padelstat_matches';    // index JSON [{id,name,savedAt,pointCount}]
+const MATCH_PREFIX   = 'padelstat_match_';     // préfixe pour chaque sauvegarde
+let   ACTIVE_MATCH_ID = null;                  // ID de la partie en cours
+
+/* --- Helpers index --- */
+function getMatchesIndex() {
+  try { return JSON.parse(localStorage.getItem(MATCHES_INDEX) || '[]'); } catch { return []; }
+}
+function saveMatchesIndex(idx) {
+  localStorage.setItem(MATCHES_INDEX, JSON.stringify(idx));
+}
+function genMatchId() { return 'M_' + Date.now() + '_' + Math.random().toString(36).slice(2,6); }
+
+/** Construit le payload et le sauvegarde dans la clé de la partie active */
+function buildAutosavePayload() {
+  const joueurs = STATE.players.map(p => ({ id: p.id, nom: p.name, equipe: p.team }));
+  const points = STATE.annotations.map((a, idx) => {
+    const base = {
+      id: a.id || (idx + 1),
+      type: a.type,
+      type_coup: a.type_coup || null,
+      timestamp: typeof a.timestamp === 'number' ? Math.round(a.timestamp * 100) / 100 : 0,
+      frame: null, capture: null,
+    };
+    if (a.type === 'faute_provoquee') {
+      base.attaquant = a.joueur || null;
+      base.defenseur = a.defenseur || null;
+      base.type_coup_attaquant = a.type_coup || null;
+    } else {
+      base.joueur = a.joueur || null;
+    }
+    return base;
+  });
+  return {
+    match: {
+      date: new Date().toISOString().slice(0, 10),
+      joueurs,
+      video: null,
+      _saved_at: new Date().toISOString(),
+      _match_id: ACTIVE_MATCH_ID,
+      _match_name: getActiveMatchName(),
+    },
+    points,
+    _meta: { saved_at: new Date().toISOString(), source: 'frontend' },
+    _players_full: STATE.players,
+    _courtDots: STATE.courtDots,
+  };
+}
+
+function getActiveMatchName() {
+  if (!ACTIVE_MATCH_ID) return null;
+  const idx = getMatchesIndex();
+  return idx.find(m => m.id === ACTIVE_MATCH_ID)?.name || 'Partie sans nom';
+}
+
+function autoSave() {
+  try {
+    const payload = buildAutosavePayload();
+    // Sauvegarde dans la clé de la partie active
+    const key = ACTIVE_MATCH_ID ? MATCH_PREFIX + ACTIVE_MATCH_ID : SAVE_KEY;
+    localStorage.setItem(key, JSON.stringify(payload));
+    // Mise à jour de l'index
+    if (ACTIVE_MATCH_ID) {
+      const idx = getMatchesIndex();
+      const entry = idx.find(m => m.id === ACTIVE_MATCH_ID);
+      if (entry) {
+        entry.savedAt = new Date().toISOString();
+        entry.pointCount = STATE.annotations.length;
+        saveMatchesIndex(idx);
+      }
+    }
+    const badge = document.getElementById('autosaveBadge');
+    if (badge) {
+      const name = getActiveMatchName();
+      badge.textContent = '💾 ' + (name ? name.slice(0,20) + ' — ' : '') + new Date().toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'});
+      badge.classList.add('saved');
+      setTimeout(() => badge.classList.remove('saved'), 2500);
+    }
+  } catch(e) { /* quota dépassé */ }
+}
+
+/* --- Création d'une nouvelle partie --- */
+function createNewMatch(nameOverride) {
+  const input = document.getElementById('newMatchNameInput');
+  const name = (nameOverride || (input?.value.trim()) || '').trim();
+  if (!name) { toast('⚠️ Donnez un nom à la partie', 'fault'); input?.focus(); return; }
+  // Sauvegarder la partie active si besoin
+  if (STATE.annotations.length > 0) autoSave();
+  // Créer une nouvelle entrée
+  const id = genMatchId();
+  const idx = getMatchesIndex();
+  idx.unshift({ id, name, savedAt: new Date().toISOString(), pointCount: 0 });
+  saveMatchesIndex(idx);
+  // Réinitialiser l'état
+  ACTIVE_MATCH_ID = id;
+  STATE.annotations = [];
+  STATE.courtDots = [];
+  refreshAll();
+  autoSave();
+  if (input) input.value = '';
+  updateActiveMatchBanner();
+  closeMatchesModal();
+  toast('🏆 Partie « ' + name + ' » créée', 'win');
+}
+
+/* --- Chargement d'une partie --- */
+function loadMatch(id) {
+  if (STATE.annotations.length > 0 && ACTIVE_MATCH_ID !== id) {
+    if (!confirm('Charger cette partie ? La partie en cours sera sauvegardée.')) return;
+    autoSave();
+  }
+  try {
+    const snap = JSON.parse(localStorage.getItem(MATCH_PREFIX + id) || 'null');
+    if (!snap) { toast('❌ Partie introuvable', 'fault'); return; }
+    ACTIVE_MATCH_ID = id;
+    restoreFromSnap(snap);
+    updateActiveMatchBanner();
+    closeMatchesModal();
+    const name = getActiveMatchName();
+    toast('✅ Partie « ' + name + ' » chargée', 'win');
+  } catch(e) { toast('❌ Erreur de lecture', 'fault'); }
+}
+
+/* --- Suppression d'une partie --- */
+function deleteMatch(id, e) {
+  e.stopPropagation();
+  const idx = getMatchesIndex();
+  const entry = idx.find(m => m.id === id);
+  if (!confirm('Supprimer la partie « ' + (entry?.name || id) + ' » ?')) return;
+  localStorage.removeItem(MATCH_PREFIX + id);
+  saveMatchesIndex(idx.filter(m => m.id !== id));
+  if (ACTIVE_MATCH_ID === id) { ACTIVE_MATCH_ID = null; updateActiveMatchBanner(); }
+  renderMatchesList();
+  toast('🗑️ Partie supprimée', 'fault');
+}
+
+/* --- Import JSON --- */
+function importMatchJson(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = evt => {
+    try {
+      const snap = JSON.parse(evt.target.result);
+      if (!snap.points && !snap.annotations) throw new Error('Format invalide');
+      const name = snap.match?._match_name || snap.match?.date || file.name.replace('.json','');
+      const id = snap.match?._match_id || genMatchId();
+      // Insérer dans l'index si absent
+      const idx = getMatchesIndex();
+      if (!idx.find(m => m.id === id)) {
+        idx.unshift({ id, name, savedAt: snap.match?._saved_at || new Date().toISOString(), pointCount: (snap.points||[]).length });
+        saveMatchesIndex(idx);
+      }
+      localStorage.setItem(MATCH_PREFIX + id, JSON.stringify(snap));
+      autoSave();
+      ACTIVE_MATCH_ID = id;
+      restoreFromSnap(snap);
+      updateActiveMatchBanner();
+      closeMatchesModal();
+      toast('📂 Partie importée : ' + name, 'win');
+    } catch(err) { toast('❌ Fichier JSON invalide', 'fault'); }
+    input.value = ''; // reset
+  };
+  reader.readAsText(file);
+}
+
+/* --- Restauration depuis un snapshot --- */
+function restoreFromSnap(snap) {
+  if (snap._players_full?.length) STATE.players = snap._players_full;
+  if (snap._courtDots) STATE.courtDots = snap._courtDots;
+  const pts = snap.points || snap.annotations || [];
+  STATE.annotations = pts.map(p => ({
+    id: p.id,
+    type: p.type,
+    joueur: p.joueur || p.attaquant || null,
+    joueurId: snap._players_full?.find(pl => pl.name === (p.joueur || p.attaquant))?.id || null,
+    defenseur: p.defenseur || null,
+    defenseurId: snap._players_full?.find(pl => pl.name === p.defenseur)?.id || null,
+    type_coup: p.type_coup || p.type_coup_attaquant || null,
+    timestamp: p.timestamp || 0,
+    shot_label: SHOTS[p.type_coup || p.type_coup_attaquant]?.[1] || 'Autre',
+    shot_emoji: SHOTS[p.type_coup || p.type_coup_attaquant]?.[0] || '❓',
+  }));
+  refreshAll();
+}
+
+/* --- UI modal parties --- */
+function openMatchesModal() {
+  renderMatchesList();
+  updateActiveMatchBanner();
+  document.getElementById('matchesModal').classList.add('open');
+  setTimeout(() => document.getElementById('newMatchNameInput')?.focus(), 80);
+}
+function closeMatchesModal() {
+  document.getElementById('matchesModal').classList.remove('open');
+}
+function updateActiveMatchBanner() {
+  const banner = document.getElementById('activeMatchBanner');
+  const nameEl = document.getElementById('activeMatchName');
+  if (ACTIVE_MATCH_ID) {
+    const name = getActiveMatchName();
+    if (nameEl) nameEl.textContent = name || '—';
+    if (banner) banner.style.display = 'block';
+  } else {
+    if (banner) banner.style.display = 'none';
+  }
+  // Mise à jour du badge header
+  const hdrName = document.getElementById('hdrMatchName');
+  if (hdrName) hdrName.textContent = ACTIVE_MATCH_ID ? (getActiveMatchName()?.slice(0,22) || '') : 'Aucune partie';
+}
+function renderMatchesList() {
+  const el = document.getElementById('matchesList');
+  if (!el) return;
+  const idx = getMatchesIndex();
+  if (!idx.length) { el.innerHTML = '<div class="matches-empty">Aucune partie sauvegardée</div>'; return; }
+  el.innerHTML = idx.map(m => {
+    const date = new Date(m.savedAt).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});
+    const active = m.id === ACTIVE_MATCH_ID ? ' style="border-color:var(--accent)"' : '';
+    return `<div class="match-row"${active} onclick="loadMatch('${m.id}')">
+      <div class="match-row-info">
+        <div class="match-row-name">${m.id === ACTIVE_MATCH_ID ? '▶ ' : ''}${m.name}</div>
+        <div class="match-row-meta">${m.pointCount} point(s) · Sauvegardé le ${date}</div>
+      </div>
+      <button class="match-row-del" onclick="deleteMatch('${m.id}',event)">🗑️</button>
+    </div>`;
+  }).join('');
+}
+
+function tryRestoreState() {
+  // Migration : si une ancienne clé SAVE_KEY existe sans ACTIVE_MATCH_ID, proposer de la récupérer
+  const idx = getMatchesIndex();
+  const oldRaw = localStorage.getItem(SAVE_KEY);
+  if (oldRaw && !idx.length) {
+    try {
+      const snap = JSON.parse(oldRaw);
+      const pts = snap.points || [];
+      if (pts.length) {
+        const name = snap.match?._match_name || ('Partie du ' + (snap.match?.date || '?'));
+        const id = genMatchId();
+        idx.unshift({ id, name, savedAt: snap.match?._saved_at || new Date().toISOString(), pointCount: pts.length });
+        saveMatchesIndex(idx);
+        localStorage.setItem(MATCH_PREFIX + id, oldRaw);
+      }
+    } catch {}
+  }
+  // Si parties existantes, afficher la modal de sélection
+  const freshIdx = getMatchesIndex();
+  if (freshIdx.length) {
+    openMatchesModal();
+  }
+}
+
 
 /* ═══ SHOT DROPDOWN ═══ */
 function toggleShotDropdown() {
@@ -1592,19 +2182,6 @@ function syncSelectedShotUI() {
 document.addEventListener('click', e => {
   if (!e.target.closest('#shotSelector') && !e.target.closest('#fsShotSelector'))
     document.querySelectorAll('.shot-dropdown').forEach(d => d.classList.remove('open'));
-});
-document.addEventListener('keydown', e => {
-  if (!document.getElementById('playerModal').classList.contains('open')) return;
-  if (e.key === 'Escape') { e.preventDefault(); closeModal(); return; }
-  if (e.key === 'Backspace') { e.preventDefault(); modalBack(); return; }
-  const key = e.key.length === 1 ? e.key.toUpperCase() : '';
-  if (!key) return;
-  const config = ANNOTATION_MODAL_TREE[STATE.modalStep]?.();
-  if (!config) return;
-  if (config.items.some(item => item.key.toUpperCase() === key)) {
-    e.preventDefault();
-    handleModalChoice(key);
-  }
 });
 
 /* ═══ TIMELINE ═══ */
@@ -1830,53 +2407,537 @@ function updatePlayerChart() {
   playerChart.update('active');
 }
 
-/* ═══ BACKEND API ═══ */
-const API_URL = 'http://127.0.0.1:8766';
+/* ═══ API CLIENT-SIDE ═══ */
 const api = {
-  async sendAnnotation(a) {
-    if (!STATE.apiConnected) return;
-    try {
-      const body = { type:a.type, joueur:a.joueur, type_coup:a.type_coup, timestamp:a.timestamp, frame:Math.round(a.timestamp*25) };
-      const res = await fetch(`${API_URL}/annotation`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
-      if (!res.ok) { const e=await res.json(); toast('⚠️ '+e.error,'fault'); }
-    } catch { toast('⚠️ Annotation non sauvegardée','fault'); }
+  sendAnnotation(a) { /* stocké dans STATE.annotations */ },
+
+  exportJson() {
+    const data = buildAutosavePayload();
+    const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `autosave_frontend_${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    toast('💾 JSON téléchargé (compatible rapport) !','win');
   },
-  async command(cmd, params={}) {
-    if (!STATE.apiConnected) return null;
-    try {
-      const res = await fetch(`${API_URL}/command`,{ method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({command:cmd,params}) });
-      const d = await res.json();
-      if (!d.ok) toast('⚠️ '+d.error,'fault');
-      return d;
-    } catch { return null; }
-  },
-  async generateReport() {
-    toast('⏳ Génération...','info');
-    const r = await this.command('generate_quick_report');
-    if (r?.ok) toast('📊 Rapport HTML généré !','win');
-  },
-  async exportJson() {
-    toast('⏳ Export JSON...','info');
-    const r = await this.command('export_json');
-    if (r?.ok) toast('💾 JSON : '+(r.result?.filepath||'').split(/[\\/]/).pop(),'win');
+
+  generateReport() {
+    if (STATE.annotations.length === 0) { toast('⚠️ Aucune annotation à exporter','fault'); return; }
+
+    const date     = new Date().toLocaleDateString('fr-FR');
+    const dateTime = new Date().toLocaleString('fr-FR');
+    const teamA    = STATE.players.filter(p=>p.team==='Équipe A');
+    const teamB    = STATE.players.filter(p=>p.team==='Équipe B');
+
+    // ── Stats par joueur ──────────────────────────────────────────
+    const stat = pid => {
+      const winners    = STATE.annotations.filter(a=>a.joueurId===pid && a.type==='point_gagnant').length;
+      const fautes     = STATE.annotations.filter(a=>a.joueurId===pid && a.type==='faute_directe').length;
+      const provoquees = STATE.annotations.filter(a=>a.joueurId===pid && a.type==='faute_provoquee').length;
+      const subies     = STATE.annotations.filter(a=>a.defenseurId===pid && a.type==='faute_provoquee').length;
+      const efficacite = Math.round((winners / Math.max(winners + fautes, 1)) * 100);
+      const impact     = provoquees - subies;
+      const total_fp   = provoquees + subies;
+      const fp_pct     = total_fp > 0 ? Math.round((provoquees / total_fp) * 100) : 0;
+      const fs_pct     = 100 - fp_pct;
+      // ── Métriques avancées ──
+      const actions_off = winners + fautes + provoquees;
+      const positifs    = winners + provoquees;
+      const negatifs    = fautes + subies;
+      const ratio       = parseFloat((positifs / Math.max(negatifs, 1)).toFixed(2));
+      const efficacite_globale = Math.round((positifs / Math.max(actions_off, 1)) * 100);
+      const agressivite = Math.round(((winners + provoquees) / Math.max(actions_off, 1)) * 100);
+      const constance   = ratio >= 1.1 ? 'Bon' : ratio >= 0.8 ? 'Moyen' : 'À améliorer';
+      // ── Séries consécutives ──
+      let maxPos=0, maxNeg=0, curPos=0, curNeg=0;
+      STATE.annotations.forEach(a => {
+        const isAtt = a.joueurId === pid;
+        const isDef = a.defenseurId === pid;
+        if (isAtt && (a.type==='point_gagnant' || a.type==='faute_provoquee')) {
+          curPos++; curNeg=0; if (curPos>maxPos) maxPos=curPos;
+        } else if (isAtt && a.type==='faute_directe') {
+          curNeg++; curPos=0; if (curNeg>maxNeg) maxNeg=curNeg;
+        } else if (isDef && a.type==='faute_provoquee') {
+          curNeg++; curPos=0; if (curNeg>maxNeg) maxNeg=curNeg;
+        }
+      });
+      return { winners, fautes, provoquees, subies, efficacite, impact, fp_pct, fs_pct,
+               ratio, efficacite_globale, agressivite, constance, serie_pos: maxPos, serie_neg: maxNeg };
+    };
+
+    // ── Score & totaux ────────────────────────────────────────────
+    const scoreA  = STATE.annotations.filter(a=>['p1','p2'].includes(a.joueurId)&&a.type==='point_gagnant').length;
+    const scoreB  = STATE.annotations.filter(a=>['p3','p4'].includes(a.joueurId)&&a.type==='point_gagnant').length;
+    const totalW  = STATE.annotations.filter(a=>a.type==='point_gagnant').length;
+    const totalFD = STATE.annotations.filter(a=>a.type==='faute_directe').length;
+    const totalFP = STATE.annotations.filter(a=>a.type==='faute_provoquee').length;
+
+    // ── Durée du match ────────────────────────────────────────────
+    const timestamps = STATE.annotations.map(a=>a.timestamp||0).filter(t=>t>0);
+    const dureeMatch = timestamps.length ? Math.max(...timestamps) : 0;
+    const dureeStr   = dureeMatch > 0 ? formatTime(dureeMatch) : '—';
+
+    // ── Ratio global ─────────────────────────────────────────────
+    const totalPositifs = totalW + totalFP;
+    const ratioGlobal   = parseFloat((totalPositifs / Math.max(totalFD, 1)).toFixed(2));
+
+    // ── Momentum par équipe (cumul de points gagnants) ────────────
+    const sortedAnno  = [...STATE.annotations].sort((a,b)=>(a.timestamp||0)-(b.timestamp||0));
+    const momentumA   = [], momentumB = [], momentumLabels = [];
+    let cumA = 0, cumB = 0;
+    const teamAIds = teamA.map(p=>p.id), teamBIds = teamB.map(p=>p.id);
+    sortedAnno.forEach((a, i) => {
+      if (a.type === 'point_gagnant') {
+        if (teamAIds.includes(a.joueurId)) cumA++;
+        else if (teamBIds.includes(a.joueurId)) cumB++;
+      }
+      momentumA.push(cumA); momentumB.push(cumB);
+      momentumLabels.push(i+1);
+    });
+
+    // ── Évolution scores cumulatifs par joueur ────────────────────
+    const playerEvol = {};
+    STATE.players.forEach(p => { playerEvol[p.id] = []; });
+    const cumByPlayer = {};
+    STATE.players.forEach(p => { cumByPlayer[p.id] = 0; });
+    sortedAnno.forEach(a => {
+      if (a.type === 'point_gagnant') cumByPlayer[a.joueurId] = (cumByPlayer[a.joueurId]||0)+1;
+      STATE.players.forEach(p => playerEvol[p.id].push(cumByPlayer[p.id]||0));
+    });
+
+    // ── Données radar par joueur ──────────────────────────────────
+    const radarData = STATE.players.map(p => {
+      const s = stat(p.id);
+      // Attaque: winners normalisés /20, Défense: (1-subies/20)*100, Précision: efficacite%, Agressivité: agressivite%, Impact: normalize impact
+      const attaque    = Math.min(100, Math.round((s.winners / Math.max(totalW, 1)) * 100 * STATE.players.length));
+      const defense    = Math.max(0, 100 - Math.round((s.subies / Math.max(totalFP+1, 1)) * 100 * STATE.players.length));
+      const precision  = s.efficacite;
+      const agressiv   = s.agressivite;
+      const impact_n   = Math.min(100, Math.max(0, 50 + s.impact * 5));
+      return { name: p.name, attaque, defense, precision, agressivite: agressiv, impact: impact_n };
+    });
+
+    // ── Coups ─────────────────────────────────────────────────────
+    const shotCounts = {};
+    STATE.annotations.forEach(a => {
+      const l = SHOTS[a.type_coup]?.[1] || 'Autre';
+      shotCounts[l] = (shotCounts[l]||0)+1;
+    });
+    const topShots = Object.entries(shotCounts).sort((a,b)=>b[1]-a[1]);
+
+    // ── Cards joueurs ─────────────────────────────────────────────
+    const playerCards = STATE.players.map(p => {
+      const s = stat(p.id);
+      const impColor = s.impact > 0 ? '#28a745' : s.impact < 0 ? '#dc3545' : '#ffc107';
+      const impText  = s.impact > 0 ? '+'+s.impact : String(s.impact);
+      return `
+      <div class="pc">
+        <h3>${p.avatar} ${p.name}</h3>
+        <p class="pc-team">${p.team}</p>
+        <div class="sr"><span>✅ Points gagnants</span><span class="sv green">${s.winners}</span></div>
+        <div class="sr"><span>❌ Fautes directes</span><span class="sv red">${s.fautes}</span></div>
+        <div class="sr"><span>🎯 Efficacité</span><span class="sv blue">${s.efficacite}%</span></div>
+        <div class="divider"></div>
+        <div class="sr"><span>⚔️ Fautes provoquées</span><span class="sv green">${s.provoquees}</span></div>
+        <div class="sr"><span>🛡️ Fautes subies</span><span class="sv red">${s.subies}</span></div>
+        <div class="sr highlight"><span>💥 Impact match</span><span class="sv" style="color:${impColor};font-size:1.3em">${impText}</span></div>
+        <div class="impact-chart">
+          <div class="chart-label">Influence sur le jeu</div>
+          <div class="chart-bar">
+            <div class="bar-prov" style="width:${s.fp_pct}%">${s.provoquees||''}</div>
+            <div class="bar-subi" style="width:${s.fs_pct}%">${s.subies||''}</div>
+          </div>
+          <div class="chart-legend">
+            <span><span class="dot green"></span>Provoquées</span>
+            <span><span class="dot red"></span>Subies</span>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+
+    // ── Timeline complète ─────────────────────────────────────────
+    const rows = [...STATE.annotations].reverse().map(a => {
+      const p  = STATE.players.find(x=>x.id===a.joueurId);
+      const d  = STATE.players.find(x=>x.id===a.defenseurId);
+      const t  = formatTime(a.timestamp);
+      const typeLabel = a.type==='point_gagnant' ? '✅ Winner' : a.type==='faute_directe' ? '❌ Faute directe' : '🎯 Faute provoquée';
+      const who = a.type==='faute_provoquee' ? `${p?.name||'?'} → ${d?.name||'?'}` : (p?.name||'?');
+      return `<tr><td>${t}</td><td>${who}</td><td>${p?.team||'?'}</td><td>${typeLabel}</td><td>${a.shot_label||'—'}</td></tr>`;
+    }).join('');
+
+    // ── HTML ──────────────────────────────────────────────────────
+    const html = `<!DOCTYPE html>
+<html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PADELSTAT — Analyse du ${date}</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Space+Grotesk:wght@400;500;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0d0d0d;--paper:#f5f3ee;--gold:#b8960c;--gold-lt:#d4af37;
+  --off:#e8e4dc;--muted:#888070;--accent:#1a1a1a;
+  --red:#c0392b;--green:#1a6b3a;--blue:#1a3a6b;
+  --mono:'Space Grotesk',monospace;
+}
+html{font-size:15px}
+body{background:var(--paper);color:var(--ink);font-family:'Inter',system-ui,sans-serif;min-height:100vh;padding:0}
+
+/* ── HEADER ── */
+.report-header{
+  background:var(--ink);color:var(--paper);
+  padding:60px 64px 48px;
+  display:flex;justify-content:space-between;align-items:flex-end;
+  border-bottom:3px solid var(--gold);
+}
+.rh-brand{font-size:.68rem;font-family:var(--mono);letter-spacing:.28em;color:var(--gold);text-transform:uppercase;margin-bottom:16px}
+.rh-title{font-size:3.2rem;font-weight:900;line-height:.95;letter-spacing:-.04em}
+.rh-title span{color:var(--gold-lt)}
+.rh-meta{text-align:right;font-size:.72rem;font-family:var(--mono);color:#888;line-height:2}
+.rh-meta strong{color:var(--paper);font-weight:600}
+
+/* ── LAYOUT ── */
+.wrap{max-width:1200px;margin:0 auto;padding:52px 64px 80px;display:flex;flex-direction:column;gap:52px}
+
+/* ── SECTION LABEL ── */
+.sec-label{
+  font-size:.6rem;font-family:var(--mono);letter-spacing:.22em;
+  text-transform:uppercase;color:var(--gold);
+  border-top:1px solid var(--gold);padding-top:10px;margin-bottom:24px;
+  display:flex;align-items:center;gap:12px;
+}
+.sec-label::after{content:'';flex:1;height:1px;background:var(--off)}
+
+/* ── SCORE ── */
+.score-grid{display:grid;grid-template-columns:1fr 48px 1fr;gap:0;align-items:center}
+.score-team{padding:32px 40px}
+.score-team.a{text-align:right}
+.score-team.b{text-align:left;border-left:1px solid var(--off)}
+.stm-name{font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-family:var(--mono);margin-bottom:8px}
+.stm-players{font-size:1.05rem;font-weight:700;color:var(--ink);line-height:1.3}
+.stm-score{font-size:5rem;font-weight:900;line-height:1;font-family:var(--mono);letter-spacing:-.06em;margin-top:12px;color:var(--ink)}
+.score-team.winner .stm-score{color:var(--gold)}
+.score-team.winner .stm-name{color:var(--green)}
+.score-vs{text-align:center;font-size:.65rem;font-family:var(--mono);letter-spacing:.1em;color:var(--muted)}
+.score-border{border:1px solid var(--off)}
+
+/* ── PILLS ── */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--off)}
+.kpi{padding:28px 24px;border-right:1px solid var(--off);text-align:center}
+.kpi:last-child{border-right:none}
+.kpi-num{font-size:2.8rem;font-weight:900;font-family:var(--mono);line-height:1;letter-spacing:-.04em}
+.kpi-label{font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-top:6px;font-family:var(--mono)}
+.kpi-num.k-gold{color:var(--gold)}.kpi-num.k-red{color:var(--red)}.kpi-num.k-green{color:var(--green)}.kpi-num.k-blue{color:var(--blue)}
+
+/* ── PLAYER CARDS ── */
+.pg{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1px;background:var(--off);border:1px solid var(--off)}
+.pc{background:var(--paper);padding:30px 28px}
+.pc-title{font-size:.6rem;font-family:var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:4px}
+.pc-name{font-size:1.4rem;font-weight:800;line-height:1;margin-bottom:2px}
+.pc-team{font-size:.67rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:20px}
+.pc-divider{height:1px;background:var(--off);margin:14px 0}
+.sr{display:flex;justify-content:space-between;align-items:baseline;padding:6px 0}
+.sr-label{font-size:.78rem;color:var(--muted)}
+.sr-val{font-size:1.2rem;font-weight:800;font-family:var(--mono)}
+.sr-val.g{color:var(--green)}.sr-val.r{color:var(--red)}.sr-val.b{color:var(--blue)}.sr-val.gold{color:var(--gold)}
+.impact-row{margin-top:18px;padding-top:14px;border-top:1px solid var(--off)}
+.impact-label{font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-family:var(--mono);margin-bottom:10px}
+.bar-wrap{height:6px;background:var(--off);display:flex;overflow:hidden}
+.bar-prov{background:var(--green);height:100%}
+.bar-subi{background:var(--red);height:100%}
+.bar-legend{display:flex;gap:16px;margin-top:8px;font-size:.62rem;color:var(--muted);font-family:var(--mono)}
+.bar-dot{display:inline-block;width:8px;height:8px;margin-right:5px}
+.impact-big{font-size:2rem;font-weight:900;font-family:var(--mono);line-height:1;margin-top:8px}
+
+/* ── SHOTS ── */
+.shots-grid{display:flex;flex-wrap:wrap;gap:1px;background:var(--off);border:1px solid var(--off)}
+.shot-item{background:var(--paper);padding:18px 24px;flex:1;min-width:120px;display:flex;align-items:baseline;justify-content:space-between;gap:16px}
+.shot-name{font-size:.72rem;font-family:var(--mono);color:var(--muted)}
+.shot-count{font-size:1.5rem;font-weight:800;font-family:var(--mono);color:var(--ink)}
+.shot-count span{font-size:.68rem;color:var(--muted);margin-left:3px}
+
+/* ── TABLE ── */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.78rem;font-family:var(--mono)}
+thead tr{border-bottom:2px solid var(--ink)}
+th{padding:10px 16px;text-align:left;font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:500}
+td{padding:11px 16px;border-bottom:1px solid var(--off);color:var(--ink)}
+tr:hover td{background:var(--off)}
+.td-win{color:var(--green);font-weight:700}
+.td-fault{color:var(--red);font-weight:700}
+.td-prov{color:var(--blue);font-weight:700}
+
+/* ── FOOTER ── */
+.report-footer{
+  background:var(--ink);color:#444;
+  padding:24px 64px;
+  font-size:.62rem;font-family:var(--mono);letter-spacing:.1em;
+  display:flex;justify-content:space-between;
+  border-top:1px solid #222;
+}
+.report-footer span{color:#666}
+
+@media print{
+  .report-header{padding:40px 40px 32px}
+  .wrap{padding:32px 40px 40px}
+  .report-footer{padding:16px 40px}
+}
+/* ── ADV STATS ── */
+.adv-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1px;background:var(--off);border:1px solid var(--off)}
+.adv-cell{background:var(--paper);padding:20px 22px}
+.adv-key{font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-family:var(--mono);margin-bottom:6px}
+.adv-val{font-size:1.6rem;font-weight:900;font-family:var(--mono);line-height:1}
+.adv-pill{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.72rem;font-family:var(--mono);font-weight:700;margin-top:6px}
+.pill-bon{background:#d4edda;color:var(--green)}.pill-moyen{background:#fff3cd;color:#856404}.pill-bad{background:#f8d7da;color:var(--red)}
+.serie-row{display:flex;gap:16px;margin-top:10px}
+.serie-item{flex:1;padding:10px 14px;border:1px solid var(--off);text-align:center}
+.serie-num{font-size:1.8rem;font-weight:900;font-family:var(--mono);line-height:1}
+.serie-lbl{font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-family:var(--mono);margin-top:4px}
+/* ── CHARTS ── */
+.charts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:24px}
+.chart-panel{background:var(--paper);border:1px solid var(--off);padding:24px}
+.chart-panel-title{font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-family:var(--mono);margin-bottom:16px}
+.chart-canvas-wrap{position:relative;height:220px}
+@media(max-width:700px){.charts-grid{grid-template-columns:1fr}.adv-grid{grid-template-columns:repeat(2,1fr)}}
+</style></head>
+<body>
+
+<header class="report-header">
+  <div>
+    <div class="rh-brand">PadelStat — Analyse de match</div>
+    <div class="rh-title">ANALYSE<br><span>TACTIQUE</span></div>
+  </div>
+  <div class="rh-meta">
+    <div><strong>${date}</strong></div>
+    <div>Équipe A &nbsp;·&nbsp; <strong>${teamA.map(p=>p.name).join(' / ')}</strong></div>
+    <div>Équipe B &nbsp;·&nbsp; <strong>${teamB.map(p=>p.name).join(' / ')}</strong></div>
+    <div style="margin-top:8px">${STATE.annotations.length} points analysés</div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- SCORE -->
+  <section>
+    <div class="sec-label">01 — Score</div>
+    <div class="score-grid score-border">
+      <div class="score-team a${scoreA>scoreB?' winner':''}">
+        <div class="stm-name">Équipe A</div>
+        <div class="stm-players">${teamA.map(p=>p.name).join('<br>')}</div>
+        <div class="stm-score">${scoreA}</div>
+      </div>
+      <div class="score-vs">VS</div>
+      <div class="score-team b${scoreB>scoreA?' winner':''}">
+        <div class="stm-name">Équipe B</div>
+        <div class="stm-players">${teamB.map(p=>p.name).join('<br>')}</div>
+        <div class="stm-score">${scoreB}</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- KPI GLOBAL AVANCÉ -->
+  <section>
+    <div class="sec-label">02 — Résumé global</div>
+    <div class="kpi-row">
+      <div class="kpi"><div class="kpi-num k-gold">${STATE.annotations.length}</div><div class="kpi-label">Total&nbsp;points</div></div>
+      <div class="kpi"><div class="kpi-num k-green">${totalW}</div><div class="kpi-label">Points&nbsp;gagnants</div></div>
+      <div class="kpi"><div class="kpi-num k-red">${totalFD}</div><div class="kpi-label">Fautes&nbsp;directes</div></div>
+      <div class="kpi"><div class="kpi-num k-blue">${totalFP}</div><div class="kpi-label">Fautes&nbsp;provoquées</div></div>
+    </div>
+    <div class="kpi-row" style="margin-top:1px">
+      <div class="kpi"><div class="kpi-num k-gold">${ratioGlobal}</div><div class="kpi-label">Ratio&nbsp;positif/négatif</div></div>
+      <div class="kpi"><div class="kpi-num">${Math.round(totalPositifs/Math.max(STATE.annotations.length,1)*100)}%</div><div class="kpi-label">Efficacité&nbsp;globale</div></div>
+      <div class="kpi"><div class="kpi-num">${dureeStr}</div><div class="kpi-label">Durée&nbsp;match</div></div>
+      <div class="kpi"><div class="kpi-num k-blue">${scoreA > scoreB ? teamA.map(p=>p.name).join('/') : teamB.map(p=>p.name).join('/')}</div><div class="kpi-label">Équipe&nbsp;dominante</div></div>
+    </div>
+  </section>
+
+  <!-- PLAYERS -->
+  <section>
+    <div class="sec-label">03 — Analyse par joueur</div>
+    <div class="pg">${STATE.players.map(p => {
+      const s = stat(p.id);
+      const impSign = s.impact > 0 ? '+' : '';
+      const impColor = s.impact > 0 ? 'var(--green)' : s.impact < 0 ? 'var(--red)' : 'var(--muted)';
+      return `<div class="pc">
+        <div class="pc-title">${p.team}</div>
+        <div class="pc-name">${p.name}</div>
+        <div class="pc-team">Joueur</div>
+        <div class="sr"><span class="sr-label">Points gagnants</span><span class="sr-val g">${s.winners}</span></div>
+        <div class="sr"><span class="sr-label">Fautes directes</span><span class="sr-val r">${s.fautes}</span></div>
+        <div class="sr"><span class="sr-label">Efficacité</span><span class="sr-val b">${s.efficacite}%</span></div>
+        <div class="pc-divider"></div>
+        <div class="sr"><span class="sr-label">Fautes provoquées</span><span class="sr-val g">${s.provoquees}</span></div>
+        <div class="sr"><span class="sr-label">Fautes subies</span><span class="sr-val r">${s.subies}</span></div>
+        <div class="impact-row">
+          <div class="impact-label">Impact match</div>
+          <div class="impact-big" style="color:${impColor}">${impSign}${s.impact}</div>
+          <div class="bar-wrap" style="margin-top:12px">
+            <div class="bar-prov" style="width:${s.fp_pct}%"></div>
+            <div class="bar-subi" style="width:${s.fs_pct}%"></div>
+          </div>
+          <div class="bar-legend">
+            <span><span class="bar-dot" style="background:var(--green);display:inline-block"></span>Provoquées ${s.provoquees}</span>
+            <span><span class="bar-dot" style="background:var(--red);display:inline-block"></span>Subies ${s.subies}</span>
+          </div>
+        </div>
+        <div class="pc-divider"></div>
+        <div class="sr"><span class="sr-label">Ratio +/−</span><span class="sr-val gold">${s.ratio}</span></div>
+        <div class="sr"><span class="sr-label">Agressivité</span><span class="sr-val b">${s.agressivite}%</span></div>
+        <div class="sr"><span class="sr-label">Constance</span><span class="sr-val"><span class="adv-pill ${s.constance==='Bon'?'pill-bon':s.constance==='Moyen'?'pill-moyen':'pill-bad'}">${s.constance}</span></span></div>
+        <div class="serie-row">
+          <div class="serie-item"><div class="serie-num" style="color:var(--green)">${s.serie_pos}</div><div class="serie-lbl">Série +</div></div>
+          <div class="serie-item"><div class="serie-num" style="color:var(--red)">${s.serie_neg}</div><div class="serie-lbl">Série −</div></div>
+        </div>
+      </div>`;
+    }).join('')}</div>
+  </section>
+
+  <!-- SHOTS -->
+  ${topShots.length ? `<section>
+    <div class="sec-label">04 — Répartition des coups</div>
+    <div class="shots-grid">${topShots.map(([k,v])=>`
+      <div class="shot-item">
+        <span class="shot-name">${k}</span>
+        <span class="shot-count">${v}<span>pts</span></span>
+      </div>`).join('')}
+    </div>
+  </section>` : ''}
+
+  <!-- TIMELINE -->
+  <section>
+    <div class="sec-label">05 — Chronologie complète</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Temps</th><th>Joueur(s)</th><th>Équipe</th><th>Type</th><th>Coup</th></tr></thead>
+        <tbody>${[...STATE.annotations].reverse().map((a,i) => {
+          const p  = STATE.players.find(x=>x.id===a.joueurId);
+          const d  = STATE.players.find(x=>x.id===a.defenseurId);
+          const t  = formatTime(a.timestamp);
+          const n  = STATE.annotations.length - i;
+          const cls = a.type==='point_gagnant'?'td-win':a.type==='faute_directe'?'td-fault':'td-prov';
+          const typeLabel = a.type==='point_gagnant'?'Point gagnant':a.type==='faute_directe'?'Faute directe':'Faute provoquée';
+          const who = a.type==='faute_provoquee'?`${p?.name||'?'} → ${d?.name||'?'}`:(p?.name||'?');
+          return `<tr><td style="color:var(--muted)">${n}</td><td>${t}</td><td>${who}</td><td style="color:var(--muted)">${p?.team||'?'}</td><td class="${cls}">${typeLabel}</td><td>${a.shot_label||'—'}</td></tr>`;
+        }).join('')}</tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- GRAPHIQUES -->
+  <section>
+    <div class="sec-label">06 — Graphiques</div>
+    <div class="charts-grid">
+
+      <!-- Momentum équipes -->
+      <div class="chart-panel">
+        <div class="chart-panel-title">Momentum — Évolution par équipe</div>
+        <div class="chart-canvas-wrap"><canvas id="chartMomentum"></canvas></div>
+      </div>
+
+      <!-- Évolution par joueur -->
+      <div class="chart-panel">
+        <div class="chart-panel-title">Évolution individuelle — Points cumulatifs</div>
+        <div class="chart-canvas-wrap"><canvas id="chartEvol"></canvas></div>
+      </div>
+
+      <!-- Radar compétences -->
+      ${STATE.players.map((p,i) => `<div class="chart-panel">
+        <div class="chart-panel-title">Radar — ${p.name}</div>
+        <div class="chart-canvas-wrap"><canvas id="chartRadar${i}"></canvas></div>
+      </div>`).join('')}
+
+      <!-- Impact net par joueur -->
+      <div class="chart-panel">
+        <div class="chart-panel-title">Impact net par joueur</div>
+        <div class="chart-canvas-wrap"><canvas id="chartImpact"></canvas></div>
+      </div>
+
+    </div>
+  </section>
+
+</div>
+
+<footer class="report-footer">
+  <span>PADELSTAT — Système d'annotation tactique</span>
+  <span>Généré le ${dateTime}</span>
+</footer>
+
+<script>
+(function(){
+  const COLORS = ['#1a6b3a','#c0392b','#1a3a6b','#b8960c','#555','#888'];
+  const COLORS_BG = ['rgba(26,107,58,.15)','rgba(192,57,43,.15)','rgba(26,58,107,.15)','rgba(184,150,12,.15)','rgba(85,85,85,.15)','rgba(136,136,136,.15)'];
+  const LABELS = ${JSON.stringify(momentumLabels)};
+
+  // ── Momentum équipes ──
+  new Chart(document.getElementById('chartMomentum'), {
+    type: 'line',
+    data: {
+      labels: LABELS,
+      datasets: [
+        { label: '${teamA.map(p=>p.name).join('/')}', data: ${JSON.stringify(momentumA)}, borderColor:'#1a6b3a', backgroundColor:'rgba(26,107,58,.1)', fill:true, tension:.3, pointRadius:0 },
+        { label: '${teamB.map(p=>p.name).join('/')}', data: ${JSON.stringify(momentumB)}, borderColor:'#c0392b', backgroundColor:'rgba(192,57,43,.1)', fill:true, tension:.3, pointRadius:0 }
+      ]
+    },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{position:'bottom'} }, scales:{ x:{display:false}, y:{beginAtZero:true} } }
+  });
+
+  // ── Évolution par joueur ──
+  new Chart(document.getElementById('chartEvol'), {
+    type: 'line',
+    data: {
+      labels: LABELS,
+      datasets: [${STATE.players.map((p,i) => `{ label: '${p.name}', data: ${JSON.stringify(playerEvol[p.id]||[])}, borderColor: COLORS[${i}], tension:.3, pointRadius:0, fill:false }`).join(',')}]
+    },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{position:'bottom'} }, scales:{ x:{display:false}, y:{beginAtZero:true} } }
+  });
+
+  // ── Radars ──
+  const radarLabels = ['Attaque','Défense','Précision','Agressivité','Impact'];
+  ${radarData.map((r,i) => `new Chart(document.getElementById('chartRadar${i}'), {
+    type: 'radar',
+    data: { labels: radarLabels, datasets: [{ label: '${r.name}', data: [${r.attaque},${r.defense},${r.precision},${r.agressivite},${r.impact}], borderColor: COLORS[${i}], backgroundColor: COLORS_BG[${i}], pointBackgroundColor: COLORS[${i}] }] },
+    options: { responsive:true, maintainAspectRatio:false, scales:{ r:{ beginAtZero:true, max:100, ticks:{display:false} } }, plugins:{ legend:{display:false} } }
+  });`).join('\n  ')}
+
+  // ── Impact net ──
+  new Chart(document.getElementById('chartImpact'), {
+    type: 'bar',
+    data: {
+      labels: [${STATE.players.map(p=>`'${p.name}'`).join(',')}],
+      datasets: [{ label: 'Impact net', data: [${STATE.players.map(p=>stat(p.id).impact).join(',')}],
+        backgroundColor: [${STATE.players.map(p=>{ const imp=stat(p.id).impact; return imp>0?"'rgba(26,107,58,.8)'":imp<0?"'rgba(192,57,43,.8)'"  :"'rgba(136,128,112,.8)'"; }).join(',')}]
+      }]
+    },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false} }, scales:{ y:{ beginAtZero:false } } }
+  });
+})();
+</script>
+</body></html>`;
+
+    const blob = new Blob([html], {type:'text/html;charset=utf-8'});
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url; a.target = '_blank'; a.rel = 'noopener';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
+    toast('Rapport généré','win');
   },
 };
 
-async function pollBackend() {
-  try {
-    const r = await fetch(`${API_URL}/health`,{signal:AbortSignal.timeout(1000)});
-    if (r.ok) {
-      const was = !STATE.apiConnected; STATE.apiConnected = true;
-      document.getElementById('connDot').className='conn-dot connected';
-      document.getElementById('connLabel').textContent='Backend connecté';
-      if (was) toast('🔌 Backend Python connecté','win');
-    }
-  } catch {
-    if (STATE.apiConnected) toast('⚠️ Backend déconnecté','fault');
-    STATE.apiConnected = false;
-    document.getElementById('connDot').className='conn-dot';
-    document.getElementById('connLabel').textContent='Déconnecté';
-  }
+/* ═══ TAILLE D'ÉCRAN ═══ */
+function setSize(sz) {
+  ['compact','normal','large','cinema'].forEach(s => {
+    document.body.classList.remove('sz-' + s);
+    const btn = document.getElementById('sz-' + s);
+    if (btn) btn.classList.remove('active');
+  });
+  if (sz !== 'normal') document.body.classList.add('sz-' + sz);
+  const btn = document.getElementById('sz-' + sz);
+  if (btn) btn.classList.add('active');
+  localStorage.setItem('ps_size', sz);
 }
 
 /* ═══ TOAST ═══ */
@@ -1896,23 +2957,133 @@ function formatTime(s) {
 
 /* ═══ INIT ═══ */
 document.addEventListener('DOMContentLoaded', () => {
+  // Auth désactivée — accès direct
+  sessionStorage.setItem('ps_auth', '1');
+  document.getElementById('loginScreen').style.display = 'none';
+
   app.init();
   initChart();
   updatePlayerCards();
-  pollBackend();
-  setInterval(pollBackend, 5000);
   toast('🎾 PadelStat prêt !','win');
+
+  tryRestoreState();
 });
 
 document.addEventListener('fullscreenchange', () => {
   if (!document.fullscreenElement) exitFullscreen();
 });
+
+/* ═══ RACCOURCIS CLAVIER GLOBAUX ═══ */
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') exitFullscreen();
-  if (e.key === ' ') { e.preventDefault(); app.togglePlay(); }
-  if (e.key === 'ArrowLeft')  app.seekRel(-5);
-  if (e.key === 'ArrowRight') app.seekRel(5);
+  // Ignorer si focus sur un input/textarea
+  const tag = document.activeElement?.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+  // Ignorer si login visible
+  if (document.getElementById('loginScreen')?.style.display !== 'none') return;
+
+  const modal = document.getElementById('playerModal');
+  const modalOpen = modal.classList.contains('open');
+
+  // ── Raccourcis quand modal FERMÉ ──────────────────────────────
+  if (!modalOpen) {
+    if (e.key === ' ')          { e.preventDefault(); app.togglePlay(); return; }
+    if (e.key === 'ArrowLeft')  { app.seekRel(-3);  return; }
+    if (e.key === 'ArrowRight') { app.seekRel(3);   return; }
+    if (e.key === 'ArrowUp')    { e.preventDefault(); app.seekRel(10);  return; }
+    if (e.key === 'ArrowDown')  { e.preventDefault(); app.seekRel(-10); return; }
+
+    const k = e.key.toLowerCase();
+    if (k === 'enter')   { e.preventDefault(); openModal(); return; }
+    if (k === 'z')       { e.preventDefault(); app.undoLast(); return; }
+    if (e.key === 'Escape')         {
+      if (document.getElementById('matchesModal')?.classList.contains('open')) { closeMatchesModal(); return; }
+      exitFullscreen(); return;
+    }
+  }
+
+  // ── Raccourcis quand modal OUVERT ─────────────────────────────
+  if (modalOpen) {
+    if (e.key === 'Escape')    { e.preventDefault(); closeModal(); return; }
+    if (e.key === 'Backspace') { e.preventDefault(); modalBack(); return; }
+    const key = e.key.length === 1 ? e.key.toUpperCase() : null;
+    if (!key) return;
+    const config = ANNOTATION_MODAL_TREE[STATE.modalStep]?.();
+    if (config?.items?.some(item => item.key.toUpperCase() === key)) {
+      e.preventDefault();
+      handleModalChoice(key);
+    }
+  }
 });
+
+/* ═══ PANNEAU AIDE CLAVIER ═══ */
+(function buildKbdHelp() {
+  const panel = document.createElement('div');
+  panel.id = 'kbdHelp';
+  panel.innerHTML = `
+    <div class="kh-title">⌨️ Raccourcis</div>
+    <div class="kh-row"><kbd>W</kbd> ou <kbd>↵</kbd> <span>Point Gagnant</span></div>
+    <div class="kh-row"><kbd>F</kbd> <span>Faute Directe</span></div>
+    <div class="kh-row"><kbd>P</kbd> <span>Faute Provoquée</span></div>
+    <div class="kh-row"><kbd>Z</kbd> <span>Annuler dernier</span></div>
+    <div class="kh-row"><kbd>Espace</kbd> <span>Play / Pause</span></div>
+    <div class="kh-row"><kbd>◀</kbd><kbd>▶</kbd> <span>±3 sec</span></div>
+    <div class="kh-row"><kbd>▲</kbd><kbd>▼</kbd> <span>±10 sec</span></div>
+    <div class="kh-row kh-modal"><kbd>1</kbd>–<kbd>4</kbd> <span>Choisir joueur</span></div>
+    <div class="kh-row kh-modal"><kbd>⌫</kbd> <span>Étape précédente</span></div>
+    <div class="kh-row kh-modal"><kbd>Échap</kbd> <span>Fermer modal</span></div>
+    <button class="kh-close" onclick="document.getElementById('kbdHelp').classList.toggle('open')">✕</button>
+  `;
+  document.body.appendChild(panel);
+
+  // Bouton d'ouverture fixe
+  const btn = document.createElement('button');
+  btn.id = 'kbdHelpBtn';
+  btn.textContent = '⌨️';
+  btn.title = 'Raccourcis clavier';
+  btn.onclick = () => panel.classList.toggle('open');
+  document.body.appendChild(btn);
+
+  const style = document.createElement('style');
+  style.textContent = `
+    #kbdHelpBtn {
+      position: fixed; bottom: 14px; right: 14px; z-index: 850;
+      width: 38px; height: 38px; border-radius: 50%;
+      background: rgba(255,255,255,0.08); border: 1px solid var(--border-bright);
+      color: var(--text-secondary); font-size: 1.1rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all .2s;
+    }
+    #kbdHelpBtn:hover { background: rgba(255,255,255,0.15); color: var(--text-primary); }
+    #kbdHelp {
+      position: fixed; bottom: 60px; right: 14px; z-index: 850;
+      background: rgba(13,17,23,0.97); border: 1px solid var(--border-bright);
+      border-radius: var(--radius-md); padding: 14px 16px;
+      min-width: 230px; box-shadow: 0 8px 32px rgba(0,0,0,.6);
+      display: none; flex-direction: column; gap: 7px;
+    }
+    #kbdHelp.open { display: flex; }
+    .kh-title { font-size: .72rem; font-weight: 800; text-transform: uppercase;
+      letter-spacing: .1em; color: var(--text-muted); margin-bottom: 4px; }
+    .kh-row { display: flex; align-items: center; gap: 7px; font-size: .78rem;
+      color: var(--text-secondary); }
+    .kh-row span { flex: 1; }
+    .kh-row kbd {
+      background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.18);
+      border-radius: 5px; padding: 2px 7px; font-size: .68rem;
+      font-family: var(--font-mono); color: var(--text-primary);
+      white-space: nowrap;
+    }
+    .kh-modal { opacity: .55; }
+    .kh-modal::before { content: ''; }
+    .kh-close {
+      position: absolute; top: 8px; right: 10px;
+      background: none; border: none; color: var(--text-muted);
+      font-size: .8rem; cursor: pointer;
+    }
+    #kbdHelp { position: fixed; }
+  `;
+  document.head.appendChild(style);
+})();
 </script>
 </body>
 </html>
