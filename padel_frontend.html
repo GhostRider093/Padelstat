@@ -1555,7 +1555,16 @@ function switchTab(name) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
   document.getElementById('panel-' + name).classList.add('active');
-  if (name === 'stats')      { updatePlayerCards(); updateChart(); updatePlayerChart(); }
+  if (name === 'stats') {
+    updatePlayerCards();
+    if (!shotsChart || !playerChart) {
+      initChart();
+    } else {
+      shotsChart.resize();
+      playerChart.resize();
+    }
+    setTimeout(() => { updateChart(); updatePlayerChart(); }, 30);
+  }
   if (name === 'historique') { renderTimeline(); }
 }
 
@@ -3812,7 +3821,6 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('loginScreen').style.display = 'none';
 
   app.init();
-  initChart();
   updatePlayerCards();
   renderTimeline();
   toast('🎾 PadelStat prêt !','win');
