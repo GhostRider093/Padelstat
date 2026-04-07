@@ -1239,7 +1239,10 @@ body.sz-cinema .annotation-bar{ flex-wrap: nowrap; overflow-x: auto; }
 
   <div class="header-actions">
     <div class="live-badge">LIVE</div>
-    <!-- Séparateur redimensionnable --> 
+    <div class="conn-status" id="serviceStatus" title="Service local PadelStat" onclick="serviceToggleConnect()" style="cursor:pointer">
+      <div class="conn-dot" id="serviceStatusDot"></div>
+      <span id="serviceStatusLabel">Service déconnecté</span>
+    </div>
     <button class="hdr-btn" onclick="openMatchesModal()" title="Gérer les parties" style="display:flex;align-items:center;gap:5px;">
       🏆 <span id="hdrMatchName" style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--font-mono);font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;">Aucune partie</span>
     </button>
@@ -2660,9 +2663,88 @@ function updatePlayerChart() {
   playerChart.update('active');
 }
 
+/* ═══ SERVICE LOCAL (localhost:8766) ═══ */
+const SERVICE_URL = 'http://localhost:8766';
+let _svcConnected = false;
+let _svcPollTimer = null;
+
+async function _svcPing() {
+  try {
+    const r = await fetch(SERVICE_URL + '/health', { signal: AbortSignal.timeout(1500) });
+    const ok = r.ok;
+    _svcSetConnected(ok);
+    return ok;
+  } catch { _svcSetConnected(false); return false; }
+}
+
+function _svcSetConnected(connected) {
+  if (connected === _svcConnected) return;
+  _svcConnected = connected;
+  STATE.apiConnected = connected;
+  const dot   = document.getElementById('serviceStatusDot');
+  const label = document.getElementById('serviceStatusLabel');
+  if (!dot || !label) return;
+  if (connected) {
+    dot.classList.add('connected');
+    label.textContent = 'Service connecté';
+    toast('🔌 Service PadelStat connecté','win');
+  } else {
+    dot.classList.remove('connected');
+    label.textContent = 'Service déconnecté';
+  }
+}
+
+function serviceConnect() {
+  if (_svcPollTimer) return;
+  _svcPing();
+  _svcPollTimer = setInterval(_svcPing, 5000);
+}
+
+function serviceToggleConnect() {
+  if (_svcConnected) {
+    clearInterval(_svcPollTimer); _svcPollTimer = null;
+    _svcSetConnected(false);
+    toast('🔌 Service déconnecté manuellement','fault');
+  } else {
+    _svcPing();
+    if (!_svcPollTimer) _svcPollTimer = setInterval(_svcPing, 5000);
+  }
+}
+
+async function _svcPost(path, body) {
+  try {
+    const r = await fetch(SERVICE_URL + path, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(5000),
+    });
+    return await r.json();
+  } catch (e) { _svcSetConnected(false); return null; }
+}
+
 /* ═══ API CLIENT-SIDE ═══ */
 const api = {
-  sendAnnotation(a) { /* stocké dans STATE.annotations */ },
+  sendAnnotation(a) {
+    if (!_svcConnected) return;
+    const payload = {
+      type:      a.type,
+      joueur:    a.joueur,
+      type_coup: a.type_coup || 'autre',
+      timestamp: a.timestamp || 0,
+      frame:     a.frame || 0,
+    };
+    if (a.type === 'faute_provoquee') {
+      payload.attaquant = a.joueur;
+      payload.defenseur = a.defenseur || '';
+    }
+    _svcPost('/annotation', payload);
+  },
+
+  command(cmd, params = {}) {
+    if (!_svcConnected) return;
+    _svcPost('/command', { command: cmd, params });
+  },
 
   async analyzeWithAI() {
     if (STATE.annotations.length === 0) { toast('⚠️ Aucune annotation à analyser','fault'); return; }
@@ -3823,6 +3905,7 @@ document.addEventListener('DOMContentLoaded', () => {
   app.init();
   updatePlayerCards();
   renderTimeline();
+  serviceConnect();
   toast('🎾 PadelStat prêt !','win');
 
   tryRestoreState();
