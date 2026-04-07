@@ -2667,6 +2667,7 @@ function updatePlayerChart() {
 const SERVICE_URL = 'http://localhost:8766';
 let _svcConnected = false;
 let _svcPollTimer = null;
+let _svcToken = localStorage.getItem('ps_service_token') || '';
 
 async function _svcPing() {
   try {
@@ -2696,6 +2697,7 @@ function _svcSetConnected(connected) {
 
 function serviceConnect() {
   if (_svcPollTimer) return;
+  if (!_svcToken) { _svcPromptToken(); return; }
   _svcPing();
   _svcPollTimer = setInterval(_svcPing, 5000);
 }
@@ -2706,19 +2708,52 @@ function serviceToggleConnect() {
     _svcSetConnected(false);
     toast('🔌 Service déconnecté manuellement','fault');
   } else {
+    if (!_svcToken) { _svcPromptToken(); return; }
     _svcPing();
     if (!_svcPollTimer) _svcPollTimer = setInterval(_svcPing, 5000);
   }
 }
 
+function _svcPromptToken() {
+  const modal = document.getElementById('aiModal');
+  document.getElementById('aiModalContent').innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <div style="font-size:1.1rem;font-weight:700;color:var(--ink)">🔑 Token service PadelStat</div>
+      <button onclick="document.getElementById('aiModal').style.display='none'" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--text-secondary)">✕</button>
+    </div>
+    <p style="font-size:.85rem;color:var(--text-secondary);margin-bottom:16px">
+      Copiez le token affiché dans la console de l'application desktop PadelStat et collez-le ici.
+    </p>
+    <input id="svcTokenInput" type="text" placeholder="Collez votre token ici…"
+      style="width:100%;padding:10px 12px;border:1.5px solid var(--border-bright);border-radius:8px;background:var(--card-bg);color:var(--text-primary);font-size:.85rem;box-sizing:border-box;font-family:var(--font-mono)">
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px">
+      <button onclick="document.getElementById('aiModal').style.display='none'" class="anno-btn" style="padding:8px 18px">Annuler</button>
+      <button onclick="_svcSaveToken()" class="anno-btn ai" style="padding:8px 20px;font-weight:700">✓ Connecter</button>
+    </div>`;
+  modal.style.display = 'flex';
+  setTimeout(() => document.getElementById('svcTokenInput')?.focus(), 100);
+}
+
+function _svcSaveToken() {
+  const val = (document.getElementById('svcTokenInput')?.value || '').trim();
+  if (!val) { toast('⚠️ Token vide','fault'); return; }
+  _svcToken = val;
+  localStorage.setItem('ps_service_token', val);
+  document.getElementById('aiModal').style.display = 'none';
+  _svcPing();
+  if (!_svcPollTimer) _svcPollTimer = setInterval(_svcPing, 5000);
+}
+
 async function _svcPost(path, body) {
+  if (!_svcToken) return null;
   try {
     const r = await fetch(SERVICE_URL + path, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'X-PadelStat-Token': _svcToken },
       body: JSON.stringify(body),
       signal: AbortSignal.timeout(5000),
     });
+    if (r.status === 401) { _svcSetConnected(false); toast('🔑 Token service invalide','fault'); return null; }
     return await r.json();
   } catch (e) { _svcSetConnected(false); return null; }
 }

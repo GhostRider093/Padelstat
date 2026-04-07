@@ -1,17 +1,36 @@
 from __future__ import annotations
 
 import json
+import secrets
 import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any
 
+# Origines autorisées à appeler le service local
+_ALLOWED_ORIGINS = {
+    "http://localhost:8012",
+    "http://127.0.0.1:8012",
+    "http://57.129.110.251:8012",
+    "http://localhost",
+    "http://127.0.0.1",
+    # fichier ouvert directement dans le navigateur
+    "null",
+}
+
+
+def generate_token() -> str:
+    """Génère un token aléatoire sécurisé (32 octets hex)."""
+    return secrets.token_hex(32)
+
 
 class PadelRemoteControlServer:
-    def __init__(self, root, app, host: str = "127.0.0.1", port: int = 8766) -> None:
+    def __init__(self, root, app, host: str = "127.0.0.1", port: int = 8766,
+                 token: str | None = None) -> None:
         self.root = root
         self.app = app
         self.host = host
         self.port = port
+        self.token: str = token or generate_token()
         self.httpd: ThreadingHTTPServer | None = None
         self.thread: threading.Thread | None = None
 
@@ -22,9 +41,25 @@ class PadelRemoteControlServer:
         server_ref = self
 
         class Handler(BaseHTTPRequestHandler):
+            def _origin(self) -> str:
+                return self.headers.get("Origin", "").strip()
+
+            def _cors(self) -> None:
+                origin = self._origin()
+                allowed = origin if origin in _ALLOWED_ORIGINS else ""
+                if allowed:
+                    self.send_header("Access-Control-Allow-Origin", allowed)
+                    self.send_header("Vary", "Origin")
+                self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+                self.send_header("Access-Control-Allow-Headers", "Content-Type, X-PadelStat-Token")
+
+            def _auth_ok(self) -> bool:
+                return self.headers.get("X-PadelStat-Token", "") == server_ref.token
+
             def _send(self, status: int, payload: dict[str, Any]) -> None:
                 body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
                 self.send_response(status)
+                self._cors()
                 self.send_header("Content-Type", "application/json; charset=utf-8")
                 self.send_header("Content-Length", str(len(body)))
                 self.end_headers()
@@ -33,9 +68,22 @@ class PadelRemoteControlServer:
             def log_message(self, format: str, *args: Any) -> None:
                 return
 
+            def do_OPTIONS(self) -> None:
+                self.send_response(204)
+                self._cors()
+                self.end_headers()
+
             def do_GET(self) -> None:
                 if self.path == "/health":
+                    # Pas d'auth sur health — juste vérifier que le service tourne
+                    origin = self._origin()
+                    if origin and origin not in _ALLOWED_ORIGINS:
+                        self._send(403, {"ok": False, "error": "Origin non autorisée"})
+                        return
                     self._send(200, {"status": "ok"})
+                    return
+                if not self._auth_ok():
+                    self._send(401, {"ok": False, "error": "Token invalide"})
                     return
                 if self.path == "/state":
                     try:
@@ -47,6 +95,14 @@ class PadelRemoteControlServer:
                 self._send(404, {"ok": False, "error": "Not found"})
 
             def do_POST(self) -> None:
+                origin = self._origin()
+                if origin and origin not in _ALLOWED_ORIGINS:
+                    self._send(403, {"ok": False, "error": "Origin non autorisée"})
+                    return
+                if not self._auth_ok():
+                    self._send(401, {"ok": False, "error": "Token invalide"})
+                    return
+
                 length = int(self.headers.get("Content-Length", "0"))
                 raw = self.rfile.read(length) if length else b"{}"
 
