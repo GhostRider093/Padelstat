@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import secrets
 import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any
@@ -18,9 +17,7 @@ _ALLOWED_ORIGINS = {
 }
 
 
-def generate_token() -> str:
-    """Génère un token aléatoire sécurisé (32 octets hex)."""
-    return secrets.token_hex(32)
+SERVICE_TOKEN = "005625"
 
 
 class PadelRemoteControlServer:
@@ -30,7 +27,7 @@ class PadelRemoteControlServer:
         self.app = app
         self.host = host
         self.port = port
-        self.token: str = token or generate_token()
+        self.token: str = token or SERVICE_TOKEN
         self.httpd: ThreadingHTTPServer | None = None
         self.thread: threading.Thread | None = None
 

@@ -147,8 +147,7 @@ def main():
         app = MainWindow(root, safe_mode=safe_mode)
         remote_server = PadelRemoteControlServer(root, app)
         remote_server.start()
-        logger.info('Service local démarré sur localhost:8766 — token: %s', remote_server.token)
-        print(f'\n🔑 Token service PadelStat : {remote_server.token}\n   (à saisir dans le navigateur pour connecter le service)\n')
+        logger.info('Service local démarré sur localhost:8766')
         logger.info('Entrée dans mainloop')
         root.mainloop()
     except Exception as e:
