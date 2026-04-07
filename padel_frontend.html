@@ -1,34 +1,45 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PadelStat — Analyse Match</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=DM+Mono:wght@300;400;500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
 :root {
-  --bg-deep:       #080c14;
-  --bg-card:       rgba(255,255,255,0.04);
-  --border:        rgba(255,255,255,0.08);
-  --border-bright: rgba(255,255,255,0.18);
-  --accent:        #00e676;
-  --accent-glow:   rgba(0,230,118,0.35);
-  --accent-2:      #00b0ff;
-  --danger:        #ff4757;
-  --gold:          #ffd700;
-  --text-primary:  #f0f4ff;
-  --text-secondary:#8899bb;
-  --text-muted:    #445566;
-  --radius-sm: 8px; --radius-md: 14px; --radius-lg: 22px; --radius-xl: 32px;
-  --shadow-card: 0 8px 32px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.06) inset;
+  --bg-deep:       #cdd3da;
+  --bg-body:       linear-gradient(160deg, #d4dae0 0%, #c8cfd6 40%, #d0d7de 100%);
+  --bg-card:       rgba(255,255,255,0.55);
+  --bg-header:     #111010;
+  --border:        rgba(26,26,30,0.13);
+  --border-bright: rgba(26,26,30,0.28);
+  --accent:        #6e7e8e;
+  --accent-glow:   rgba(110,126,142,0.25);
+  --accent-2:      #4a6070;
+  --danger:        #b03030;
+  --gold:          #6e7e8e;
+  --alum:          #6e7e8e;
+  --alum-lt:       #a0acb8;
+  --alum-shine:    linear-gradient(135deg,#b8c4cc 0%,#e0e6ea 40%,#c4ccd4 60%,#8e9aaa 100%);
+  --text-primary:  #1a1a1e;
+  --text-secondary:#4a5260;
+  --text-muted:    #7a8490;
+  --radius-sm: 4px; --radius-md: 6px; --radius-lg: 10px; --radius-xl: 14px;
+  --shadow-card: 0 2px 16px rgba(0,0,0,0.10), 0 1px 0 rgba(255,255,255,0.7) inset;
   --font: 'Inter', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --font-title: 'Cormorant Garamond', Georgia, serif;
+  --font-mono: 'DM Mono', 'JetBrains Mono', monospace;
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { height: 100%; }
 body {
   font-family: var(--font);
+  font-weight: 300;
   background: var(--bg-deep);
+  background-image: var(--bg-body);
   color: var(--text-primary);
   overflow-x: hidden;
 }
@@ -36,29 +47,44 @@ body::before {
   content: '';
   position: fixed; inset: 0;
   background:
-    radial-gradient(ellipse 80% 50% at 20% 10%, rgba(0,230,118,0.06) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(0,176,255,0.05) 0%, transparent 60%);
+    repeating-linear-gradient(90deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 1px, transparent 1px, transparent 40px),
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 1px, transparent 1px, transparent 40px);
   pointer-events: none; z-index: 0;
 }
 
 /* ═══ HEADER ═══ */
 header {
   position: relative; z-index: 10;
-  padding: 16px 28px 0;
+  padding: 0 28px;
+  height: 64px;
   display: flex; align-items: center; gap: 20px;
+  background: var(--bg-header);
+  border-bottom: 1px solid #1e1e1e;
 }
 .logo {
-  display: flex; align-items: center; gap: 10px;
-  font-size: 1.3rem; font-weight: 800; letter-spacing: -0.5px;
+  display: flex; align-items: center; gap: 12px;
   flex-shrink: 0;
 }
 .logo-icon {
-  width: 34px; height: 34px;
-  background: linear-gradient(135deg, var(--accent), var(--accent-2));
-  border-radius: 9px; display: flex; align-items: center; justify-content: center;
-  font-size: 1.1rem; box-shadow: 0 0 20px rgba(0,230,118,0.3);
+  width: 32px; height: 32px;
+  background: var(--alum-shine);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem;
 }
-.logo span { color: var(--accent); }
+.logo-text {
+  display: flex; flex-direction: column; gap: 1px;
+}
+.logo-name {
+  font-family: var(--font-title);
+  font-size: 22px; font-weight: 600; color: #fff;
+  letter-spacing: 6px; text-transform: uppercase; line-height: 1;
+}
+.logo-sub {
+  font-family: var(--font-mono);
+  font-size: 8px; color: var(--alum-lt);
+  letter-spacing: 4px; text-transform: uppercase;
+}
+.logo span { color: var(--alum-lt); }
 
 /* Scoreboard */
 .scoreboard {
@@ -66,24 +92,23 @@ header {
 }
 .team-block {
   display: flex; flex-direction: column; align-items: center; gap: 3px;
-  padding: 8px 24px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid var(--border);
-  backdrop-filter: blur(20px);
+  padding: 6px 20px;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.15);
 }
-.team-block:first-child { border-radius: var(--radius-md) 0 0 var(--radius-md); }
-.team-block:last-child  { border-radius: 0 var(--radius-md) var(--radius-md) 0; }
-.team-names { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-secondary); }
-.team-score { font-size: 2.2rem; font-weight: 900; line-height: 1; letter-spacing: -2px; }
-.team-block.winning .team-score { color: var(--accent); text-shadow: 0 0 20px rgba(0,230,118,0.4); }
-.team-block.losing  .team-score { color: var(--text-secondary); }
+.team-block:first-child { border-radius: 0; }
+.team-block:last-child  { border-radius: 0; }
+.team-names { font-family: var(--font-mono); font-size: 0.58rem; font-weight: 400; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.5); }
+.team-score { font-family: var(--font-title); font-size: 2rem; font-weight: 600; line-height: 1; color: #fff; letter-spacing: -1px; }
+.team-block.winning .team-score { color: var(--alum-lt); }
+.team-block.losing  .team-score { color: rgba(255,255,255,0.4); }
 .score-sep {
-  padding: 8px 14px;
-  background: rgba(255,255,255,0.04);
-  border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+  padding: 6px 12px;
+  background: rgba(255,255,255,0.06);
+  border-top: 1px solid rgba(255,255,255,0.1); border-bottom: 1px solid rgba(255,255,255,0.1);
   display: flex; flex-direction: column; align-items: center; gap: 2px;
 }
-.score-sep .sets { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); }
+.score-sep .sets { font-family: var(--font-mono); font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.14em; color: rgba(255,255,255,0.3); }
 
 .header-actions { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
 .live-badge {
@@ -100,47 +125,49 @@ header {
 
 .conn-status { display: flex; align-items: center; gap: 5px; font-size: 0.7rem; color: var(--text-muted); }
 .conn-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-muted); }
-.conn-dot.connected { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+.conn-dot.connected { background: var(--accent); }
 
 .hdr-btn {
   display: flex; align-items: center; gap: 6px;
-  padding: 7px 14px; border-radius: var(--radius-md);
-  background: var(--bg-card); border: 1px solid var(--border);
-  color: var(--text-primary); font-size: 0.78rem; font-weight: 600;
+  padding: 6px 14px;
+  background: transparent; border: 1px solid rgba(255,255,255,0.25);
+  color: rgba(255,255,255,0.7); font-family: var(--font-mono); font-size: 0.68rem; font-weight: 400;
+  letter-spacing: 0.1em; text-transform: uppercase;
   cursor: pointer; transition: all .15s; white-space: nowrap;
 }
-.hdr-btn:hover { border-color: var(--border-bright); background: rgba(255,255,255,0.07); }
-.hdr-btn.accent { border-color: rgba(0,230,118,0.5); color: var(--accent); }
-.hdr-btn.accent:hover { background: rgba(0,230,118,0.1); }
+.hdr-btn:hover { border-color: rgba(255,255,255,0.6); color: #fff; }
+.hdr-btn.accent { border-color: var(--alum-lt); color: var(--alum-lt); }
+.hdr-btn.accent:hover { background: rgba(255,255,255,0.08); }
 .hdr-btn.fullscreen-btn { font-size: 1rem; padding: 7px 10px; }
 
 /* ═══ TABS ═══ */
 .tab-bar {
   position: relative; z-index: 10;
-  display: flex; gap: 4px;
-  padding: 14px 28px 0;
+  display: flex; gap: 0;
+  padding: 0 28px;
+  background: rgba(255,255,255,0.35);
+  border-bottom: 1px solid var(--border);
 }
 .tab-btn {
   display: flex; align-items: center; gap: 8px;
-  padding: 10px 20px; border-radius: var(--radius-md) var(--radius-md) 0 0;
-  background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-bottom: none;
-  color: var(--text-secondary); font-size: 0.82rem; font-weight: 600;
+  padding: 10px 20px;
+  background: transparent; border: none; border-bottom: 2px solid transparent;
+  color: var(--text-secondary); font-family: var(--font-mono); font-size: 0.68rem; font-weight: 400;
+  letter-spacing: 0.12em; text-transform: uppercase;
   cursor: pointer; transition: all .2s; position: relative;
 }
-.tab-btn:hover { background: rgba(255,255,255,0.06); color: var(--text-primary); }
+.tab-btn:hover { color: var(--text-primary); }
 .tab-btn.active {
-  background: rgba(255,255,255,0.07);
-  border-color: var(--border-bright); color: var(--text-primary);
+  color: var(--text-primary);
+  border-bottom-color: var(--accent);
 }
-.tab-btn.active::after {
-  content: ''; position: absolute; bottom: -1px; left: 0; right: 0;
-  height: 2px; background: var(--accent); box-shadow: 0 0 10px var(--accent);
-}
+.tab-btn.active::after { display: none; }
 .tab-icon { font-size: 1rem; }
 .tab-badge {
-  background: var(--accent); color: #000;
-  font-size: 0.6rem; font-weight: 800;
-  padding: 1px 5px; border-radius: 8px; min-width: 16px; text-align: center;
+  background: var(--accent); color: #fff;
+  font-family: var(--font-mono); font-size: 0.55rem; font-weight: 500;
+  padding: 1px 5px; border-radius: 0; min-width: 16px; text-align: center;
+  letter-spacing: .05em;
 }
 
 /* ═══ TAB CONTENT ═══ */
@@ -158,47 +185,47 @@ header {
   display: flex; gap: 12px; margin-bottom: 20px;
 }
 .stat-pill {
-  flex: 1; background: var(--bg-card); border: 1px solid var(--border);
-  border-radius: var(--radius-md); padding: 12px 16px;
+  flex: 1; background: rgba(255,255,255,0.45); border: 1px solid var(--border);
+  border-radius: 0; padding: 12px 16px;
   display: flex; align-items: center; gap: 12px;
-  transition: all .2s; backdrop-filter: blur(20px);
+  transition: all .2s;
 }
-.stat-pill:hover { border-color: var(--border-bright); transform: translateY(-2px); }
+.stat-pill:hover { border-color: var(--border-bright); transform: translateY(-1px); }
 .stat-pill-icon {
   width: 36px; height: 36px; border-radius: var(--radius-sm);
   display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
 }
-.stat-pill:nth-child(1) .stat-pill-icon { background: rgba(0,230,118,0.12); }
+.stat-pill:nth-child(1) .stat-pill-icon { background: rgba(26,107,58,0.10); }
 .stat-pill:nth-child(2) .stat-pill-icon { background: rgba(255,71,87,0.12); }
-.stat-pill:nth-child(3) .stat-pill-icon { background: rgba(0,176,255,0.12); }
-.stat-pill:nth-child(4) .stat-pill-icon { background: rgba(255,215,0,0.12); }
+.stat-pill:nth-child(3) .stat-pill-icon { background: rgba(26,58,107,0.10); }
+.stat-pill:nth-child(4) .stat-pill-icon { background: rgba(155,163,174,0.18); }
 .stat-pill:nth-child(5) .stat-pill-icon { background: rgba(129,140,248,0.12); }
 .stat-pill-num { font-size: 1.7rem; font-weight: 900; line-height: 1; letter-spacing: -1px; }
 .stat-pill:nth-child(1) .stat-pill-num { color: var(--accent); }
 .stat-pill:nth-child(2) .stat-pill-num { color: var(--danger); }
 .stat-pill:nth-child(3) .stat-pill-num { color: var(--accent-2); }
-.stat-pill:nth-child(4) .stat-pill-num { color: var(--gold); }
+.stat-pill:nth-child(4) .stat-pill-num { color: var(--alum); }
 .stat-pill:nth-child(5) .stat-pill-num { color: #818cf8; }
 .stat-pill-label { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: .08em; margin-top: 1px; }
 
 /* ═══ CARDS ═══ */
 .card {
-  background: var(--bg-card); border: 1px solid var(--border);
-  border-radius: var(--radius-lg); backdrop-filter: blur(24px);
+  background: rgba(255,255,255,0.45); border: 1px solid var(--border);
+  border-radius: 0;
   box-shadow: var(--shadow-card); overflow: hidden;
   transition: border-color .2s;
 }
 .card:hover { border-color: var(--border-bright); }
 .card-header {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 14px 20px 12px; border-bottom: 1px solid var(--border);
+  padding: 12px 18px 10px; border-bottom: 1px solid var(--border);
 }
 .card-title {
-  font-size: 0.75rem; font-weight: 700; letter-spacing: .1em;
+  font-family: var(--font-mono); font-size: 0.62rem; font-weight: 400; letter-spacing: .18em;
   text-transform: uppercase; color: var(--text-secondary);
   display: flex; align-items: center; gap: 8px;
 }
-.card-title .dot { width: 6px; height: 6px; border-radius: 50%; }
+.card-title .dot { width: 5px; height: 5px; border-radius: 0; }
 
 /* ═══ TAB 1 — VIDÉO ═══ */
 .video-tab-grid {
@@ -222,7 +249,7 @@ header {
   position: absolute; top: 50%; left: 50%;
   transform: translate(-50%,-50%) scale(0);
   width: 76px; height: 76px;
-  background: rgba(0,230,118,0.2); border: 2px solid var(--accent);
+  background: rgba(26,26,26,0.25); border: 2px solid rgba(255,255,255,0.6);
   border-radius: 50%; display: flex; align-items: center; justify-content: center;
   font-size: 1.8rem; backdrop-filter: blur(10px);
   transition: transform .15s cubic-bezier(.34,1.56,.64,1), opacity .3s;
@@ -235,27 +262,32 @@ header {
   position: absolute; bottom: 0; left: 0; right: 0;
   padding: 6px 14px 12px;
   transition: opacity .3s, transform .3s;
+  z-index: 10;
 }
 .video-wrapper:not(:hover) .video-controls { opacity: 0; transform: translateY(6px); }
 .video-wrapper:hover .video-controls { opacity: 1; transform: translateY(0); }
+.video-wrapper.yt-active .video-controls { opacity: 1 !important; transform: translateY(0) !important; }
 
 .progress-container {
-  height: 4px; background: rgba(255,255,255,0.15);
-  border-radius: 4px; margin-bottom: 8px; cursor: pointer;
-  transition: height .2s; position: relative;
+  height: 10px; background: rgba(0,0,0,0.12);
+  border-radius: 6px; margin-bottom: 8px; cursor: pointer;
+  position: relative;
+  /* zone de clic élargie sans changer l'apparence visuelle */
+  padding: 6px 0;
+  margin-top: -6px;
+  box-sizing: content-box;
 }
-.progress-container:hover { height: 7px; }
+.progress-container:hover { background: rgba(0,0,0,0.18); }
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  background: var(--alum-shine);
   border-radius: 4px; position: relative;
-  box-shadow: 0 0 10px rgba(0,230,118,0.4);
 }
 .progress-thumb {
-  position: absolute; right: -7px; top: 50%;
+  position: absolute; right: -9px; top: 50%;
   transform: translateY(-50%) scale(0);
-  width: 14px; height: 14px; background: white;
-  border-radius: 50%; box-shadow: 0 0 8px var(--accent);
+  width: 18px; height: 18px; background: var(--alum-lt);
+  border-radius: 50%; box-shadow: 0 1px 6px rgba(0,0,0,0.25);
   transition: transform .2s;
 }
 .progress-container:hover .progress-thumb { transform: translateY(-50%) scale(1); }
@@ -273,26 +305,26 @@ header {
   border-radius: var(--radius-sm); font-size: .95rem;
   transition: background .15s, transform .1s;
 }
-.ctrl-btn:hover { background: rgba(255,255,255,0.1); }
+.ctrl-btn:hover { background: rgba(0,0,0,0.08); }
 .ctrl-btn:active { transform: scale(.9); }
 .ctrl-btn.primary {
-  width: 36px; height: 36px; background: var(--accent); color: #000;
-  font-size: 1rem; box-shadow: 0 0 16px rgba(0,230,118,0.4);
+  width: 36px; height: 36px; background: var(--accent); color: #fff;
+  font-size: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
-.ctrl-btn.primary:hover { background: #00ff88; }
+.ctrl-btn.primary:hover { background: #333; }
 .time-display { font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-secondary); min-width: 90px; }
 .speed-btn {
-  background: rgba(255,255,255,0.07); border: 1px solid var(--border);
+  background: rgba(0,0,0,0.06); border: 1px solid var(--border);
   border-radius: 6px; color: var(--text-primary);
   font-size: 0.7rem; font-weight: 700; padding: 3px 7px; cursor: pointer;
   transition: all .15s; letter-spacing: .04em;
 }
-.speed-btn:hover { background: rgba(0,230,118,0.15); border-color: var(--accent); }
-.speed-btn.active { background: var(--accent); color: #000; border-color: var(--accent); }
+.speed-btn:hover { background: rgba(26,26,26,0.10); border-color: var(--accent); }
+.speed-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
 .volume-row { display: flex; align-items: center; gap: 5px; margin-left: auto; }
 .volume-slider {
   -webkit-appearance: none; width: 66px; height: 4px;
-  background: rgba(255,255,255,0.2); border-radius: 4px; outline: none;
+  background: rgba(0,0,0,0.15); border-radius: 4px; outline: none;
 }
 .volume-slider::-webkit-slider-thumb {
   -webkit-appearance: none; width: 12px; height: 12px;
@@ -301,35 +333,37 @@ header {
 .no-video {
   position: absolute; inset: 0;
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
-  background: #060a12;
+  background: #111;
 }
 .no-video-icon { font-size: 3rem; opacity: .3; animation: float 3s ease-in-out infinite; }
 @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
 .no-video p { color: var(--text-muted); font-size: .82rem; }
 .open-file-btn {
-  background: linear-gradient(135deg, var(--accent), var(--accent-2));
-  color: #000; border: none; border-radius: var(--radius-md);
+  background: var(--accent);
+  color: #fff; border: none; border-radius: var(--radius-md);
   padding: 10px 24px; font-size: .85rem; font-weight: 700; cursor: pointer;
   transition: transform .15s, box-shadow .15s;
-  box-shadow: 0 0 20px rgba(0,230,118,0.3);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.15);
 }
-.open-file-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,230,118,0.5); }
+.open-file-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
 
 /* ═══ ANNOTATION BAR ═══ */
 .annotation-bar {
   display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
   padding: 12px 18px;
-  background: rgba(0,0,0,0.3); border: 1px solid var(--border);
+  background: rgba(255,255,255,0.85); border: 1px solid var(--border);
   border-radius: var(--radius-md);
 }
 .anno-label { font-size: .68rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--text-muted); margin-right: 4px; }
 .anno-btn {
   display: flex; align-items: center; gap: 6px;
-  padding: 7px 14px; border-radius: 20px; border: 1px solid var(--border);
-  background: var(--bg-card); color: var(--text-primary);
-  font-size: .78rem; font-weight: 600; cursor: pointer; transition: all .15s; white-space: nowrap;
+  padding: 5px 12px; border-radius: 0; border: 1px solid var(--border);
+  background: rgba(255,255,255,0.5); color: var(--text-primary);
+  font-family: var(--font-mono); font-size: .68rem; font-weight: 400;
+  letter-spacing: .08em; text-transform: uppercase;
+  cursor: pointer; transition: all .15s; white-space: nowrap;
 }
-.anno-btn:hover { transform: translateY(-1px); }
+.anno-btn:hover { border-color: var(--border-bright); background: rgba(255,255,255,0.8); }
 .anno-btn.win   { border-color: rgba(0,230,118,0.5); color: var(--accent); }
 .anno-btn.win:hover   { background: rgba(0,230,118,0.12); box-shadow: 0 4px 16px rgba(0,230,118,0.2); }
 .anno-btn.fault { border-color: rgba(255,71,87,0.5); color: var(--danger); }
@@ -341,11 +375,15 @@ header {
 .anno-btn.gold:hover  { background: rgba(255,215,0,0.1); }
 .anno-btn.purple{ border-color: rgba(129,140,248,0.5); color: #818cf8; }
 .anno-btn.purple:hover{ background: rgba(129,140,248,0.1); }
+.anno-btn.ai    { border-color: rgba(139,92,246,0.6); color: #a78bfa; }
+.anno-btn.ai:hover    { background: rgba(139,92,246,0.12); box-shadow: 0 4px 16px rgba(139,92,246,0.2); }
+.anno-btn.clip  { border-color: rgba(251,146,60,0.6); color: #fb923c; }
+.anno-btn.clip:hover  { background: rgba(251,146,60,0.12); }
 
 .shot-selector { position: relative; }
 .shot-dropdown {
   position: absolute; bottom: calc(100% + 8px); left: 0;
-  background: #111827; border: 1px solid var(--border-bright);
+  background: #fafaf7; border: 1px solid var(--border-bright);
   border-radius: var(--radius-md); padding: 8px; min-width: 210px;
   box-shadow: 0 16px 48px rgba(0,0,0,.6);
   opacity: 0; pointer-events: none; transform: translateY(8px);
@@ -357,7 +395,7 @@ header {
   font-size: .8rem; cursor: pointer; transition: background .12s;
   display: flex; align-items: center; gap: 8px;
 }
-.shot-option:hover { background: rgba(255,255,255,0.08); }
+.shot-option:hover { background: rgba(0,0,0,0.05); }
 .shot-option.selected { background: rgba(0,230,118,0.12); color: var(--accent); }
 
 /* ═══ TAB 2 — TERRAIN ═══ */
@@ -371,13 +409,14 @@ header {
 
 /* ═══ TAB 3 — STATS ═══ */
 .players-grid {
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+  display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 14px;
   margin-bottom: 20px;
 }
 .player-card {
-  background: rgba(255,255,255,0.03); border: 1px solid var(--border);
-  border-radius: var(--radius-md); padding: 18px;
+  background: rgba(255,255,255,0.65); border: 1px solid var(--border);
+  border-radius: 0; padding: 28px 28px 24px;
   transition: all .2s; position: relative; overflow: hidden;
+  box-sizing: border-box; min-width: 0;
 }
 .player-card::before {
   content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
@@ -386,21 +425,21 @@ header {
 .player-card.p2::before { background: linear-gradient(90deg, #a3e635, transparent); }
 .player-card.p3::before { background: linear-gradient(90deg, var(--accent-2), transparent); }
 .player-card.p4::before { background: linear-gradient(90deg, #818cf8, transparent); }
-.player-card:hover { border-color: var(--border-bright); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.3); }
-.player-avatar { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; margin-bottom: 10px; }
+.player-card:hover { border-color: var(--border-bright); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.10); }
+.player-avatar { width: 40px; height: 40px; border-radius: 0; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; margin-bottom: 12px; flex-shrink: 0; }
 .p1 .player-avatar { background: rgba(0,230,118,0.15); }
 .p2 .player-avatar { background: rgba(163,230,53,0.15); }
 .p3 .player-avatar { background: rgba(0,176,255,0.15); }
 .p4 .player-avatar { background: rgba(129,140,248,0.15); }
-.player-name { font-size: .9rem; font-weight: 700; margin-bottom: 2px; }
-.player-team { font-size: .68rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 14px; }
-.stat-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 7px; }
-.stat-label { font-size: .7rem; color: var(--text-secondary); }
-.stat-val { font-size: .85rem; font-weight: 700; font-family: var(--font-mono); }
+.player-name { font-family: var(--font-title); font-size: 1.05rem; font-weight: 600; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.player-team { font-family: var(--font-mono); font-size: .58rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: .14em; margin-bottom: 16px; }
+.stat-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 8px; }
+.stat-label { font-size: .68rem; color: var(--text-secondary); white-space: nowrap; }
+.stat-val { font-size: .82rem; font-weight: 600; font-family: var(--font-mono); flex-shrink: 0; }
 .stat-val.green { color: var(--accent); }
 .stat-val.red   { color: var(--danger); }
 .stat-val.blue  { color: var(--accent-2); }
-.mini-bar { height: 3px; background: rgba(255,255,255,0.08); border-radius: 3px; margin-top: 10px; overflow: hidden; }
+.mini-bar { height: 3px; background: rgba(0,0,0,0.08); border-radius: 3px; margin-top: 10px; overflow: hidden; }
 .mini-bar-fill { height: 100%; border-radius: 3px; transition: width 1s cubic-bezier(.4,0,.2,1); }
 
 .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
@@ -414,10 +453,10 @@ header {
 }
 .timeline-item {
   display: flex; align-items: flex-start; gap: 12px;
-  padding: 12px 8px; border-bottom: 1px solid rgba(255,255,255,0.04);
+  padding: 12px 8px; border-bottom: 1px solid rgba(0,0,0,0.05);
   cursor: pointer; transition: all .15s; border-radius: var(--radius-sm);
 }
-.timeline-item:hover { background: rgba(255,255,255,0.04); }
+.timeline-item:hover { background: rgba(0,0,0,0.04); }
 .ti-time { font-family: var(--font-mono); font-size: .7rem; color: var(--text-muted); min-width: 44px; padding-top: 3px; }
 .ti-icon { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: .85rem; flex-shrink: 0; }
 .ti-icon.win   { background: rgba(0,230,118,0.15); border: 1px solid rgba(0,230,118,0.3); }
@@ -461,7 +500,7 @@ header {
 .fs-overlay:hover .fs-controls { opacity: 1; }
 
 .fs-anno-bar {
-  background: rgba(8,12,20,0.97);
+  background: rgba(245,243,238,0.97);
   border-top: 1px solid var(--border);
   padding: 10px 20px;
   display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
@@ -485,11 +524,11 @@ header {
 }
 .modal-overlay.open { opacity: 1; pointer-events: all; }
 .modal {
-  background: #0d1117; border: 1px solid var(--border-bright);
-  border-radius: var(--radius-xl); padding: 0;
+  background: rgba(240,243,246,0.98); border: 1px solid var(--border-bright);
+  border-radius: 0; padding: 0;
   min-width: 420px; max-width: 560px; width: 94%;
-  box-shadow: 0 32px 80px rgba(0,0,0,.8);
-  transform: scale(.88); transition: transform .25s cubic-bezier(.34,1.56,.64,1);
+  box-shadow: 0 16px 48px rgba(0,0,0,.18);
+  transform: scale(.92); transition: transform .25s cubic-bezier(.34,1.56,.64,1);
   overflow: hidden;
 }
 .modal-overlay.open .modal { transform: scale(1); }
@@ -508,12 +547,12 @@ header {
 .modal-head-icon.fault { background: rgba(255,71,87,0.15); }
 .modal-head-icon.prov  { background: rgba(0,176,255,0.15); }
 .modal-head-icon.heart { background: rgba(255,215,0,0.15); }
-.modal-head-title { font-size: 1.05rem; font-weight: 800; }
+.modal-head-title { font-family: var(--font-title); font-size: 1.15rem; font-weight: 600; letter-spacing: .02em; }
 .modal-head-title.win   { color: var(--accent); }
 .modal-head-title.fault { color: var(--danger); }
 .modal-head-title.prov  { color: var(--accent-2); }
 .modal-head-title.heart { color: var(--gold); }
-.modal-head-sub { font-size: .75rem; color: var(--text-muted); margin-top: 2px; }
+.modal-head-sub { font-family: var(--font-mono); font-size: .62rem; color: var(--text-muted); margin-top: 3px; letter-spacing: .08em; text-transform: uppercase; }
 
 /* Breadcrumb step indicator */
 .modal-steps {
@@ -528,8 +567,8 @@ header {
   border: 1px solid var(--border); color: var(--text-muted);
   transition: all .2s;
 }
-.step-pill.active { border-color: var(--accent); color: var(--accent); background: rgba(0,230,118,.1); }
-.step-pill.done   { border-color: rgba(0,230,118,.3); color: rgba(0,230,118,.5); }
+.step-pill.active { border-color: var(--accent); color: var(--accent); background: rgba(26,26,26,.08); }
+.step-pill.done   { border-color: rgba(26,26,26,.2); color: rgba(26,26,26,.4); }
 .step-arrow { font-size: .6rem; color: var(--text-muted); }
 
 /* Modal body — animated panel swap */
@@ -555,34 +594,39 @@ header {
 .numpad-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
+  gap: 10px;
   margin-bottom: 4px;
 }
 .numpad-2col { grid-template-columns: repeat(2, 1fr); }
 .numpad-cell {
   position: relative;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 4px; padding: 16px 8px 12px;
-  background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+  gap: 6px; padding: 20px 8px 16px;
+  background: rgba(255,255,255,0.75); border: 1px solid var(--border);
   border-radius: var(--radius-md); color: var(--text-primary);
-  cursor: pointer; transition: all .15s; text-align: center; min-height: 78px;
+  cursor: pointer; transition: all .15s; text-align: center; min-height: 96px;
 }
-.numpad-cell:hover  { border-color: var(--accent); background: rgba(0,230,118,0.10); transform: scale(1.04); }
+.numpad-cell:hover  { border-color: var(--accent); background: rgba(26,26,26,0.06); transform: scale(1.04); }
 .numpad-cell:active { transform: scale(.97); }
-.numpad-num {
-  position: absolute; top: 5px; left: 7px;
-  font-size: .62rem; font-weight: 900; font-family: var(--font-mono);
-  background: rgba(255,255,255,0.09); border: 1px solid rgba(255,255,255,0.15);
-  border-radius: 5px; padding: 1px 5px; color: var(--accent); line-height: 1.4;
+.numpad-cell.numpad-empty {
+  background: rgba(0,0,0,0.02); border: 1px dashed rgba(0,0,0,0.08);
+  cursor: default; pointer-events: none;
 }
-.numpad-emoji { font-size: 1.45rem; line-height: 1; }
-.numpad-label { font-size: .73rem; font-weight: 700; line-height: 1.2; }
-.numpad-sub   { font-size: .62rem; color: var(--text-muted); }
+.numpad-cell.numpad-empty:hover { transform: none; }
+.numpad-num {
+  position: absolute; top: 6px; left: 8px;
+  font-size: .75rem; font-weight: 900; font-family: var(--font-mono);
+  background: var(--alum-shine); border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 5px; padding: 2px 6px; color: #1a1a1a; line-height: 1.4;
+}
+.numpad-emoji { font-size: 1.8rem; line-height: 1; }
+.numpad-label { font-size: .85rem; font-weight: 700; line-height: 1.2; }
+.numpad-sub   { font-size: .72rem; color: var(--text-muted); }
 
 /* Player pick grid */
 .player-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 4px; }
 .player-pick-btn {
-  padding: 12px 14px; background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+  padding: 12px 14px; background: rgba(255,255,255,0.75); border: 1px solid var(--border);
   border-radius: var(--radius-md); color: var(--text-primary);
   font-size: .85rem; font-weight: 600; cursor: pointer;
   transition: all .15s; text-align: left; display: flex; align-items: center; gap: 10px;
@@ -659,11 +703,11 @@ header {
 .btn-cancel:hover { border-color: rgba(255,71,87,.5); color: var(--danger); }
 .btn-confirm {
   padding: 8px 20px; border-radius: var(--radius-md);
-  background: linear-gradient(135deg, var(--accent), var(--accent-2));
-  border: none; color: #000; font-size: .82rem; font-weight: 700;
-  cursor: pointer; transition: all .15s; box-shadow: 0 0 20px rgba(0,230,118,.25);
+  background: var(--accent);
+  border: none; color: #fff; font-size: .82rem; font-weight: 700;
+  cursor: pointer; transition: all .15s; box-shadow: 0 2px 10px rgba(0,0,0,.15);
 }
-.btn-confirm:hover { transform: translateY(-1px); box-shadow: 0 4px 24px rgba(0,230,118,.4); }
+.btn-confirm:hover { transform: translateY(-1px); box-shadow: 0 4px 18px rgba(0,0,0,.22); }
 
 /* Player names modal */
 .names-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
@@ -672,10 +716,10 @@ header {
 .name-label.team-a { color: var(--accent); }
 .name-label.team-b { color: var(--accent-2); }
 .name-input {
-  background: rgba(255,255,255,0.05); border: 1px solid var(--border);
-  border-radius: var(--radius-sm); padding: 9px 12px;
+  background: rgba(255,255,255,0.85); border: 1px solid var(--border);
+  border-radius: 0; padding: 9px 12px;
   color: var(--text-primary); font-size: .85rem; font-family: var(--font);
-  transition: border-color .15s; outline: none;
+  transition: border-color .15s; outline: none; width: 100%; box-sizing: border-box;
 }
 .name-input:focus { border-color: var(--accent); }
 .team-sep { grid-column: 1/-1; height: 1px; background: var(--border); margin: 4px 0; }
@@ -690,16 +734,16 @@ header {
   content: '';
   position: fixed; inset: 0;
   background:
-    radial-gradient(ellipse 80% 50% at 20% 10%, rgba(0,230,118,0.08) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(0,176,255,0.07) 0%, transparent 60%);
+    radial-gradient(ellipse 80% 50% at 20% 10%, rgba(200,208,216,0.25) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(155,163,174,0.18) 0%, transparent 60%);
   pointer-events: none;
 }
 .login-box {
   position: relative; z-index: 1;
-  background: rgba(13,17,23,0.95); border: 1px solid var(--border-bright);
+  background: rgba(250,250,247,0.97); border: 1px solid var(--border-bright);
   border-radius: var(--radius-xl); padding: 44px 48px;
   width: 380px; max-width: 94vw;
-  box-shadow: 0 32px 80px rgba(0,0,0,.8);
+  box-shadow: 0 8px 40px rgba(0,0,0,.12);
 }
 .login-logo {
   display: flex; align-items: center; gap: 12px;
@@ -707,9 +751,9 @@ header {
 }
 .login-logo-icon {
   width: 48px; height: 48px;
-  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  background: var(--alum-shine);
   border-radius: 14px; display: flex; align-items: center; justify-content: center;
-  font-size: 1.5rem; box-shadow: 0 0 30px rgba(0,230,118,0.35);
+  font-size: 1.5rem; box-shadow: 0 2px 12px rgba(0,0,0,0.12);
 }
 .login-logo-text { font-size: 1.5rem; font-weight: 900; letter-spacing: -0.5px; }
 .login-logo-text span { color: var(--accent); }
@@ -732,47 +776,58 @@ header {
 .login-error.show { display: block; }
 .login-btn {
   width: 100%; padding: 13px;
-  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  background: var(--accent);
   border: none; border-radius: var(--radius-md);
-  color: #000; font-size: .9rem; font-weight: 800;
+  color: #fff; font-size: .9rem; font-weight: 800;
   cursor: pointer; transition: transform .15s, box-shadow .15s;
-  box-shadow: 0 0 24px rgba(0,230,118,.3); margin-top: 6px;
+  box-shadow: 0 2px 12px rgba(0,0,0,.15); margin-top: 6px;
 }
-.login-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,230,118,.5); }
+.login-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(0,0,0,.22); }
 .login-btn:active { transform: translateY(0); }
 
 /* ═══ MODAL PARTIES ═══ */
 #matchesModal .modal { max-width: 520px; width: 95%; max-height: 80vh; overflow-y: auto; }
+.modal-close-btn {
+  margin-left: auto; background: transparent; border: 1px solid rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.5); width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .8rem; cursor: pointer; transition: all .15s; flex-shrink: 0;
+}
+.modal-close-btn:hover { border-color: rgba(255,255,255,0.6); color: #fff; }
 .matches-list { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
 .match-row {
   display: flex; align-items: center; gap: 10px;
-  background: rgba(255,255,255,0.04); border: 1px solid var(--border);
-  border-radius: var(--radius-md); padding: 10px 12px; cursor: pointer;
+  background: rgba(255,255,255,0.55); border: 1px solid var(--border);
+  border-radius: 0; padding: 10px 14px; cursor: pointer;
   transition: all .15s;
 }
 .match-row:hover { border-color: var(--accent); background: rgba(0,230,118,0.07); }
 .match-row-info { flex: 1; min-width: 0; }
-.match-row-name { font-weight: 700; font-size: .88rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.match-row-meta { font-size: .68rem; color: var(--text-muted); margin-top: 2px; }
+.match-row-name { font-family: var(--font-title); font-weight: 600; font-size: .95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.match-row-meta { font-family: var(--font-mono); font-size: .6rem; color: var(--text-muted); margin-top: 3px; letter-spacing: .06em; }
 .match-row-del {
-  background: rgba(239,68,68,.12); border: 1px solid rgba(239,68,68,.3);
-  color: #ef4444; border-radius: 6px; padding: 4px 9px;
-  font-size: .73rem; cursor: pointer; flex-shrink: 0; transition: all .15s;
+  background: transparent; border: 1px solid rgba(239,68,68,.3);
+  color: #ef4444; border-radius: 0; padding: 4px 9px;
+  font-family: var(--font-mono); font-size: .6rem; letter-spacing: .06em;
+  cursor: pointer; flex-shrink: 0; transition: all .15s;
 }
 .match-row-del:hover { background: rgba(239,68,68,.25); }
 .matches-empty { text-align: center; color: var(--text-muted); font-size: .83rem; padding: 24px 0; }
 .new-match-row { display: flex; gap: 8px; margin-top: 4px; }
 .new-match-input {
-  flex: 1; background: rgba(255,255,255,0.06); border: 1px solid var(--border);
-  border-radius: var(--radius-md); color: var(--text-primary);
-  padding: 9px 12px; font-size: .83rem;
+  flex: 1; background: rgba(255,255,255,0.85); border: 1px solid var(--border);
+  border-radius: 0; color: var(--text-primary);
+  padding: 9px 12px; font-size: .83rem; font-family: var(--font);
+  outline: none; transition: border-color .15s;
 }
-.new-match-input:focus { outline: none; border-color: var(--accent); }
+.new-match-input:focus { border-color: var(--accent); }
 .import-json-label {
   display: flex; align-items: center; gap: 8px;
-  background: rgba(255,255,255,0.04); border: 1px solid var(--border);
-  border-radius: var(--radius-md); padding: 10px 14px;
-  cursor: pointer; transition: all .15s; font-size: .82rem; color: var(--text-muted);
+  background: rgba(255,255,255,0.45); border: 1px solid var(--border);
+  border-radius: 0; padding: 10px 14px;
+  cursor: pointer; transition: all .15s;
+  font-family: var(--font-mono); font-size: .68rem; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--text-muted);
   margin-top: 10px;
 }
 .import-json-label:hover { border-color: var(--accent); color: var(--text-primary); }
@@ -780,7 +835,7 @@ header {
 /* ═══ AUTOSAVE BADGE ═══ */
 #autosaveBadge {
   position: fixed; bottom: 14px; left: 14px; z-index: 800;
-  background: rgba(13,17,23,.9); border: 1px solid var(--border);
+  background: rgba(250,250,247,.95); border: 1px solid var(--border);
   border-radius: 20px; padding: 5px 11px;
   font-size: .68rem; color: var(--text-muted); display: flex; align-items: center; gap: 6px;
   transition: opacity .4s;
@@ -794,10 +849,10 @@ header {
 }
 .toast {
   display: flex; align-items: center; gap: 10px;
-  background: #111827; border: 1px solid var(--border-bright);
+  background: #fafaf7; border: 1px solid var(--border-bright);
   border-radius: var(--radius-md); padding: 11px 16px;
   font-size: .82rem; font-weight: 600; min-width: 240px;
-  backdrop-filter: blur(20px); box-shadow: 0 8px 32px rgba(0,0,0,.5);
+  backdrop-filter: blur(20px); box-shadow: 0 4px 24px rgba(0,0,0,.12);
   animation: slide-in .3s cubic-bezier(.34,1.56,.64,1);
   pointer-events: all;
 }
@@ -810,28 +865,32 @@ header {
 /* ═══ SCROLLBAR ═══ */
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 4px; }
 
 @keyframes count-up { from{opacity:0;transform:scale(.5)} to{opacity:1;transform:scale(1)} }
 
 /* ═══ TAILLES D'ÉCRAN ═══ */
 /* Mode COMPACT (tablette / petit écran) */
-body.sz-compact { font-size: 13px; }
-body.sz-compact .tab-content  { padding: 12px 14px 16px; }
-body.sz-compact header         { padding: 10px 14px 0; }
-body.sz-compact .tab-bar       { padding: 10px 14px 0; }
-body.sz-compact .stats-bar     { gap: 8px; margin-bottom: 12px; }
-body.sz-compact .stat-pill     { padding: 8px 10px; gap: 8px; }
-body.sz-compact .stat-pill-icon{ width: 28px; height: 28px; font-size: 1rem; }
-body.sz-compact .stat-num      { font-size: 1.1rem; }
-body.sz-compact .players-grid  { grid-template-columns: repeat(2,1fr); gap: 10px; }
+body.sz-compact { font-size: 12px; }
+body.sz-compact .tab-content  { padding: 8px 10px 12px; }
+body.sz-compact header         { padding: 6px 10px 0; }
+body.sz-compact .tab-bar       { padding: 6px 10px 0; }
+body.sz-compact .stats-bar     { gap: 5px; margin-bottom: 8px; }
+body.sz-compact .stat-pill     { padding: 5px 8px; gap: 6px; }
+body.sz-compact .stat-pill-icon{ width: 22px; height: 22px; font-size: .8rem; }
+body.sz-compact .stat-num      { font-size: .9rem; }
+body.sz-compact .players-grid  { grid-template-columns: repeat(2,1fr); gap: 8px; }
 body.sz-compact .charts-grid   { grid-template-columns: 1fr; }
 body.sz-compact .terrain-grid  { grid-template-columns: 1fr; }
-body.sz-compact .annotation-bar{ padding: 8px 12px; gap: 6px; }
-body.sz-compact .anno-btn      { padding: 5px 10px; font-size: .72rem; }
-body.sz-compact .modal         { min-width: 320px; }
-body.sz-compact .team-score    { font-size: 1.6rem; }
-body.sz-compact .logo          { font-size: 1rem; }
+body.sz-compact .annotation-bar{ padding: 5px 8px; gap: 4px; }
+body.sz-compact .anno-btn      { padding: 3px 8px; font-size: .68rem; }
+body.sz-compact .modal         { min-width: 300px; }
+body.sz-compact .team-score    { font-size: 1.2rem; }
+body.sz-compact .logo          { font-size: .85rem; }
+body.sz-compact .hdr-btn       { padding: 4px 8px; font-size: .68rem; }
+body.sz-compact .tab-btn       { padding: 6px 12px; font-size: .72rem; }
+body.sz-compact .video-wrapper { aspect-ratio: unset; height: 22vh; min-height: 120px; }
+body.sz-compact .video-wrapper video { width: 100%; height: 100%; object-fit: contain; }
 
 /* Mode NORMAL (défaut) — rien à surcharger */
 
@@ -881,7 +940,7 @@ body.sz-cinema .annotation-bar{ flex-wrap: nowrap; overflow-x: auto; }
   transition: all .15s; letter-spacing: .03em;
 }
 .sz-btn:hover { color: var(--text-primary); background: rgba(255,255,255,.07); }
-.sz-btn.active { background: var(--accent); color: #000; box-shadow: 0 0 10px rgba(0,230,118,.3); }
+.sz-btn.active { background: var(--accent); color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,.18); }
 
 @media (max-width: 1100px) {
   .players-grid { grid-template-columns: repeat(2,1fr); }
@@ -895,7 +954,7 @@ body.sz-cinema .annotation-bar{ flex-wrap: nowrap; overflow-x: auto; }
 }
 </style>
 </head>
-<body>
+<body tabindex="-1">
 
 <!-- ═══ LOGIN SCREEN ═══ -->
 <div id="loginScreen">
@@ -928,24 +987,83 @@ body.sz-cinema .annotation-bar{ flex-wrap: nowrap; overflow-x: auto; }
       </div>
       <button class="modal-close-btn" onclick="closeMatchesModal()">✕</button>
     </div>
-    <!-- Partie active -->
-    <div id="activeMatchBanner" style="display:none;background:rgba(0,230,118,.08);border:1px solid rgba(0,230,118,.3);border-radius:8px;padding:8px 12px;margin-bottom:10px;font-size:.8rem;">
-      <span style="color:var(--accent);font-weight:700;">▶ Partie active :</span> <span id="activeMatchName">—</span>
+    <div class="modal-body">
+      <!-- Partie active -->
+      <div id="activeMatchBanner" style="display:none;background:rgba(0,230,118,.08);border:1px solid rgba(0,230,118,.3);padding:8px 12px;margin-bottom:14px;font-size:.8rem;">
+        <span style="color:var(--accent);font-family:var(--font-mono);font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;">▶ Partie active :</span><br>
+        <span id="activeMatchName" style="font-family:var(--font-title);font-size:1rem;">—</span>
+      </div>
+      <!-- Nouvelle partie -->
+      <div style="font-family:var(--font-mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;">Nouvelle partie</div>
+      <div class="new-match-row">
+        <input class="new-match-input" id="newMatchNameInput" type="text" placeholder="Arnaud/Laurent vs Fabrice/Ben" maxlength="80" onkeydown="if(event.key==='Enter')createNewMatch()">
+        <button class="hdr-btn accent" style="white-space:nowrap;border-radius:0;" onclick="createNewMatch()">+ Créer</button>
+      </div>
+      <!-- Import JSON -->
+      <label class="import-json-label">
+        📂 Importer un fichier JSON
+        <input type="file" accept=".json" style="display:none" onchange="importMatchJson(this)">
+      </label>
+      <!-- Parties sauvegardées -->
+      <div style="font-family:var(--font-mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-muted);margin:16px 0 8px;">Parties sauvegardées</div>
+      <div class="matches-list" id="matchesList"></div>
     </div>
-    <!-- Nouvelle partie -->
-    <div style="font-size:.75rem;color:var(--text-muted);margin-bottom:6px;font-weight:600;">NOUVELLE PARTIE</div>
-    <div class="new-match-row">
-      <input class="new-match-input" id="newMatchNameInput" type="text" placeholder="Nom de la partie (ex: Arnaud/Laurent vs Fabrice/Ben)" maxlength="80" onkeydown="if(event.key==='Enter')createNewMatch()">
-      <button class="hdr-btn accent" style="white-space:nowrap" onclick="createNewMatch()">+ Créer</button>
+  </div>
+</div>
+
+<!-- ═══ MODAL CLIP ═══ -->
+<div class="modal-overlay" id="clipModal" onclick="if(event.target===this)closeClipModal()">
+  <div class="modal" style="max-width:460px;">
+    <div class="modal-head">
+      <div class="modal-head-icon" style="background:rgba(251,146,60,0.15);">✂️</div>
+      <div>
+        <div class="modal-head-title">Extraire un clip</div>
+        <div class="modal-head-sub">Définir les points de début et fin</div>
+      </div>
+      <button class="modal-close-btn" onclick="closeClipModal()">✕</button>
     </div>
-    <!-- Import JSON -->
-    <label class="import-json-label">
-      📂 Importer un fichier JSON (partie exportée)
-      <input type="file" accept=".json" style="display:none" onchange="importMatchJson(this)">
-    </label>
-    <!-- Parties sauvegardées -->
-    <div style="font-size:.75rem;color:var(--text-muted);margin:14px 0 6px;font-weight:600;">PARTIES SAUVEGARDÉES</div>
-    <div class="matches-list" id="matchesList"></div>
+    <div class="modal-body" style="padding-top:12px;">
+      <!-- Aperçu vidéo -->
+      <canvas id="clipPreviewCanvas" style="width:100%;display:block;background:#000;margin-bottom:14px;max-height:200px;object-fit:contain;"></canvas>
+      <!-- Contrôles de lecture inline -->
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+        <button class="speed-btn" onclick="clipSeekRel(-5)" style="font-size:.8rem;">⏪ -5s</button>
+        <button class="speed-btn" id="clipPlayBtn" onclick="clipTogglePlay()" style="font-size:.8rem;min-width:64px;">▶ Play</button>
+        <button class="speed-btn" onclick="clipSeekRel(5)" style="font-size:.8rem;">+5s ⏩</button>
+        <span id="clipTimeDisplay" style="font-family:var(--font-mono);font-size:.7rem;color:var(--text-muted);margin-left:auto;">0:00</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+        <div>
+          <div style="font-family:var(--font-mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px;">Début</div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span id="clipStartDisplay" style="font-family:var(--font-mono);font-size:1.1rem;font-weight:600;color:var(--accent);">—:——</span>
+            <button class="speed-btn" onclick="clipSetMark('start')" style="border-color:rgba(0,230,118,.5);color:var(--accent);">📍 Ici</button>
+          </div>
+        </div>
+        <div>
+          <div style="font-family:var(--font-mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px;">Fin</div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span id="clipEndDisplay" style="font-family:var(--font-mono);font-size:1.1rem;font-weight:600;color:var(--danger);">—:——</span>
+            <button class="speed-btn" onclick="clipSetMark('end')" style="border-color:rgba(255,71,87,.5);color:var(--danger);">📍 Ici</button>
+          </div>
+        </div>
+      </div>
+      <!-- Durée + nom fichier -->
+      <div style="font-family:var(--font-mono);font-size:.68rem;color:var(--text-muted);margin-bottom:12px;" id="clipDurInfo">Durée : — s</div>
+      <div style="font-family:var(--font-mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px;">Nom du clip</div>
+      <input id="clipNameInput" class="name-input" type="text" placeholder="clip_point" value="clip_point" style="margin-bottom:4px;">
+      <!-- État enregistrement -->
+      <div id="clipProgress" style="display:none;margin-top:14px;padding:10px 14px;background:rgba(251,146,60,.08);border:1px solid rgba(251,146,60,.3);">
+        <div style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:#fb923c;" id="clipProgressLabel">Enregistrement en cours…</div>
+        <div style="height:3px;background:rgba(0,0,0,.1);margin-top:8px;overflow:hidden;">
+          <div id="clipProgressBar" style="height:100%;background:#fb923c;width:0%;transition:width .3s;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cancel" onclick="closeClipModal()">✕ Annuler</button>
+      <button class="btn-confirm" id="clipRecordBtn" onclick="startClipRecord()" style="background:#fb923c;">⏺ Enregistrer</button>
+    </div>
   </div>
 </div>
 
@@ -984,39 +1102,46 @@ body.sz-cinema .annotation-bar{ flex-wrap: nowrap; overflow-x: auto; }
 <!-- ═══ MODAL JOUEURS ═══ -->
 <div class="modal-overlay" id="playersSetupModal">
   <div class="modal">
-    <h3>👥 Joueurs du match</h3>
-    <p>Entre les noms et les équipes</p>
-    <div class="names-grid">
-      <div style="grid-column:1/-1;display:flex;gap:10px;margin-bottom:4px;">
-        <div style="flex:1">
-          <div class="name-label team-a" style="margin-bottom:5px;">Équipe A</div>
-          <input class="name-input" id="teamAName" placeholder="Ex : Garcia / Lopez" value="">
-        </div>
-        <div style="flex:1">
-          <div class="name-label team-b" style="margin-bottom:5px;">Équipe B</div>
-          <input class="name-input" id="teamBName" placeholder="Ex : Martin / Dupont" value="">
-        </div>
-      </div>
-      <div class="team-sep"></div>
-      <div class="name-group">
-        <div class="name-label team-a">Joueur 1</div>
-        <input class="name-input" id="p1name" placeholder="Prénom Nom">
-      </div>
-      <div class="name-group">
-        <div class="name-label team-a">Joueur 2</div>
-        <input class="name-input" id="p2name" placeholder="Prénom Nom">
-      </div>
-      <div class="name-group">
-        <div class="name-label team-b">Joueur 3</div>
-        <input class="name-input" id="p3name" placeholder="Prénom Nom">
-      </div>
-      <div class="name-group">
-        <div class="name-label team-b">Joueur 4</div>
-        <input class="name-input" id="p4name" placeholder="Prénom Nom">
+    <div class="modal-head">
+      <div class="modal-head-icon">👥</div>
+      <div>
+        <div class="modal-head-title">Joueurs du match</div>
+        <div class="modal-head-sub">Entre les noms et les équipes</div>
       </div>
     </div>
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="closePlayersModal()">Annuler</button>
+    <div class="modal-body">
+      <div class="names-grid">
+        <div style="grid-column:1/-1;display:flex;gap:10px;margin-bottom:4px;">
+          <div style="flex:1">
+            <div class="name-label team-a" style="margin-bottom:5px;">Équipe A</div>
+            <input class="name-input" id="teamAName" placeholder="Ex : Garcia / Lopez" value="">
+          </div>
+          <div style="flex:1">
+            <div class="name-label team-b" style="margin-bottom:5px;">Équipe B</div>
+            <input class="name-input" id="teamBName" placeholder="Ex : Martin / Dupont" value="">
+          </div>
+        </div>
+        <div class="team-sep"></div>
+        <div class="name-group">
+          <div class="name-label team-a">Joueur 1</div>
+          <input class="name-input" id="p1name" placeholder="Prénom Nom">
+        </div>
+        <div class="name-group">
+          <div class="name-label team-a">Joueur 2</div>
+          <input class="name-input" id="p2name" placeholder="Prénom Nom">
+        </div>
+        <div class="name-group">
+          <div class="name-label team-b">Joueur 3</div>
+          <input class="name-input" id="p3name" placeholder="Prénom Nom">
+        </div>
+        <div class="name-group">
+          <div class="name-label team-b">Joueur 4</div>
+          <input class="name-input" id="p4name" placeholder="Prénom Nom">
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cancel" onclick="closePlayersModal()">✕ Annuler</button>
       <button class="btn-confirm" onclick="confirmPlayers()">Valider ✓</button>
     </div>
   </div>
@@ -1085,13 +1210,20 @@ body.sz-cinema .annotation-bar{ flex-wrap: nowrap; overflow-x: auto; }
     <button class="anno-btn undo"  onclick="app.undoLast()">↩ Annuler</button>
     <button class="anno-btn gold"  onclick="api.generateReport()">📊 Rapport</button>
     <button class="anno-btn purple" onclick="api.exportJson()">💾 JSON</button>
+    <button class="anno-btn ai"    onclick="api.analyzeWithAI()">🤖 Analyse IA</button>
     <button class="fs-exit-btn"    onclick="exitFullscreen()">✕ Quitter plein écran</button>
   </div>
 </div>
 
 <!-- ═══ APP ═══ -->
 <header>
-  <div class="logo"><div class="logo-icon">🎾</div>Padel<span>Stat</span></div>
+  <div class="logo">
+    <div class="logo-icon">🎾</div>
+    <div class="logo-text">
+      <div class="logo-name">Padel<span>Stat</span></div>
+      <div class="logo-sub">Système d'annotation tactique</div>
+    </div>
+  </div>
 
   <div class="scoreboard">
     <div class="team-block winning" id="team1Block">
@@ -1107,15 +1239,9 @@ body.sz-cinema .annotation-bar{ flex-wrap: nowrap; overflow-x: auto; }
 
   <div class="header-actions">
     <div class="live-badge">LIVE</div>
-    <!-- Sélecteur taille écran -->
-    <div class="sz-picker" title="Taille d'affichage">
-      <button class="sz-btn" onclick="setSize('compact')" id="sz-compact" title="Compact">S</button>
-      <button class="sz-btn active" onclick="setSize('normal')" id="sz-normal" title="Normal">M</button>
-      <button class="sz-btn" onclick="setSize('large')" id="sz-large" title="Large">L</button>
-      <button class="sz-btn" onclick="setSize('cinema')" id="sz-cinema" title="Cinéma">XL</button>
-    </div>
+    <!-- Séparateur redimensionnable --> 
     <button class="hdr-btn" onclick="openMatchesModal()" title="Gérer les parties" style="display:flex;align-items:center;gap:5px;">
-      🏆 <span id="hdrMatchName" style="max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.75rem;">Aucune partie</span>
+      🏆 <span id="hdrMatchName" style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--font-mono);font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;">Aucune partie</span>
     </button>
     <button class="hdr-btn accent" onclick="openPlayersModal()">👥 Joueurs</button>
     <button class="hdr-btn fullscreen-btn" onclick="enterFullscreen()" title="Plein écran">⛶</button>
@@ -1126,9 +1252,6 @@ body.sz-cinema .annotation-bar{ flex-wrap: nowrap; overflow-x: auto; }
 <div class="tab-bar">
   <button class="tab-btn active" onclick="switchTab('video')" id="tab-video">
     <span class="tab-icon">📹</span> Vidéo &amp; Annotation
-  </button>
-  <button class="tab-btn" onclick="switchTab('terrain')" id="tab-terrain">
-    <span class="tab-icon">🎾</span> Terrain
   </button>
   <button class="tab-btn" onclick="switchTab('stats')" id="tab-stats">
     <span class="tab-icon">📊</span> Stats Joueurs
@@ -1156,10 +1279,19 @@ body.sz-cinema .annotation-bar{ flex-wrap: nowrap; overflow-x: auto; }
       <div class="card" style="border-radius:var(--radius-lg) var(--radius-lg) 0 0;border-bottom:none;">
         <div class="card-header">
           <div class="card-title"><div class="dot" style="background:var(--accent);box-shadow:0 0 8px var(--accent);"></div> Lecteur Vidéo</div>
-          <div style="display:flex;gap:8px;">
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
             <button class="speed-btn" onclick="app.rotateVideo()">↻ Rotation</button>
-            <button class="speed-btn" onclick="document.getElementById('fileInput').click()">📂 Ouvrir</button>
+            <button class="speed-btn" onclick="document.getElementById('fileInput').click()">📂 Fichier</button>
             <input type="file" id="fileInput" accept="video/*" style="display:none" onchange="app.loadLocalVideo(this)">
+            <button class="speed-btn" onclick="app.toggleYTInput()" id="ytBtn" style="background:rgba(255,0,0,.15);border-color:rgba(255,80,80,.4);color:#ff6060;">▶ YouTube</button>
+          </div>
+          <!-- Barre URL YouTube -->
+          <div id="ytInputBar" style="display:none;padding:8px 16px 10px;border-top:1px solid var(--border);background:rgba(255,0,0,.06);">
+            <div style="display:flex;gap:8px;align-items:center;">
+              <input id="ytUrlInput" type="text" placeholder="https://www.youtube.com/watch?v=..." style="flex:1;background:var(--bg-card);border:1px solid var(--border-bright);border-radius:8px;padding:7px 12px;color:var(--text-primary);font-size:.85rem;" onkeydown="if(event.key==='Enter')app.loadYouTubeVideo(document.getElementById('ytUrlInput').value)">
+              <button class="speed-btn" onclick="app.loadYouTubeVideo(document.getElementById('ytUrlInput').value)" style="background:rgba(255,0,0,.2);border-color:rgba(255,80,80,.5);color:#ff6060;">Charger</button>
+              <button class="speed-btn" onclick="app.cancelYT()" style="opacity:.6;">✕</button>
+            </div>
           </div>
         </div>
         <div class="video-wrapper" id="videoWrapper" onclick="app.togglePlay()">
@@ -1193,9 +1325,18 @@ body.sz-cinema .annotation-bar{ flex-wrap: nowrap; overflow-x: auto; }
             </div>
           </div>
         </div>
-      </div>
-
-      <!-- Annotation bar -->
+        <!-- poignée drag-to-resize -->
+        <div id="videoResizeHandle" style="
+          height:20px;cursor:row-resize;display:flex;align-items:center;justify-content:center;gap:4px;
+          background:rgba(0,0,0,0.07);border-radius:0 0 8px 8px;
+          user-select:none;touch-action:none;border-top:1px solid rgba(0,0,0,0.08);
+        ">
+          <svg width="40" height="8" viewBox="0 0 40 8" fill="none">
+            <rect y="1" width="40" height="2" rx="1" fill="rgba(0,0,0,0.25)"/>
+            <rect y="5" width="40" height="2" rx="1" fill="rgba(0,0,0,0.25)"/>
+          </svg>
+          <span style="font-size:.6rem;color:rgba(0,0,0,0.35);font-family:sans-serif;letter-spacing:.05em;">redimensionner</span>
+        </div>
       <div class="annotation-bar" style="border-radius:0 0 var(--radius-lg) var(--radius-lg);border-top:none;" id="mainAnnoBar">
         <span class="anno-label">Annoter</span>
         <div class="shot-selector" id="shotSelector">
@@ -1229,48 +1370,9 @@ body.sz-cinema .annotation-bar{ flex-wrap: nowrap; overflow-x: auto; }
         <button class="anno-btn prov"  onclick="openModal('faute_provoquee')">🎯 Faute Provoquée</button>
         <button class="anno-btn undo"  onclick="app.undoLast()">↩ Annuler</button>
         <button class="anno-btn gold"  style="margin-left:8px;" onclick="api.generateReport()">📊 Rapport rapide</button>
+        <button class="anno-btn clip"  onclick="openClipModal()">✂️ Clip</button>
         <button class="anno-btn purple" onclick="api.exportJson()">💾 Export JSON</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══ TAB TERRAIN ═══ -->
-  <div class="tab-panel" id="panel-terrain">
-    <div class="terrain-grid">
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title"><div class="dot" style="background:var(--accent-2);box-shadow:0 0 8px var(--accent-2);"></div> Terrain — Cliquer pour placer un point</div>
-          <div style="display:flex;gap:8px;">
-            <button class="speed-btn" id="courtViewBtn" onclick="toggleCourtView()">Vue 2D</button>
-            <button class="speed-btn" onclick="clearCourtDots()">Effacer tout</button>
-          </div>
-        </div>
-        <div style="padding:16px 20px 20px;">
-          <canvas id="courtCanvas" width="800" height="480"></canvas>
-          <div class="court-legend" style="margin-top:12px;">
-            <div class="legend-item"><div class="legend-dot" style="background:var(--accent);box-shadow:0 0 6px var(--accent);"></div> Points gagnants</div>
-            <div class="legend-item"><div class="legend-dot" style="background:var(--danger);box-shadow:0 0 6px var(--danger);"></div> Fautes directes</div>
-            <div class="legend-item"><div class="legend-dot" style="background:var(--accent-2);box-shadow:0 0 6px var(--accent-2);"></div> Fautes provoquées</div>
-          </div>
-        </div>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:14px;">
-        <div class="card">
-          <div class="card-header"><div class="card-title"><div class="dot" style="background:var(--gold);box-shadow:0 0 8px var(--gold);"></div> Résumé terrain</div></div>
-          <div style="padding:14px 18px;">
-            <div class="stat-row"><span class="stat-label">Points placés</span><span class="stat-val green" id="courtDotsCount">0</span></div>
-            <div class="stat-row"><span class="stat-label">Zone fond</span><span class="stat-val blue" id="courtZoneFond">0</span></div>
-            <div class="stat-row"><span class="stat-label">Zone filet</span><span class="stat-val" id="courtZoneFilet">0</span></div>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-header"><div class="card-title"><div class="dot" style="background:var(--accent);"></div> Annoter ici aussi</div></div>
-          <div style="padding:12px 16px;display:flex;flex-direction:column;gap:8px;">
-            <button class="anno-btn win"   onclick="openModal('point_gagnant')" style="justify-content:center;">⚡ Point Gagnant</button>
-            <button class="anno-btn fault" onclick="openModal('faute_directe')" style="justify-content:center;">💥 Faute Directe</button>
-            <button class="anno-btn prov"  onclick="openModal('faute_provoquee')" style="justify-content:center;">🎯 Faute Provoquée</button>
-          </div>
-        </div>
+        <button class="anno-btn ai"    onclick="api.analyzeWithAI()">🤖 Analyse IA</button>
       </div>
     </div>
   </div>
@@ -1453,14 +1555,17 @@ function switchTab(name) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
   document.getElementById('panel-' + name).classList.add('active');
-  if (name === 'terrain') { setTimeout(() => { initCourtIfNeeded(); drawCourt(); }, 50); }
-  if (name === 'stats')   { updateChart(); updatePlayerChart(); }
+  if (name === 'stats')      { updateChart(); updatePlayerChart(); }
+  if (name === 'historique') { renderTimeline(); }
 }
 
 /* ═══ VIDEO PLAYER ═══ */
 const app = {
   video: null,
   rotation: 0,
+  ytMode: false,
+  ytPlayer: null,
+  _ytLoop: null,
 
   init() {
     this.video = document.getElementById('videoPlayer');
@@ -1471,9 +1576,122 @@ const app = {
     this.video.addEventListener('pause',           () => this.updatePlayBtn());
   },
 
+  /* ── YouTube helpers ── */
+  toggleYTInput() {
+    const bar = document.getElementById('ytInputBar');
+    bar.style.display = bar.style.display === 'none' ? 'block' : 'none';
+    if (bar.style.display === 'block') document.getElementById('ytUrlInput').focus();
+  },
+
+  cancelYT() {
+    document.getElementById('ytInputBar').style.display = 'none';
+    document.getElementById('ytUrlInput').value = '';
+  },
+
+  extractYTId(url) {
+    const m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|v\/|shorts\/))([a-zA-Z0-9_-]{11})/);
+    return m ? m[1] : null;
+  },
+
+  loadYouTubeVideo(url) {
+    const id = this.extractYTId(url.trim());
+    if (!id) { toast('❌ URL YouTube invalide', 'fault'); return; }
+    this.cancelYT();
+    this.ytMode = true;
+    this.video.pause();
+    this.video.style.display = 'none';
+    document.getElementById('noVideoState').style.display = 'none';
+    document.getElementById('videoOverlay').style.display = 'block';
+    document.getElementById('videoControls').style.display = 'block';
+
+    // Conteneur iframe
+    let ytDiv = document.getElementById('ytContainer');
+    if (!ytDiv) {
+      ytDiv = document.createElement('div');
+      ytDiv.id = 'ytContainer';
+      ytDiv.style.cssText = 'width:100%;height:100%;position:absolute;top:0;left:0;z-index:1;pointer-events:none;';      document.getElementById('videoWrapper').insertBefore(ytDiv, document.getElementById('videoWrapper').firstChild);
+    }
+    ytDiv.style.display = 'block';
+    document.getElementById('videoWrapper').classList.add('yt-active');
+
+    const buildPlayer = () => {
+      if (this.ytPlayer) { try { this.ytPlayer.destroy(); } catch(e) {} }
+      this.ytPlayer = new YT.Player('ytContainer', {
+        width: '100%', height: '100%',
+        videoId: id,
+        playerVars: { autoplay: 0, controls: 0, modestbranding: 1, rel: 0, playsinline: 1 },
+        events: {
+          onReady: (e) => {
+            STATE.videoDuration = e.target.getDuration() || 0;
+            this.renderProgressMarkers();
+            toast('▶ YouTube prêt !', 'win');
+          },
+          onStateChange: (e) => {
+            this.updatePlayBtn();
+            // Rendre l'iframe cliquable seulement quand on ne cherche pas à interagir avec les contrôles
+            const ytDiv = document.getElementById('ytContainer');
+            if (e.data === YT.PlayerState.PLAYING) {
+              STATE.videoDuration = this.ytPlayer.getDuration() || STATE.videoDuration;
+              if (ytDiv) ytDiv.style.pointerEvents = 'auto';
+              this.startYTProgressLoop();
+            } else {
+              if (ytDiv) ytDiv.style.pointerEvents = 'none';
+              this.stopYTProgressLoop();
+              this.updateProgress();
+            }
+            if (e.data === YT.PlayerState.ENDED) this.onEnded();
+          }
+        }
+      });
+    };
+
+    if (window.YT && window.YT.Player) { buildPlayer(); }
+    else {
+      window._ytPendingBuilder = buildPlayer;
+      if (!document.getElementById('ytApiScript')) {
+        const s = document.createElement('script');
+        s.id = 'ytApiScript';
+        s.src = 'https://www.youtube.com/iframe_api';
+        document.head.appendChild(s);
+      }
+    }
+  },
+
+  startYTProgressLoop() {
+    this.stopYTProgressLoop();
+    this._ytLoop = setInterval(() => {
+      this.updateProgress();
+      // Garder le focus sur le document pour les raccourcis clavier
+      if (document.activeElement && document.activeElement.tagName === 'IFRAME') {
+        document.body.focus();
+      }
+    }, 250);
+  },
+
+  stopYTProgressLoop() {
+    if (this._ytLoop) { clearInterval(this._ytLoop); this._ytLoop = null; }
+  },
+
+  seekTo(t) {
+    if (this.ytMode && this.ytPlayer) { this.ytPlayer.seekTo(t, true); }
+    else if (this.video.src) { this.video.currentTime = t; }
+  },
+
+  isVideoReady() {
+    return this.ytMode ? !!this.ytPlayer : !!this.video.src;
+  },
+
   loadLocalVideo(input) {
     const file = input.files[0];
     if (!file) return;
+    // Quitter le mode YT si actif
+    if (this.ytMode) {
+      this.ytMode = false;
+      this.stopYTProgressLoop();
+      const ytDiv = document.getElementById('ytContainer');
+      if (ytDiv) ytDiv.style.display = 'none';
+      if (this.ytPlayer) { try { this.ytPlayer.destroy(); } catch(e) {} this.ytPlayer = null; }
+    }
     this.video.src = URL.createObjectURL(file);
     this.video.style.display = 'block';
     document.getElementById('noVideoState').style.display = 'none';
@@ -1489,41 +1707,65 @@ const app = {
   },
 
   togglePlay() {
-    if (!this.video.src) return;
     const fb = document.getElementById('playFeedback');
-    if (this.video.paused) { this.video.play(); fb.textContent = '▶'; }
-    else                   { this.video.pause(); fb.textContent = '⏸'; }
+    if (this.ytMode && this.ytPlayer) {
+      const state = this.ytPlayer.getPlayerState();
+      if (state === YT.PlayerState.PLAYING) { this.ytPlayer.pauseVideo(); fb.textContent = '⏸'; }
+      else { this.ytPlayer.playVideo(); fb.textContent = '▶'; }
+    } else {
+      if (!this.video.src) return;
+      if (this.video.paused) { this.video.play(); fb.textContent = '▶'; }
+      else                   { this.video.pause(); fb.textContent = '⏸'; }
+    }
     fb.className = 'play-feedback show';
     setTimeout(() => { fb.className = 'play-feedback hide'; }, 600);
+    // Redonner le focus au document pour que les raccourcis clavier continuent de fonctionner
+    document.body.focus();
   },
 
   updatePlayBtn() {
-    const icon = this.video.paused ? '▶' : '⏸';
+    let paused = true;
+    if (this.ytMode && this.ytPlayer) paused = this.ytPlayer.getPlayerState() !== YT.PlayerState.PLAYING;
+    else paused = this.video.paused;
+    const icon = paused ? '▶' : '⏸';
     document.getElementById('playPauseBtn').textContent = icon;
     const fsBtn = document.getElementById('fsPlayBtn');
     if (fsBtn) fsBtn.textContent = icon;
   },
 
   seekRel(s) {
-    if (!this.video.src) return;
-    this.video.currentTime = Math.max(0, Math.min(this.video.duration, this.video.currentTime + s));
+    if (this.ytMode && this.ytPlayer) {
+      this.ytPlayer.seekTo(Math.max(0, this.ytPlayer.getCurrentTime() + s), true);
+    } else {
+      if (!this.video.src) return;
+      this.video.currentTime = Math.max(0, Math.min(this.video.duration, this.video.currentTime + s));
+    }
+    document.body.focus();
   },
 
   seekClick(e) {
-    if (!this.video.src) return;
     const rect = e.currentTarget.getBoundingClientRect();
-    this.video.currentTime = ((e.clientX - rect.left) / rect.width) * this.video.duration;
+    const pct = (e.clientX - rect.left) / rect.width;
+    if (this.ytMode && this.ytPlayer) {
+      this.ytPlayer.seekTo(pct * (STATE.videoDuration || 1), true);
+    } else {
+      if (!this.video.src) return;
+      this.video.currentTime = pct * this.video.duration;
+    }
   },
 
   setSpeed(s) {
-    if (!this.video.src) return;
-    this.video.playbackRate = s;
+    if (this.ytMode && this.ytPlayer) { this.ytPlayer.setPlaybackRate(s); }
+    else { if (!this.video.src) return; this.video.playbackRate = s; }
     document.querySelectorAll('.speed-btn[data-speed]').forEach(b =>
       b.classList.toggle('active', parseFloat(b.dataset.speed) === s));
     toast('⚡ ×' + s, 'info');
   },
 
-  setVolume(v) { this.video.volume = v; },
+  setVolume(v) {
+    if (this.ytMode && this.ytPlayer) { this.ytPlayer.setVolume(v * 100); }
+    else { this.video.volume = v; }
+  },
 
   rotateVideo() {
     this.rotation = (this.rotation + 90) % 360;
@@ -1533,11 +1775,15 @@ const app = {
   },
 
   updateProgress() {
-    const t = this.video.currentTime, d = this.video.duration || 1;
+    let t = 0, d = 1;
+    if (this.ytMode && this.ytPlayer) {
+      try { t = this.ytPlayer.getCurrentTime() || 0; d = this.ytPlayer.getDuration() || 1; } catch(e) {}
+    } else {
+      t = this.video.currentTime; d = this.video.duration || 1;
+    }
     const pct = (t / d * 100).toFixed(2) + '%';
     document.getElementById('progressFill').style.width = pct;
     document.getElementById('timeDisplay').textContent = formatTime(t) + ' / ' + formatTime(d);
-    // FS mirror
     const fsF = document.getElementById('fsProgressFill');
     if (fsF) fsF.style.width = pct;
     const fsT = document.getElementById('fsTimeDisplay');
@@ -1546,7 +1792,10 @@ const app = {
 
   onEnded() { document.getElementById('playPauseBtn').textContent = '▶'; },
 
-  getCurrentTime() { return this.video ? this.video.currentTime : 0; },
+  getCurrentTime() {
+    if (this.ytMode && this.ytPlayer) { try { return this.ytPlayer.getCurrentTime() || 0; } catch(e) { return 0; } }
+    return this.video ? this.video.currentTime : 0;
+  },
 
   undoLast() {
     if (!STATE.annotations.length) return;
@@ -1575,14 +1824,18 @@ const app = {
 
 /* ═══ FULLSCREEN ═══ */
 function enterFullscreen() {
-  if (!app.video.src) { toast('⚠️ Charge une vidéo d\'abord', 'fault'); return; }
+  if (!app.isVideoReady()) { toast('⚠️ Charge une vidéo d\'abord', 'fault'); return; }
   const overlay = document.getElementById('fsOverlay');
-  // Déplace la vidéo dans le slot fs
   const slot = document.getElementById('fsVideoSlot');
-  slot.appendChild(app.video);
-  app.video.style.display = 'block';
-  app.video.style.width   = '100%';
-  app.video.style.height  = '100%';
+  if (app.ytMode) {
+    const ytDiv = document.getElementById('ytContainer');
+    if (ytDiv) slot.appendChild(ytDiv);
+  } else {
+    slot.appendChild(app.video);
+    app.video.style.display = 'block';
+    app.video.style.width   = '100%';
+    app.video.style.height  = '100%';
+  }
   overlay.classList.add('open');
   overlay.requestFullscreen?.() || overlay.webkitRequestFullscreen?.();
   app.renderProgressMarkers();
@@ -1591,11 +1844,15 @@ function enterFullscreen() {
 function exitFullscreen() {
   const overlay = document.getElementById('fsOverlay');
   overlay.classList.remove('open');
-  // Remet la vidéo dans le wrapper normal
   const wrapper = document.getElementById('videoWrapper');
-  wrapper.appendChild(app.video);
-  app.video.style.width  = '100%';
-  app.video.style.height = '100%';
+  if (app.ytMode) {
+    const ytDiv = document.getElementById('ytContainer');
+    if (ytDiv) wrapper.insertBefore(ytDiv, wrapper.firstChild);
+  } else {
+    wrapper.appendChild(app.video);
+    app.video.style.width  = '100%';
+    app.video.style.height = '100%';
+  }
   if (document.fullscreenElement) document.exitFullscreen?.();
 }
 
@@ -1735,33 +1992,19 @@ function renderAnnotationModal() {
       </div>`
     : '';
 
-  const listClass = (STATE.modalStep === 'player' || STATE.modalStep === 'defender') ? 'numpad-grid numpad-2col' : 'numpad-grid';
+  // Toujours 9 cases en disposition pavé numérique : 7,8,9 / 4,5,6 / 1,2,3
+  const NUMPAD_POSITIONS = [7,8,9,4,5,6,1,2,3];
+  const itemMap = Object.fromEntries(config.items.map(i => [String(i.key), i]));
 
-  // Tri visuel : disposition pavé numérique (1=bas-gauche, 9=haut-droit)
-  function numpadPos(key, cols) {
-    const k = parseInt(key);
-    if (cols === 2) { const o = {3:0,4:1,1:2,2:3}; return o[k] ?? 99; }
-    const o = {7:0,8:1,9:2,4:3,5:4,6:5,1:6,2:7,3:8};
-    return o[k] ?? 99;
-  }
-  const cols = (STATE.modalStep === 'player' || STATE.modalStep === 'defender') ? 2 : 3;
-  const sortedItems = [...config.items].sort((a,b) => numpadPos(a.key, cols) - numpadPos(b.key, cols));
-
-  const itemHtml = sortedItems.map(item => {
+  const itemHtml = NUMPAD_POSITIONS.map(pos => {
+    const item = itemMap[String(pos)];
+    if (!item) return `<div class="numpad-cell numpad-empty"></div>`;
     const data = `data-key="${item.key}" data-value="${item.value || item.next || item.leaf || ''}"`;
-    const hasArrow = item.next ? `<div class="numpad-arrow">›</div>` : '';
-    if (STATE.modalStep === 'player' || STATE.modalStep === 'defender') {
-      return `<button class="numpad-cell" ${data} onclick="handleModalChoice('${item.key}')">
-        <span class="numpad-num">${item.key}</span>
-        <span class="numpad-emoji">${item.emoji}</span>
-        <div class="numpad-label">${item.label}</div>
-        <div class="numpad-sub">${item.sublabel || ''}</div>
-      </button>`;
-    }
     return `<button class="numpad-cell" ${data} onclick="handleModalChoice('${item.key}')">
       <span class="numpad-num">${item.key}</span>
       <span class="numpad-emoji">${item.emoji}</span>
       <div class="numpad-label">${item.label}${item.next ? ' ›' : ''}</div>
+      ${item.sublabel ? `<div class="numpad-sub">${item.sublabel}</div>` : ''}
     </button>`;
   }).join('');
 
@@ -1769,7 +2012,7 @@ function renderAnnotationModal() {
     <div style="font-size:.95rem;font-weight:700;margin-bottom:4px;">${config.title}</div>
     <div style="font-size:.73rem;color:var(--text-muted);margin-bottom:12px;">${config.subtitle}</div>
     ${playerSummary}
-    <div class="${listClass}">${itemHtml}</div>
+    <div class="numpad-grid">${itemHtml}</div>
     <div class="kbd-hint" style="margin-top:10px">
       <span class="kbd"><kbd>1–9</kbd> Sélection rapide</span>
       <span class="kbd"><kbd>⌫</kbd> Retour</span>
@@ -2200,7 +2443,7 @@ function renderTimeline() {
     const cls   = a.type === 'point_gagnant' ? 'win' : a.type === 'faute_directe' ? 'fault' : 'prov';
     const emoji = a.type === 'point_gagnant' ? '⚡' : a.type === 'faute_directe' ? '💥' : '🎯';
     const lbl   = a.type === 'point_gagnant' ? 'Winner' : a.type === 'faute_directe' ? 'Faute' : 'Prov.';
-    return `<div class="timeline-item" onclick="app.video.currentTime=${a.timestamp};app.video.play()">
+    return `<div class="timeline-item" onclick="app.seekTo(${a.timestamp});app.ytMode&&app.ytPlayer?app.ytPlayer.playVideo():app.video.play()">
       <div class="ti-time">${formatTime(a.timestamp)}</div>
       <div class="ti-icon ${cls}">${emoji}</div>
       <div class="ti-content">
@@ -2256,8 +2499,9 @@ function updatePlayerCards() {
 let courtCtx, courtInited = false;
 function initCourtIfNeeded() {
   if (courtInited) return;
-  courtInited = true;
   const canvas = document.getElementById('courtCanvas');
+  if (!canvas) return;
+  courtInited = true;
   courtCtx = canvas.getContext('2d');
   canvas.addEventListener('click', e => {
     const rect = canvas.getBoundingClientRect();
@@ -2411,6 +2655,194 @@ function updatePlayerChart() {
 const api = {
   sendAnnotation(a) { /* stocké dans STATE.annotations */ },
 
+  async analyzeWithAI() {
+    if (STATE.annotations.length === 0) { toast('⚠️ Aucune annotation à analyser','fault'); return; }
+
+    // ─── Écran de configuration ───────────────────────────────────
+    const AI_ENDPOINTS = [
+      { label: '� Local — qwen3:8b',     url: 'http://localhost:11434/api/generate',       model: 'qwen3:8b' },
+      { label: '💻 Local — qwen2.5:7b',   url: 'http://localhost:11434/api/generate',       model: 'qwen2.5:7b' },
+      { label: '💻 Local — llama3.2:3b',  url: 'http://localhost:11434/api/generate',       model: 'llama3.2:3b' },
+      { label: '🖥️ VPS — qwen3:8b',      url: 'http://57.129.110.251:11434/api/generate', model: 'qwen3:8b' },
+      { label: '🖥️ VPS — qwen2.5:7b',    url: 'http://57.129.110.251:11434/api/generate', model: 'qwen2.5:7b' },
+      { label: '🖥️ VPS — qwen3:14b',     url: 'http://57.129.110.251:11434/api/generate', model: 'qwen3:14b' },
+      { label: '🖥️ VPS — llama3.2:3b',   url: 'http://57.129.110.251:11434/api/generate', model: 'llama3.2:3b' },
+      { label: '⚙️ URL personnalisée…',   url: '__custom__', model: '__custom__' },
+    ];
+
+    const saved = JSON.parse(localStorage.getItem('ai_config') || 'null');
+    // Vérifier que la config sauvegardée correspond à un endpoint connu
+    const savedIdx = saved ? AI_ENDPOINTS.findIndex(e=>e.url===saved.url&&e.model===saved.model) : 0;
+    const defaultIdx = savedIdx >= 0 ? savedIdx : 0;
+    // Effacer config invalide
+    if (savedIdx < 0) localStorage.removeItem('ai_config');
+
+    document.getElementById('aiModal').style.display = 'flex';
+    document.getElementById('aiModalContent').innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+        <div style="font-size:1.1rem;font-weight:700;color:var(--ink)">🤖 Analyse IA — Configuration</div>
+        <button onclick="closeAIModal()" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--text-secondary)">✕</button>
+      </div>
+      <div style="margin-bottom:16px">
+        <label style="font-size:.85rem;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:8px">SOURCE &amp; MODÈLE</label>
+        <select id="aiEndpointSelect" style="width:100%;padding:10px 12px;border:1.5px solid var(--border-bright);border-radius:8px;background:var(--card-bg);color:var(--text-primary);font-size:.95rem;cursor:pointer">
+          ${AI_ENDPOINTS.map((e,i)=>`<option value="${i}" ${i===defaultIdx?'selected':''}>${e.label}</option>`).join('')}
+        </select>
+      </div>
+      <div id="aiCustomModelWrap" style="margin-bottom:16px;display:none">
+        <label style="font-size:.85rem;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:6px">URL OLLAMA</label>
+        <input id="aiCustomUrl" type="text" placeholder="http://mon-serveur:11434/api/generate" style="width:100%;padding:10px 12px;border:1.5px solid var(--border-bright);border-radius:8px;background:var(--card-bg);color:var(--text-primary);font-size:.85rem;box-sizing:border-box;margin-bottom:8px">
+        <label style="font-size:.85rem;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:6px">NOM DU MODÈLE</label>
+        <input id="aiCustomModel" type="text" placeholder="ex: qwen3:8b" style="width:100%;padding:10px 12px;border:1.5px solid var(--border-bright);border-radius:8px;background:var(--card-bg);color:var(--text-primary);font-size:.95rem;box-sizing:border-box">
+      </div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:24px">
+        <button onclick="closeAIModal()" class="anno-btn" style="padding:8px 18px">Annuler</button>
+        <button onclick="_launchAI()" class="anno-btn ai" style="padding:8px 20px;font-weight:700">⚡ Lancer l'analyse</button>
+      </div>`;
+
+    // Afficher/masquer le champ custom modèle
+    document.getElementById('aiEndpointSelect').addEventListener('change', function() {
+      const ep = AI_ENDPOINTS[+this.value];
+      document.getElementById('aiCustomModelWrap').style.display = ep.url === '__custom__' ? 'block' : 'none';
+    });
+
+    // Attendre que l'utilisateur clique
+    window._launchAI = async () => {
+      const idx  = +document.getElementById('aiEndpointSelect').value;
+      const ep   = AI_ENDPOINTS[idx];
+      let model  = ep.url === '__custom__'
+        ? (document.getElementById('aiCustomModel').value.trim() || 'qwen3:8b')
+        : ep.model;
+      const OLLAMA_URL = ep.url === '__custom__'
+        ? (document.getElementById('aiCustomUrl').value.trim() || 'http://57.129.110.251:11434/api/generate')
+        : ep.url;
+
+      // Ouvrir la modale avec état chargement
+      document.getElementById('aiModal').style.display = 'flex';
+    document.getElementById('aiModalContent').innerHTML = `
+      <div style="text-align:center;padding:40px 20px">
+        <div style="font-size:2rem;margin-bottom:16px">🤖</div>
+        <div style="font-size:1.1rem;font-weight:600;margin-bottom:8px">Analyse en cours…</div>
+        <div style="color:var(--text-secondary);font-size:.9rem">Le modèle IA analyse votre match</div>
+        <div style="margin-top:20px;display:flex;justify-content:center;gap:6px">
+          <span style="width:8px;height:8px;border-radius:50%;background:#a78bfa;animation:aiPulse 1.2s ease-in-out infinite"></span>
+          <span style="width:8px;height:8px;border-radius:50%;background:#a78bfa;animation:aiPulse 1.2s ease-in-out .4s infinite"></span>
+          <span style="width:8px;height:8px;border-radius:50%;background:#a78bfa;animation:aiPulse 1.2s ease-in-out .8s infinite"></span>
+        </div>
+      </div>`;
+
+    // Construire les stats par joueur
+    const statP = pid => {
+      const W  = STATE.annotations.filter(a=>a.joueurId===pid && a.type==='point_gagnant').length;
+      const FD = STATE.annotations.filter(a=>a.joueurId===pid && a.type==='faute_directe').length;
+      const FP = STATE.annotations.filter(a=>a.joueurId===pid && a.type==='faute_provoquee').length;
+      const FS = STATE.annotations.filter(a=>a.defenseurId===pid && a.type==='faute_provoquee').length;
+      const idx = Math.round(((W + FP) / Math.max(W + FD + FP, 1)) * 100);
+      return { W, FD, FP, FS, indice_jeu: idx, total_actions: W+FD+FP };
+    };
+
+    const playersData = STATE.players.map(p => ({
+      nom: p.name, equipe: p.team, position: p.id,
+      stats: statP(p.id)
+    }));
+
+    const totalW  = STATE.annotations.filter(a=>a.type==='point_gagnant').length;
+    const totalFD = STATE.annotations.filter(a=>a.type==='faute_directe').length;
+    const totalFP = STATE.annotations.filter(a=>a.type==='faute_provoquee').length;
+    const scoreA  = STATE.annotations.filter(a=>['p1','p2'].includes(a.joueurId)&&a.type==='point_gagnant').length;
+    const scoreB  = STATE.annotations.filter(a=>['p3','p4'].includes(a.joueurId)&&a.type==='point_gagnant').length;
+
+    const matchSummary = {
+      score: { 'Équipe A': scoreA, 'Équipe B': scoreB },
+      total_points_joues: STATE.annotations.length,
+      total_winners: totalW, total_fautes_directes: totalFD, total_fautes_provoquees: totalFP,
+      joueurs: playersData
+    };
+
+    const TACTICAL_PROMPT = `Tu es un analyste expert en padel. Tu disposes d'un référentiel tactique et des statistiques d'un match réel annoté.
+
+RÉFÉRENTIEL TACTIQUE :
+Le padel est un système de décisions basé sur trois variables : temps, espace, risque.
+Un échange suit une structure : neutralité → avantage → consolidation → conclusion.
+L'attaque est un processus de construction d'avantage, pas une tentative immédiate de finition.
+La défense est active et vise à reprendre le temps, repositionner la paire et provoquer l'erreur adverse.
+Le centre est une zone tactique prioritaire.
+Le jeu en paire repose sur la synchronisation, la couverture collective et l'intention commune.
+Le contexte du score modifie les décisions : plus le point est important, plus la marge et la simplicité sont prioritaires.
+Une erreur peut être technique ou décisionnelle. La progression dépend principalement de la réduction des erreurs décisionnelles.
+Chaque coup doit avoir une intention claire. La performance repose sur la capacité à lire, décider et répéter des choix cohérents.
+
+DÉFINITIONS DES MÉTRIQUES :
+- W (Winner) : point gagnant direct
+- FD (Faute Directe) : faute commise sans pression adverse
+- FP (Faute Provoquée) : faute forcée par la pression exercée SUR l'adversaire (attrib. à l'attaquant)
+- FS (Fautes Subies) : fautes provoquées subi par le joueur (adversaire a créé la pression)
+- Indice de jeu = (W + FP) / (W + FD + FP) × 100 — mesure la qualité tactique (≥60% = bon, <40% = à améliorer)
+
+STATISTIQUES DU MATCH :
+${JSON.stringify(matchSummary, null, 2)}
+
+ANALYSE DEMANDÉE :
+1. Résumé global du match (score, dynamique, densité d'action)
+2. Analyse de chaque joueur via son indice de jeu et la nature de ses erreurs (décisionnelles vs techniques)
+3. Comparaison des deux équipes : qui a créé plus de pression ? qui a subi ?
+4. Points forts et axes de progression pour chaque joueur
+5. Conclusion tactique courte et directe
+
+RÈGLES DE RÉPONSE :
+- Répondre en français
+- Structuré, analytique, orienté entraînement
+- Ne pas inventer de statistiques
+- Ne pas théoriser hors contexte du match
+- Pas de tableaux JSON en sortie`;
+
+    try {
+      const resp = await fetch(OLLAMA_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: OLLAMA_MODEL,
+          prompt: TACTICAL_PROMPT,
+          stream: false,
+          think: false,
+          options: { temperature: 0.3 }
+        })
+      });
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const data = await resp.json();
+      // Supprimer les balises <think>...</think> (qwen3)
+      const text = (data.response || '')
+        .replace(/<think>[\s\S]*?<\/think>/gi, '')
+        .trim();
+
+      // Formatage basique : titres en gras
+      const html = text
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+        .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+        .replace(/^#{1,3}\s*(.+)$/gm,'<h3 style="margin:.8em 0 .3em;color:var(--ink)">$1</h3>')
+        .replace(/\n/g,'<br>');
+
+      document.getElementById('aiModalContent').innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+          <div style="font-size:1.1rem;font-weight:700;color:var(--ink)">🤖 Analyse IA — ${OLLAMA_MODEL}</div>
+          <button onclick="closeAIModal()" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--text-secondary)">✕</button>
+        </div>
+        <div style="max-height:65vh;overflow-y:auto;line-height:1.7;font-size:.95rem;color:var(--text-primary);padding-right:4px">${html}</div>
+        <div style="margin-top:16px;text-align:right">
+          <button onclick="closeAIModal()" class="anno-btn gold" style="padding:6px 18px">Fermer</button>
+        </div>`;
+    } catch(e) {
+      document.getElementById('aiModalContent').innerHTML = `
+        <div style="text-align:center;padding:32px">
+          <div style="font-size:2rem;margin-bottom:12px">❌</div>
+          <div style="font-weight:600;margin-bottom:8px">Erreur de connexion</div>
+          <div style="color:var(--text-secondary);font-size:.9rem">${e.message}</div>
+          <button onclick="closeAIModal()" class="anno-btn" style="margin-top:16px">Fermer</button>
+        </div>`;
+    }
+    }; // fin _launchAI
+  },
+
   exportJson() {
     const data = buildAutosavePayload();
     const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
@@ -2436,8 +2868,11 @@ const api = {
       const fautes     = STATE.annotations.filter(a=>a.joueurId===pid && a.type==='faute_directe').length;
       const provoquees = STATE.annotations.filter(a=>a.joueurId===pid && a.type==='faute_provoquee').length;
       const subies     = STATE.annotations.filter(a=>a.defenseurId===pid && a.type==='faute_provoquee').length;
-      const efficacite = Math.round((winners / Math.max(winners + fautes, 1)) * 100);
-      const impact     = provoquees - subies;
+      // Efficacité = balance (positifs - négatifs)
+      const efficacite = (winners + provoquees) - (fautes + subies);
+      // Impact = pourcentage de contribution positive sur toutes les actions
+      const total_actions_impact = winners + provoquees + fautes + subies;
+      const impact     = total_actions_impact > 0 ? Math.round(((winners + provoquees) / total_actions_impact) * 100) : 50;
       const total_fp   = provoquees + subies;
       const fp_pct     = total_fp > 0 ? Math.round((provoquees / total_fp) * 100) : 0;
       const fs_pct     = 100 - fp_pct;
@@ -2519,29 +2954,30 @@ const api = {
     });
 
     // ── Coups ─────────────────────────────────────────────────────
-    const shotCounts = {};
-    STATE.annotations.forEach(a => {
-      const l = SHOTS[a.type_coup]?.[1] || 'Autre';
-      shotCounts[l] = (shotCounts[l]||0)+1;
+    const shotsByPlayer = {};
+    STATE.players.forEach(p => {
+      const counts = {};
+      STATE.annotations.filter(a=>a.joueurId===p.id).forEach(a => {
+        const l = a.shot_label || 'Autre';
+        counts[l] = (counts[l]||0)+1;
+      });
+      shotsByPlayer[p.id] = { player: p, shots: Object.entries(counts).sort((a,b)=>b[1]-a[1]) };
     });
-    const topShots = Object.entries(shotCounts).sort((a,b)=>b[1]-a[1]);
+    const hasAnyShot = Object.values(shotsByPlayer).some(v=>v.shots.length>0);
 
     // ── Cards joueurs ─────────────────────────────────────────────
     const playerCards = STATE.players.map(p => {
       const s = stat(p.id);
-      const impColor = s.impact > 0 ? '#28a745' : s.impact < 0 ? '#dc3545' : '#ffc107';
-      const impText  = s.impact > 0 ? '+'+s.impact : String(s.impact);
       return `
       <div class="pc">
         <h3>${p.avatar} ${p.name}</h3>
         <p class="pc-team">${p.team}</p>
         <div class="sr"><span>✅ Points gagnants</span><span class="sv green">${s.winners}</span></div>
         <div class="sr"><span>❌ Fautes directes</span><span class="sv red">${s.fautes}</span></div>
-        <div class="sr"><span>🎯 Efficacité</span><span class="sv blue">${s.efficacite}%</span></div>
+        <div class="sr"><span>⚡ Efficacité (W+FP−FD−FS)</span><span class="sv" style="color:${s.efficacite>0?'#28a745':s.efficacite<0?'#dc3545':'#ffc107'}">${s.efficacite>0?'+':''}${s.efficacite}</span></div>
         <div class="divider"></div>
         <div class="sr"><span>⚔️ Fautes provoquées</span><span class="sv green">${s.provoquees}</span></div>
         <div class="sr"><span>🛡️ Fautes subies</span><span class="sv red">${s.subies}</span></div>
-        <div class="sr highlight"><span>💥 Impact match</span><span class="sv" style="color:${impColor};font-size:1.3em">${impText}</span></div>
         <div class="impact-chart">
           <div class="chart-label">Influence sur le jeu</div>
           <div class="chart-bar">
@@ -2570,29 +3006,29 @@ const api = {
     const html = `<!DOCTYPE html>
 <html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>PADELSTAT — Analyse du ${date}</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"><\/script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Space+Grotesk:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&family=Roboto+Mono:wght@400;500;700&display=swap');
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --ink:#0d0d0d;--paper:#f5f3ee;--gold:#b8960c;--gold-lt:#d4af37;
+  --ink:#0d0d0d;--paper:#f5f3ee;--alum:#8e9aaa;--alum-lt:#b0bac4;
   --off:#e8e4dc;--muted:#888070;--accent:#1a1a1a;
   --red:#c0392b;--green:#1a6b3a;--blue:#1a3a6b;
   --mono:'Space Grotesk',monospace;
 }
-html{font-size:15px}
-body{background:var(--paper);color:var(--ink);font-family:'Inter',system-ui,sans-serif;min-height:100vh;padding:0}
+html{font-size:17px}
+body{background:var(--paper);color:var(--ink);font-family:'Roboto',system-ui,sans-serif;min-height:100vh;padding:0}
 
 /* ── HEADER ── */
 .report-header{
   background:var(--ink);color:var(--paper);
   padding:60px 64px 48px;
   display:flex;justify-content:space-between;align-items:flex-end;
-  border-bottom:3px solid var(--gold);
+  border-bottom:3px solid var(--alum);
 }
-.rh-brand{font-size:.68rem;font-family:var(--mono);letter-spacing:.28em;color:var(--gold);text-transform:uppercase;margin-bottom:16px}
+.rh-brand{font-size:.68rem;font-family:var(--mono);letter-spacing:.28em;color:var(--alum);text-transform:uppercase;margin-bottom:16px}
 .rh-title{font-size:3.2rem;font-weight:900;line-height:.95;letter-spacing:-.04em}
-.rh-title span{color:var(--gold-lt)}
+.rh-title span{color:var(--alum-lt)}
 .rh-meta{text-align:right;font-size:.72rem;font-family:var(--mono);color:#888;line-height:2}
 .rh-meta strong{color:var(--paper);font-weight:600}
 
@@ -2602,8 +3038,8 @@ body{background:var(--paper);color:var(--ink);font-family:'Inter',system-ui,sans
 /* ── SECTION LABEL ── */
 .sec-label{
   font-size:.6rem;font-family:var(--mono);letter-spacing:.22em;
-  text-transform:uppercase;color:var(--gold);
-  border-top:1px solid var(--gold);padding-top:10px;margin-bottom:24px;
+  text-transform:uppercase;color:var(--alum);
+  border-top:1px solid var(--alum);padding-top:10px;margin-bottom:24px;
   display:flex;align-items:center;gap:12px;
 }
 .sec-label::after{content:'';flex:1;height:1px;background:var(--off)}
@@ -2616,7 +3052,7 @@ body{background:var(--paper);color:var(--ink);font-family:'Inter',system-ui,sans
 .stm-name{font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-family:var(--mono);margin-bottom:8px}
 .stm-players{font-size:1.05rem;font-weight:700;color:var(--ink);line-height:1.3}
 .stm-score{font-size:5rem;font-weight:900;line-height:1;font-family:var(--mono);letter-spacing:-.06em;margin-top:12px;color:var(--ink)}
-.score-team.winner .stm-score{color:var(--gold)}
+.score-team.winner .stm-score{color:var(--alum)}
 .score-team.winner .stm-name{color:var(--green)}
 .score-vs{text-align:center;font-size:.65rem;font-family:var(--mono);letter-spacing:.1em;color:var(--muted)}
 .score-border{border:1px solid var(--off)}
@@ -2627,19 +3063,19 @@ body{background:var(--paper);color:var(--ink);font-family:'Inter',system-ui,sans
 .kpi:last-child{border-right:none}
 .kpi-num{font-size:2.8rem;font-weight:900;font-family:var(--mono);line-height:1;letter-spacing:-.04em}
 .kpi-label{font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-top:6px;font-family:var(--mono)}
-.kpi-num.k-gold{color:var(--gold)}.kpi-num.k-red{color:var(--red)}.kpi-num.k-green{color:var(--green)}.kpi-num.k-blue{color:var(--blue)}
+.kpi-num.k-gold{color:var(--alum)}.kpi-num.k-red{color:var(--red)}.kpi-num.k-green{color:var(--green)}.kpi-num.k-blue{color:var(--blue)}
 
 /* ── PLAYER CARDS ── */
 .pg{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1px;background:var(--off);border:1px solid var(--off)}
 .pc{background:var(--paper);padding:30px 28px}
-.pc-title{font-size:.6rem;font-family:var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:4px}
+.pc-title{font-size:.6rem;font-family:var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--alum);margin-bottom:4px}
 .pc-name{font-size:1.4rem;font-weight:800;line-height:1;margin-bottom:2px}
 .pc-team{font-size:.67rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:20px}
 .pc-divider{height:1px;background:var(--off);margin:14px 0}
 .sr{display:flex;justify-content:space-between;align-items:baseline;padding:6px 0}
 .sr-label{font-size:.78rem;color:var(--muted)}
 .sr-val{font-size:1.2rem;font-weight:800;font-family:var(--mono)}
-.sr-val.g{color:var(--green)}.sr-val.r{color:var(--red)}.sr-val.b{color:var(--blue)}.sr-val.gold{color:var(--gold)}
+.sr-val.g{color:var(--green)}.sr-val.r{color:var(--red)}.sr-val.b{color:var(--blue)}.sr-val.gold{color:var(--alum)}
 .impact-row{margin-top:18px;padding-top:14px;border-top:1px solid var(--off)}
 .impact-label{font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-family:var(--mono);margin-bottom:10px}
 .bar-wrap{height:6px;background:var(--off);display:flex;overflow:hidden}
@@ -2658,10 +3094,10 @@ body{background:var(--paper);color:var(--ink);font-family:'Inter',system-ui,sans
 
 /* ── TABLE ── */
 .tbl-wrap{overflow-x:auto}
-table{width:100%;border-collapse:collapse;font-size:.78rem;font-family:var(--mono)}
+table{width:100%;border-collapse:collapse;font-size:.86rem;font-family:var(--mono)}
 thead tr{border-bottom:2px solid var(--ink)}
-th{padding:10px 16px;text-align:left;font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:500}
-td{padding:11px 16px;border-bottom:1px solid var(--off);color:var(--ink)}
+th{padding:10px 16px;text-align:left;font-size:.63rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:500}
+td{padding:12px 16px;border-bottom:1px solid var(--off);color:var(--ink)}
 tr:hover td{background:var(--off)}
 .td-win{color:var(--green);font-weight:700}
 .td-fault{color:var(--red);font-weight:700}
@@ -2696,7 +3132,7 @@ tr:hover td{background:var(--off)}
 /* ── CHARTS ── */
 .charts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:24px}
 .chart-panel{background:var(--paper);border:1px solid var(--off);padding:24px}
-.chart-panel-title{font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-family:var(--mono);margin-bottom:16px}
+.chart-panel-title{font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--alum);font-family:var(--mono);margin-bottom:16px}
 .chart-canvas-wrap{position:relative;height:220px}
 @media(max-width:700px){.charts-grid{grid-template-columns:1fr}.adv-grid{grid-template-columns:repeat(2,1fr)}}
 </style></head>
@@ -2793,20 +3229,204 @@ tr:hover td{background:var(--off)}
     }).join('')}</div>
   </section>
 
-  <!-- SHOTS -->
-  ${topShots.length ? `<section>
-    <div class="sec-label">04 — Répartition des coups</div>
-    <div class="shots-grid">${topShots.map(([k,v])=>`
-      <div class="shot-item">
-        <span class="shot-name">${k}</span>
-        <span class="shot-count">${v}<span>pts</span></span>
-      </div>`).join('')}
+  <!-- SHOTS PAR JOUEUR -->
+  ${hasAnyShot ? `<section>
+    <div class="sec-label">04 — Répartition des coups par joueur</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px">
+      ${STATE.players.map(p => {
+        const d = shotsByPlayer[p.id];
+        if (!d.shots.length) return `<div style="border:2px solid var(--off);border-radius:10px;padding:18px"><div style="font-weight:700;margin-bottom:10px">${p.avatar} ${p.name}</div><div style="color:var(--muted);font-size:.85rem">Aucun coup enregistré</div></div>`;
+        const max = d.shots[0][1];
+        return `<div style="border:2px solid var(--ink);border-radius:10px;overflow:hidden">
+          <div style="background:var(--ink);color:var(--paper);padding:10px 14px;font-weight:700">${p.avatar} ${p.name} <span style="opacity:.6;font-size:.8rem">${p.team}</span></div>
+          <div style="padding:12px 14px;display:flex;flex-direction:column;gap:8px">
+            ${d.shots.map(([k,v]) => `<div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:.85rem">${k}</span><span style="font-weight:700">${v}</span></div>
+              <div style="background:var(--off);border-radius:3px;height:6px"><div style="background:var(--ink);height:6px;border-radius:3px;width:${Math.round(v/max*100)}%"></div></div>
+            </div>`).join('')}
+          </div>
+        </div>`;
+      }).join('')}
     </div>
   </section>` : ''}
 
+  <!-- CONFRONTATIONS DIAGONALES -->
+  ${(() => {
+    // p1/p2 = Équipe A (gauche/droite), p3/p4 = Équipe B (gauche/droite)
+    // Diagonale gauche : p1 (A-gauche) vs p4 (B-droite)
+    // Diagonale droite : p2 (A-droite) vs p3 (B-gauche)
+    const pA1 = STATE.players[0], pA2 = STATE.players[1];
+    const pB1 = STATE.players[2], pB2 = STATE.players[3];
+    if (!pA1||!pA2||!pB1||!pB2) return '';
+
+    const diagStats = (px, py) => {
+      const wx  = STATE.annotations.filter(a=>a.joueurId===px.id&&a.type==='point_gagnant').length;
+      const wy  = STATE.annotations.filter(a=>a.joueurId===py.id&&a.type==='point_gagnant').length;
+      const fdx = STATE.annotations.filter(a=>a.joueurId===px.id&&a.type==='faute_directe').length;
+      const fdy = STATE.annotations.filter(a=>a.joueurId===py.id&&a.type==='faute_directe').length;
+      // fautes provoquées dans cette diagonale (x provoque y ou y provoque x)
+      const fpxy = STATE.annotations.filter(a=>a.type==='faute_provoquee'&&a.joueurId===px.id&&a.defenseurId===py.id).length;
+      const fpyx = STATE.annotations.filter(a=>a.type==='faute_provoquee'&&a.joueurId===py.id&&a.defenseurId===px.id).length;
+      const scoreX = wx + fpxy;
+      const scoreY = wy + fpyx;
+      const winner = scoreX > scoreY ? px.name : scoreY > scoreX ? py.name : 'Égalité';
+      const winnerColor = scoreX > scoreY ? 'var(--green)' : scoreY > scoreX ? 'var(--red)' : 'var(--muted)';
+      return { wx, wy, fdx, fdy, fpxy, fpyx, scoreX, scoreY, winner, winnerColor };
+    };
+
+    const dG = diagStats(pA1, pB2); // gauche : pA1 vs pB2
+    const dD = diagStats(pA2, pB1); // droite : pA2 vs pB1
+
+    const diagRow = (label, px, py, d) => `
+      <tr style="border-bottom:1px solid var(--off)">
+        <td style="padding:12px 14px;font-weight:700;font-size:.8rem">${label}</td>
+        <td style="padding:12px 10px;text-align:center">${px.avatar} ${px.name}<br><span style="font-size:.62rem;color:var(--muted)">${px.team} — gauche</span></td>
+        <td style="padding:12px 10px;text-align:center">${py.avatar} ${py.name}<br><span style="font-size:.62rem;color:var(--muted)">${py.team} — droite</span></td>
+        <td style="padding:12px 8px;text-align:center;color:var(--green);font-weight:800">${d.wx}</td>
+        <td style="padding:12px 8px;text-align:center;color:var(--green);font-weight:800">${d.wy}</td>
+        <td style="padding:12px 8px;text-align:center;color:var(--red)">${d.fdx}</td>
+        <td style="padding:12px 8px;text-align:center;color:var(--red)">${d.fdy}</td>
+        <td style="padding:12px 8px;text-align:center;color:var(--blue)">${d.fpxy}→${d.fpyx}</td>
+        <td style="padding:12px 8px;text-align:center;font-weight:800">${d.scoreX} – ${d.scoreY}</td>
+        <td style="padding:12px 14px;font-weight:700;color:${d.winnerColor}">${d.winner}</td>
+      </tr>`;
+
+    return `<section>
+    <div class="sec-label">05 — Confrontations diagonales</div>
+    <p style="font-size:.72rem;color:var(--muted);margin-bottom:14px;font-family:var(--mono)">
+      Diagonale gauche : ${pA1.name} (A-gauche) ↔ ${pB2.name} (B-droite) &nbsp;|&nbsp;
+      Diagonale droite : ${pA2.name} (A-droite) ↔ ${pB1.name} (B-gauche)
+    </p>
+    <div style="overflow-x:auto">
+    <table style="width:100%;border-collapse:collapse;font-size:.78rem;font-family:var(--mono)">
+      <thead>
+        <tr style="border-bottom:2px solid var(--ink)">
+          <th style="padding:10px 14px;text-align:left;font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)">Diagonale</th>
+          <th style="padding:10px 10px;text-align:center;font-size:.58rem;letter-spacing:.10em;text-transform:uppercase;color:var(--muted)">Joueur A</th>
+          <th style="padding:10px 10px;text-align:center;font-size:.58rem;letter-spacing:.10em;text-transform:uppercase;color:var(--muted)">Joueur B</th>
+          <th style="padding:10px 8px;text-align:center;font-size:.58rem;letter-spacing:.10em;text-transform:uppercase;color:var(--green)" colspan="2">✅ Winners</th>
+          <th style="padding:10px 8px;text-align:center;font-size:.58rem;letter-spacing:.10em;text-transform:uppercase;color:var(--red)" colspan="2">❌ Fautes dir.</th>
+          <th style="padding:10px 8px;text-align:center;font-size:.58rem;letter-spacing:.10em;text-transform:uppercase;color:var(--blue)">🎯 Prov. A→B / B→A</th>
+          <th style="padding:10px 8px;text-align:center;font-size:.58rem;letter-spacing:.10em;text-transform:uppercase;color:var(--muted)">Score net</th>
+          <th style="padding:10px 14px;text-align:center;font-size:.58rem;letter-spacing:.10em;text-transform:uppercase;color:var(--muted)">Dominant</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${diagRow('↖ Gauche', pA1, pB2, dG)}
+        ${diagRow('↗ Droite', pA2, pB1, dD)}
+      </tbody>
+    </table>
+    </div>
+  </section>`;
+  })()}
+
+  <!-- TRANCHES 20% -->
+  ${(() => {
+    if (!dureeMatch || dureeMatch < 10) return '';
+    const SLICE = 5;
+    const sliceSize = dureeMatch / SLICE;
+    const labels = Array.from({length:SLICE},(_,i)=>`${i*20}–${(i+1)*20}%`);
+    // Indice de jeu = (W + FP) / max(W + FD + FP, 1) × 100
+    const calcIdx = (w, fd, fp) => { const tot = w + fd + fp; return tot ? Math.round((w + fp) / tot * 100) : null; };
+    const idxColor = v => v === null ? 'var(--muted)' : v >= 60 ? 'var(--green)' : v >= 40 ? 'var(--alum)' : 'var(--red)';
+
+    // Un tableau par joueur
+    const playerBlocks = STATE.players.map(p => {
+      const rows = Array.from({length:SLICE}, (_,i) => {
+        const t0 = i*sliceSize, t1 = (i+1)*sliceSize;
+        const ann = STATE.annotations.filter(a=>(a.timestamp||0)>=t0&&(a.timestamp||0)<t1);
+        const w  = ann.filter(a=>a.joueurId===p.id&&a.type==='point_gagnant').length;
+        const fd = ann.filter(a=>a.joueurId===p.id&&a.type==='faute_directe').length;
+        const fp = ann.filter(a=>a.joueurId===p.id&&a.type==='faute_provoquee').length;
+        const idx = calcIdx(w, fd, fp);
+        const bg = i%2===0 ? 'var(--paper)' : 'var(--off)';
+        return `<tr style="background:${bg};border-bottom:1px solid var(--off)">
+          <td style="padding:12px 14px;font-weight:700">${labels[i]}</td>
+          <td style="padding:12px 14px;color:var(--muted);font-size:.8rem">${formatTime(t0)} → ${formatTime(t1)}</td>
+          <td style="padding:12px 10px;text-align:center;color:var(--green);font-weight:900;font-size:1rem">${w||'—'}</td>
+          <td style="padding:12px 10px;text-align:center;color:var(--red);font-size:.95rem">${fd||'—'}</td>
+          <td style="padding:12px 10px;text-align:center;color:var(--blue);font-size:.95rem">${fp||'—'}</td>
+          <td style="padding:12px 10px;text-align:center;font-weight:800;color:${idxColor(idx)};font-size:1.05rem">${idx !== null ? idx+'%' : '—'}</td>
+        </tr>`;
+      }).join('');
+      return `<div style="border:2px solid var(--ink);border-radius:0;overflow:hidden;margin-bottom:0">
+    <div style="background:var(--ink);padding:14px 20px;display:flex;align-items:center;gap:10px">
+      <span style="font-size:1.4rem">${p.avatar}</span>
+      <span style="font-family:var(--mono);font-size:.75rem;letter-spacing:.18em;text-transform:uppercase;color:var(--paper);font-weight:700">${p.name}</span>
+      <span style="font-family:var(--mono);font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--alum);margin-left:8px">${p.team}</span>
+    </div>
+    <div style="overflow-x:auto">
+    <table style="width:100%;border-collapse:collapse;font-size:.86rem;font-family:var(--mono)">
+      <thead>
+        <tr style="background:rgba(0,0,0,0.04);border-bottom:2px solid var(--ink)">
+          <th style="padding:10px 16px;text-align:left;font-size:.63rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)">Tranche</th>
+          <th style="padding:10px 16px;text-align:left;font-size:.63rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)">Durée</th>
+          <th style="padding:10px 12px;text-align:center;font-size:.63rem;letter-spacing:.12em;text-transform:uppercase;color:var(--green)">✅ Winners</th>
+          <th style="padding:10px 12px;text-align:center;font-size:.63rem;letter-spacing:.12em;text-transform:uppercase;color:var(--red)">❌ Fautes dir.</th>
+          <th style="padding:10px 12px;text-align:center;font-size:.63rem;letter-spacing:.12em;text-transform:uppercase;color:var(--blue)">🎯 Fautes prov.</th>
+          <th style="padding:10px 12px;text-align:center;font-size:.63rem;letter-spacing:.12em;text-transform:uppercase;color:var(--alum)">⚡ Indice de jeu</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+    </div>
+  </div>`;
+    }).join('<div style="height:20px"></div>');
+    return `<section>
+    <div class="sec-label">06 — Évolution par joueur — tranches de 20%</div>
+    <div style="display:flex;flex-direction:column;gap:20px">${playerBlocks}</div>
+  </section>
+  <section>
+    <div class="sec-label">06 — Comparaison indices de jeu — vue d'ensemble</div>
+    <p style="font-size:.8rem;color:var(--muted);margin-bottom:14px;font-family:var(--mono)">
+      Indice = (Winners + Fautes provoquées) / (W + FD + FP) × 100 &nbsp;—&nbsp;
+      <span style="color:var(--green)">■ ≥60%</span>&nbsp;
+      <span style="color:var(--alum)">■ 40–59%</span>&nbsp;
+      <span style="color:var(--red)">■ &lt;40%</span>
+    </p>
+    <div style="border:2px solid var(--ink);overflow:hidden">
+    <table style="width:100%;border-collapse:collapse;font-size:.86rem;font-family:var(--mono)">
+      <thead>
+        <tr style="background:var(--ink);color:var(--paper)">
+          <th style="padding:12px 16px;text-align:left;font-size:.63rem;letter-spacing:.14em;text-transform:uppercase">Tranche</th>
+          ${STATE.players.map(p=>`<th style="padding:12px 14px;text-align:center;font-size:.63rem;letter-spacing:.10em;text-transform:uppercase">${p.avatar} ${p.name}</th>`).join('')}
+          <th style="padding:12px 14px;text-align:center;font-size:.63rem;letter-spacing:.10em;text-transform:uppercase;color:#ffd080">⚡ Meilleur</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${Array.from({length:SLICE}, (_,i) => {
+          const t0 = i*sliceSize, t1 = (i+1)*sliceSize;
+          const ann = STATE.annotations.filter(a=>(a.timestamp||0)>=t0&&(a.timestamp||0)<t1);
+          const indices = STATE.players.map(p => {
+            const w=ann.filter(a=>a.joueurId===p.id&&a.type==='point_gagnant').length;
+            const fd=ann.filter(a=>a.joueurId===p.id&&a.type==='faute_directe').length;
+            const fp=ann.filter(a=>a.joueurId===p.id&&a.type==='faute_provoquee').length;
+            const tot=w+fd+fp; return tot?Math.round((w+fp)/tot*100):null;
+          });
+          const maxIdx = Math.max(...indices.filter(v=>v!==null).concat([-1]));
+          const best = maxIdx>=0 ? STATE.players[indices.indexOf(maxIdx)] : null;
+          const bg = i%2===0?'var(--paper)':'var(--off)';
+          const cells = indices.map(idx => {
+            const c = idx===null?'var(--muted)':idx>=60?'var(--green)':idx>=40?'var(--alum)':'var(--red)';
+            const fw = idx===maxIdx&&idx!==null?'font-weight:900;font-size:1.05rem;':'';
+            const hl = idx===maxIdx&&idx!==null?`border-bottom:3px solid ${c};`:'';
+            return `<td style="padding:13px 14px;text-align:center;color:${c};${fw}${hl}">${idx!==null?idx+'%':'—'}</td>`;
+          }).join('');
+          return `<tr style="background:${bg};border-bottom:1px solid var(--off)">
+            <td style="padding:13px 16px;font-weight:700">${i*20}–${(i+1)*20}%</td>
+            ${cells}
+            <td style="padding:13px 14px;text-align:center;font-weight:800">${best?best.avatar+' '+best.name:'—'}</td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>
+    </div>
+  </section>`;
+  })()}
+
   <!-- TIMELINE -->
   <section>
-    <div class="sec-label">05 — Chronologie complète</div>
+    <div class="sec-label">07 — Chronologie complète</div>
     <div class="tbl-wrap">
       <table>
         <thead><tr><th>#</th><th>Temps</th><th>Joueur(s)</th><th>Équipe</th><th>Type</th><th>Coup</th></tr></thead>
@@ -2826,7 +3446,7 @@ tr:hover td{background:var(--off)}
 
   <!-- GRAPHIQUES -->
   <section>
-    <div class="sec-label">06 — Graphiques</div>
+    <div class="sec-label">08 — Graphiques</div>
     <div class="charts-grid">
 
       <!-- Momentum équipes -->
@@ -2912,7 +3532,7 @@ tr:hover td{background:var(--off)}
     options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false} }, scales:{ y:{ beginAtZero:false } } }
   });
 })();
-</script>
+<\/script>
 </body></html>`;
 
     const blob = new Blob([html], {type:'text/html;charset=utf-8'});
@@ -2940,6 +3560,230 @@ function setSize(sz) {
   localStorage.setItem('ps_size', sz);
 }
 
+/* ═══ VIDEO DRAG RESIZE ═══ */
+(function() {
+  const MIN_H = 80, MAX_H = window.innerHeight * 0.85;
+  let dragging = false, startY = 0, startH = 0;
+
+  function initResize() {
+    const handle = document.getElementById('videoResizeHandle');
+    const wrapper = document.getElementById('videoWrapper');
+    if (!handle || !wrapper) return;
+
+    // Restaurer hauteur sauvegardée
+    const saved = localStorage.getItem('ps_video_h');
+    if (saved) { wrapper.style.height = saved + 'px'; wrapper.style.aspectRatio = 'unset'; }
+
+    handle.addEventListener('mousedown', e => {
+      e.preventDefault();
+      dragging = true;
+      startY = e.clientY;
+      startH = wrapper.getBoundingClientRect().height;
+      document.body.style.cursor = 'row-resize';
+      document.body.style.userSelect = 'none';
+    });
+    handle.addEventListener('touchstart', e => {
+      dragging = true;
+      startY = e.touches[0].clientY;
+      startH = wrapper.getBoundingClientRect().height;
+    }, { passive: true });
+
+    document.addEventListener('mousemove', e => {
+      if (!dragging) return;
+      const newH = Math.min(MAX_H, Math.max(MIN_H, startH + (e.clientY - startY)));
+      wrapper.style.height = newH + 'px';
+      wrapper.style.aspectRatio = 'unset';
+    });
+    document.addEventListener('touchmove', e => {
+      if (!dragging) return;
+      const newH = Math.min(MAX_H, Math.max(MIN_H, startH + (e.touches[0].clientY - startY)));
+      wrapper.style.height = newH + 'px';
+      wrapper.style.aspectRatio = 'unset';
+    }, { passive: true });
+
+    function stopDrag() {
+      if (!dragging) return;
+      dragging = false;
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+      const h = wrapper.getBoundingClientRect().height;
+      localStorage.setItem('ps_video_h', Math.round(h));
+    }
+    document.addEventListener('mouseup', stopDrag);
+    document.addEventListener('touchend', stopDrag);
+  }
+
+  document.addEventListener('DOMContentLoaded', initResize);
+})();
+
+/* ═══ CLIP EXTRACTOR ═══ */
+(function() {
+  let clipStart = null, clipEnd = null, clipRecorder = null, clipChunks = [];
+  let previewRaf = null;
+
+  function startPreview() {
+    const vid    = document.getElementById('videoPlayer');
+    const canvas = document.getElementById('clipPreviewCanvas');
+    if (!vid || !canvas) return;
+    // Adapter les dimensions du canvas à la vidéo
+    canvas.width  = vid.videoWidth  || 640;
+    canvas.height = vid.videoHeight || 360;
+    const ctx = canvas.getContext('2d');
+    function draw() {
+      if (!document.getElementById('clipModal').classList.contains('open')) return;
+      if (!vid.paused && !vid.ended) ctx.drawImage(vid, 0, 0, canvas.width, canvas.height);
+      // Mise à jour chrono
+      const disp = document.getElementById('clipTimeDisplay');
+      if (disp) disp.textContent = formatTime(vid.currentTime);
+      previewRaf = requestAnimationFrame(draw);
+    }
+    // Premier dessin immédiat même en pause
+    ctx.drawImage(vid, 0, 0, canvas.width, canvas.height);
+    previewRaf = requestAnimationFrame(draw);
+
+    // Sync bouton play
+    vid.addEventListener('play',  syncPlayBtn);
+    vid.addEventListener('pause', syncPlayBtn);
+  }
+
+  function stopPreview() {
+    if (previewRaf) { cancelAnimationFrame(previewRaf); previewRaf = null; }
+    const vid = document.getElementById('videoPlayer');
+    if (vid) { vid.removeEventListener('play', syncPlayBtn); vid.removeEventListener('pause', syncPlayBtn); }
+  }
+
+  function syncPlayBtn() {
+    const vid = document.getElementById('videoPlayer');
+    const btn = document.getElementById('clipPlayBtn');
+    if (btn && vid) btn.textContent = vid.paused ? '▶ Play' : '⏸ Pause';
+  }
+
+  window.clipTogglePlay = function() {
+    const vid = document.getElementById('videoPlayer');
+    if (!vid) return;
+    if (vid.paused) {
+      vid.play();
+      const canvas = document.getElementById('clipPreviewCanvas');
+      const ctx = canvas.getContext('2d');
+      function draw() {
+        if (!document.getElementById('clipModal').classList.contains('open')) return;
+        ctx.drawImage(vid, 0, 0, canvas.width, canvas.height);
+        document.getElementById('clipTimeDisplay').textContent = formatTime(vid.currentTime);
+        previewRaf = requestAnimationFrame(draw);
+      }
+      previewRaf = requestAnimationFrame(draw);
+    } else {
+      vid.pause();
+      cancelAnimationFrame(previewRaf);
+      // Dessiner le frame courant en pause
+      const canvas = document.getElementById('clipPreviewCanvas');
+      canvas.getContext('2d').drawImage(vid, 0, 0, canvas.width, canvas.height);
+    }
+  };
+
+  window.clipSeekRel = function(delta) {
+    const vid = document.getElementById('videoPlayer');
+    if (!vid) return;
+    vid.currentTime = Math.max(0, Math.min(vid.duration || 0, vid.currentTime + delta));
+    // Redessiner frame
+    const canvas = document.getElementById('clipPreviewCanvas');
+    canvas.getContext('2d').drawImage(vid, 0, 0, canvas.width, canvas.height);
+    document.getElementById('clipTimeDisplay').textContent = formatTime(vid.currentTime);
+  };
+
+  window.openClipModal = function() {
+    const vid = document.getElementById('videoPlayer');
+    if (!vid || !vid.src) { toast('Chargez une vidéo d\'abord', 'fault'); return; }
+    document.getElementById('clipModal').classList.add('open');
+    setTimeout(startPreview, 50);
+  };
+
+  window.closeClipModal = function() {
+    if (clipRecorder && clipRecorder.state === 'recording') clipRecorder.stop();
+    stopPreview();
+    document.getElementById('clipModal').classList.remove('open');
+    document.getElementById('clipProgress').style.display = 'none';
+    document.getElementById('clipRecordBtn').disabled = false;
+    document.getElementById('clipRecordBtn').textContent = '⏺ Enregistrer';
+  };
+
+  window.clipSetMark = function(type) {
+    const vid = document.getElementById('videoPlayer');
+    if (!vid || isNaN(vid.currentTime)) { toast('Aucune vidéo chargée', 'fault'); return; }
+    const t = vid.currentTime;
+    if (type === 'start') {
+      clipStart = t;
+      document.getElementById('clipStartDisplay').textContent = formatTime(t);
+    } else {
+      clipEnd = t;
+      document.getElementById('clipEndDisplay').textContent = formatTime(t);
+    }
+    if (clipStart !== null && clipEnd !== null) {
+      const dur = Math.abs(clipEnd - clipStart);
+      document.getElementById('clipDurInfo').textContent = `Durée : ${dur.toFixed(1)} s`;
+    }
+  };
+
+  window.startClipRecord = function() {
+    const vid = document.getElementById('videoPlayer');
+    if (!vid || !vid.src) { toast('Aucune vidéo chargée', 'fault'); return; }
+    if (clipStart === null || clipEnd === null) { toast('Marque début et fin d\'abord', 'fault'); return; }
+
+    const start = Math.min(clipStart, clipEnd);
+    const end   = Math.max(clipStart, clipEnd);
+    const dur   = end - start;
+    if (dur < 0.5) { toast('Clip trop court (< 0.5s)', 'fault'); return; }
+    if (dur > 120) { toast('Clip trop long (> 120s)', 'fault'); return; }
+
+    // Vérif support MediaRecorder
+    if (!window.MediaRecorder) { toast('MediaRecorder non supporté sur ce navigateur', 'fault'); return; }
+
+    const stream = vid.captureStream ? vid.captureStream() : vid.mozCaptureStream ? vid.mozCaptureStream() : null;
+    if (!stream) { toast('Impossible de capturer le flux vidéo', 'fault'); return; }
+
+    const mimeType = ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'].find(m => MediaRecorder.isTypeSupported(m)) || '';
+    clipChunks = [];
+    clipRecorder = new MediaRecorder(stream, mimeType ? { mimeType } : {});
+    clipRecorder.ondataavailable = e => { if (e.data.size > 0) clipChunks.push(e.data); };
+    clipRecorder.onstop = () => {
+      const blob = new Blob(clipChunks, { type: 'video/webm' });
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      const name = (document.getElementById('clipNameInput').value.trim() || 'clip') + '.webm';
+      a.href = url; a.download = name; a.click();
+      URL.revokeObjectURL(url);
+      toast(`✂️ Clip "${name}" téléchargé !`, 'win');
+      closeClipModal();
+    };
+
+    // Aller au start, lancer l'enregistrement, stopper à end
+    vid.currentTime = start;
+    vid.playbackRate = 1; // MediaRecorder nécessite ×1
+    const btn   = document.getElementById('clipRecordBtn');
+    const prog  = document.getElementById('clipProgress');
+    const label = document.getElementById('clipProgressLabel');
+    const bar   = document.getElementById('clipProgressBar');
+    btn.disabled = true;
+    prog.style.display = 'block';
+    label.textContent = 'Lecture en cours…';
+
+    vid.play().then(() => {
+      clipRecorder.start();
+      const tick = setInterval(() => {
+        const elapsed = vid.currentTime - start;
+        const pct = Math.min(100, (elapsed / dur) * 100);
+        bar.style.width = pct + '%';
+        label.textContent = `Enregistrement… ${formatTime(vid.currentTime)} / ${formatTime(end)}`;
+        if (vid.currentTime >= end - 0.05) {
+          clearInterval(tick);
+          vid.pause();
+          clipRecorder.stop();
+        }
+      }, 100);
+    }).catch(() => { toast('Impossible de lire la vidéo', 'fault'); closeClipModal(); });
+  };
+})();
+
 /* ═══ TOAST ═══ */
 function toast(msg, cls='info') {
   const c = document.getElementById('toast-container');
@@ -2955,6 +3799,11 @@ function formatTime(s) {
   return `${Math.floor(s/60)}:${Math.floor(s%60).toString().padStart(2,'0')}`;
 }
 
+/* ═══ YouTube IFrame API callback ═══ */
+function onYouTubeIframeAPIReady() {
+  if (window._ytPendingBuilder) { window._ytPendingBuilder(); window._ytPendingBuilder = null; }
+}
+
 /* ═══ INIT ═══ */
 document.addEventListener('DOMContentLoaded', () => {
   // Auth désactivée — accès direct
@@ -2964,6 +3813,7 @@ document.addEventListener('DOMContentLoaded', () => {
   app.init();
   initChart();
   updatePlayerCards();
+  renderTimeline();
   toast('🎾 PadelStat prêt !','win');
 
   tryRestoreState();
@@ -2977,9 +3827,7 @@ document.addEventListener('fullscreenchange', () => {
 document.addEventListener('keydown', e => {
   // Ignorer si focus sur un input/textarea
   const tag = document.activeElement?.tagName;
-  if (tag === 'INPUT' || tag === 'TEXTAREA') return;
-  // Ignorer si login visible
-  if (document.getElementById('loginScreen')?.style.display !== 'none') return;
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
 
   const modal = document.getElementById('playerModal');
   const modalOpen = modal.classList.contains('open');
@@ -2994,6 +3842,9 @@ document.addEventListener('keydown', e => {
 
     const k = e.key.toLowerCase();
     if (k === 'enter')   { e.preventDefault(); openModal(); return; }
+    if (k === 'w')       { e.preventDefault(); openModal('point_gagnant'); return; }
+    if (k === 'f')       { e.preventDefault(); openModal('faute_directe'); return; }
+    if (k === 'p')       { e.preventDefault(); openModal('faute_provoquee'); return; }
     if (k === 'z')       { e.preventDefault(); app.undoLast(); return; }
     if (e.key === 'Escape')         {
       if (document.getElementById('matchesModal')?.classList.contains('open')) { closeMatchesModal(); return; }
@@ -3081,9 +3932,29 @@ document.addEventListener('keydown', e => {
       font-size: .8rem; cursor: pointer;
     }
     #kbdHelp { position: fixed; }
+  @keyframes aiPulse { 0%,100%{opacity:.3;transform:scale(.8)} 50%{opacity:1;transform:scale(1)} }
   `;
   document.head.appendChild(style);
 })();
+</script>
+
+<!-- ═══ MODALE ANALYSE IA ═══ -->
+<div id="aiModal" style="display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.65);backdrop-filter:blur(4px);justify-content:center;align-items:flex-start;padding:40px 16px;overflow-y:auto" onclick="if(event.target===this)closeAIModal()">
+  <div style="background:var(--card-bg,#fff);border:1.5px solid var(--border-bright);border-radius:16px;padding:28px 28px 20px;width:100%;max-width:680px;box-shadow:0 24px 64px rgba(0,0,0,.4)">
+    <div id="aiModalContent"></div>
+  </div>
+</div>
+<script>
+function closeAIModal() {
+  const m = document.getElementById('aiModal');
+  m.style.display = 'none';
+}
+// Surcharge open pour affichage flex
+const _origAnalyze = api.analyzeWithAI.bind(api);
+api.analyzeWithAI = async function() {
+  document.getElementById('aiModal').style.display = 'flex';
+  await _origAnalyze();
+};
 </script>
 </body>
 </html>
