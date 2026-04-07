@@ -2716,8 +2716,7 @@ const api = {
       const OLLAMA_URL = ep.url === '__custom__'
         ? (document.getElementById('aiCustomUrl').value.trim() || 'http://57.129.110.251:11434/api/generate')
         : ep.url;
-
-      // Ouvrir la modale avec état chargement
+      const OLLAMA_MODEL = model; avec état chargement
       document.getElementById('aiModal').style.display = 'flex';
     document.getElementById('aiModalContent').innerHTML = `
       <div style="text-align:center;padding:40px 20px">
