@@ -426,63 +426,133 @@ class HTMLGenerator:
         return html
     
     def _calculer_coups_forts_faibles(self, stats, joueurs):
-        """Calcule le coup fort (actions positives) et faible (actions négatives) pour chaque joueur"""
-        resultats = {}
-        
-        labels_coups = {
-            'volee_coup_droit': 'Volée CD',
-            'volee_revers': 'Volée Revers',
-            'smash': 'Smash',
-            'bandeja': 'Bandeja',
-            'vibora': 'Vibora',
-            'amorti': 'Amorti',
-            'service': 'Service',
-            'fond_de_court_coup_droit': 'Fond CD',
-            'fond_de_court_revers': 'Fond Revers',
-            'fond_de_court_balle_haute': 'Fond Balle Haute',
-            'fond_de_court': 'Fond de court'
-        }
-        
-        for joueur in joueurs:
-            player_stats = stats.get(joueur, {})
-            
-            # Actions POSITIVES : points gagnants + fautes provoquées
-            pg_detail = player_stats.get('points_gagnants_detail', {})
-            fp_detail = player_stats.get('fautes_provoquees_detail', {})
-            
-            actions_positives = {}
-            for coup, count in pg_detail.items():
-                actions_positives[coup] = actions_positives.get(coup, 0) + count
-            for coup, count in fp_detail.items():
-                actions_positives[coup] = actions_positives.get(coup, 0) + count
-            
-            # Actions NÉGATIVES : fautes directes + fautes subies
-            fd_detail = player_stats.get('fautes_directes_detail', {})
-            fs_detail = player_stats.get('fautes_subies_detail', {})
-            
-            actions_negatives = {}
-            for coup, count in fd_detail.items():
-                actions_negatives[coup] = actions_negatives.get(coup, 0) + count
-            for coup, count in fs_detail.items():
-                actions_negatives[coup] = actions_negatives.get(coup, 0) + count
-            
-            # Trouver les coups les plus utilisés (gérer les égalités)
-            coups_forts = []
-            if actions_positives:
-                max_val = max(actions_positives.values())
-                coups_forts = [labels_coups.get(c, c) for c, v in actions_positives.items() if v == max_val]
-            
-            coups_faibles = []
-            if actions_negatives:
-                max_val = max(actions_negatives.values())
-                coups_faibles = [labels_coups.get(c, c) for c, v in actions_negatives.items() if v == max_val]
-            
-            resultats[joueur] = {
-                'coups_forts': coups_forts if coups_forts else ['Aucun'],
-                'coups_faibles': coups_faibles if coups_faibles else ['Aucun']
-            }
-        
-        return resultats
+        """Rétrocompat — non utilisé, remplacé par _generer_html_shot_rankings."""
+        return {j: {'coups_forts': [], 'coups_faibles': []} for j in joueurs}
+
+    def _generer_html_shot_rankings(self, annotation_manager, joueurs):
+        """
+        Génère la section HTML meilleurs / pires coups par joueur.
+        Utilise get_shot_rankings() : score basé sur ratio (gagnants+fp_gen)/total
+        et (fautes+fp_subies)/total — top 3 par joueur avec barres visuelles.
+        """
+        rankings = annotation_manager.get_shot_rankings(min_total=1)
+
+        COULEURS = [
+            ("#2c5282", "#ebf8ff"),
+            ("#276749", "#e6ffed"),
+            ("#744210", "#fffbeb"),
+            ("#63171b", "#fff5f5"),
+        ]
+
+        html = """
+            <div class="section">
+                <h2>🏆 Meilleurs &amp; Pires Coups par Joueur</h2>
+                <p style="text-align:center;color:#666;margin-bottom:30px;">
+                    Score offensif = (points gagnants + fautes provoquées) / total &nbsp;|&nbsp;
+                    Score erreurs = (fautes directes + fautes subies) / total
+                </p>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:24px;">
+"""
+
+        for idx, joueur in enumerate(joueurs):
+            couleur_titre, _ = COULEURS[idx % len(COULEURS)]
+            data = rankings.get(joueur, {})
+            meilleurs = data.get('meilleurs_coups', [])[:3]
+            pires     = data.get('pires_coups',     [])[:3]
+
+            # ── bloc joueur ──────────────────────────────────────────────────
+            html += f"""
+                    <div style="background:#fff;padding:28px;border-radius:14px;
+                                box-shadow:0 4px 18px rgba(0,0,0,0.08);
+                                border-top:4px solid {couleur_titre};">
+                        <h3 style="color:{couleur_titre};margin-bottom:22px;font-size:1.25em;font-weight:700;">
+                            {joueur}
+                        </h3>
+"""
+
+            # ── meilleurs coups ──────────────────────────────────────────────
+            html += """
+                        <div style="margin-bottom:20px;padding:18px;background:#e6ffed;
+                                    border-radius:10px;border-left:4px solid #38a169;">
+                            <h4 style="color:#276749;margin-bottom:14px;font-size:0.95em;
+                                       font-weight:700;letter-spacing:.5px;">✅ MEILLEURS COUPS</h4>
+"""
+            if meilleurs:
+                for rank, coup in enumerate(meilleurs, 1):
+                    pct   = int(coup['score_offensif'] * 100)
+                    label = coup['label']
+                    total = coup['total']
+                    gag   = coup['gagnants']
+                    fpg   = coup['fp_generees']
+                    medal = ["🥇", "🥈", "🥉"][rank - 1]
+                    html += f"""
+                            <div style="margin-bottom:12px;">
+                                <div style="display:flex;justify-content:space-between;
+                                            align-items:center;margin-bottom:4px;">
+                                    <span style="font-weight:600;font-size:1em;color:#2d3748;">
+                                        {medal} {label}
+                                    </span>
+                                    <span style="font-weight:700;color:#276749;font-size:1.05em;">
+                                        {pct}%
+                                    </span>
+                                </div>
+                                <div style="background:#c6f6d5;border-radius:6px;height:8px;overflow:hidden;">
+                                    <div style="width:{pct}%;height:100%;background:#38a169;
+                                                border-radius:6px;transition:width .4s;"></div>
+                                </div>
+                                <div style="color:#718096;font-size:0.8em;margin-top:3px;">
+                                    {total} coup(s) · {gag} gagnant(s) · {fpg} fp générée(s)
+                                </div>
+                            </div>
+"""
+            else:
+                html += '<p style="color:#718096;font-size:0.9em;">Pas encore assez de données</p>'
+
+            html += "                        </div>\n"
+
+            # ── pires coups ──────────────────────────────────────────────────
+            html += """
+                        <div style="padding:18px;background:#fff5f5;
+                                    border-radius:10px;border-left:4px solid #e53e3e;">
+                            <h4 style="color:#c53030;margin-bottom:14px;font-size:0.95em;
+                                       font-weight:700;letter-spacing:.5px;">⚠️ PIRES COUPS</h4>
+"""
+            if pires:
+                for rank, coup in enumerate(pires, 1):
+                    pct   = int(coup['score_erreurs'] * 100)
+                    label = coup['label']
+                    total = coup['total']
+                    fau   = coup['fautes']
+                    fps   = coup['fp_subies']
+                    medal = ["💀", "😬", "😕"][rank - 1]
+                    html += f"""
+                            <div style="margin-bottom:12px;">
+                                <div style="display:flex;justify-content:space-between;
+                                            align-items:center;margin-bottom:4px;">
+                                    <span style="font-weight:600;font-size:1em;color:#2d3748;">
+                                        {medal} {label}
+                                    </span>
+                                    <span style="font-weight:700;color:#c53030;font-size:1.05em;">
+                                        {pct}%
+                                    </span>
+                                </div>
+                                <div style="background:#fed7d7;border-radius:6px;height:8px;overflow:hidden;">
+                                    <div style="width:{pct}%;height:100%;background:#e53e3e;
+                                                border-radius:6px;transition:width .4s;"></div>
+                                </div>
+                                <div style="color:#718096;font-size:0.8em;margin-top:3px;">
+                                    {total} coup(s) · {fau} faute(s) directe(s) · {fps} fp subie(s)
+                                </div>
+                            </div>
+"""
+            else:
+                html += '<p style="color:#718096;font-size:0.9em;">Pas encore assez de données</p>'
+
+            html += "                        </div>\n"
+            html += "                    </div>\n"
+
+        html += "                </div>\n            </div>\n"
+        return html
     
     def _generate_impact_graph(self, points, joueurs, output_folder):
         """Génère un graphique d'impact des joueurs et le sauvegarde"""
@@ -2137,43 +2207,9 @@ class HTMLGenerator:
             </div>
 """
         
-        # Section Coups Forts / Coups Faibles
-        coups_analysis = self._calculer_coups_forts_faibles(stats, joueurs)
-        
-        html += """
-            <div class="section">
-                <h2>⚡ Points Forts et Faibles par Joueur</h2>
-                <p style="text-align: center; color: #666; margin-bottom: 30px;">Coups les plus efficaces et les plus problématiques de chaque joueur</p>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
-"""
-        
-        for joueur in joueurs:
-            analysis = coups_analysis.get(joueur, {})
-            coups_forts = analysis.get('coups_forts', ['Aucun'])
-            coups_faibles = analysis.get('coups_faibles', ['Aucun'])
-            
-            html += f"""
-                    <div style="background: white; padding: 28px; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); border-top: 4px solid #2c5282;">
-                        <h3 style="color: #2c5282; margin-bottom: 24px; font-size: 1.3em; font-weight: 600;">{joueur}</h3>
-                        
-                        <div style="margin-bottom: 24px; padding: 20px; background: #e6ffed; border-radius: 8px; border-left: 4px solid #38a169;">
-                            <h4 style="color: #276749; margin-bottom: 12px; font-size: 1em; font-weight: 600;">✅ Coup(s) Fort(s)</h4>
-                            <p style="color: #2d3748; font-size: 1.1em; font-weight: 500; margin: 0;">{', '.join(coups_forts)}</p>
-                            <p style="color: #718096; font-size: 0.85em; margin-top: 6px;">Utilisé le plus pour actions positives</p>
-                        </div>
-                        
-                        <div style="padding: 20px; background: #fff5f5; border-radius: 8px; border-left: 4px solid #e53e3e;">
-                            <h4 style="color: #c53030; margin-bottom: 12px; font-size: 1em; font-weight: 600;">⚠️ Coup(s) Faible(s)</h4>
-                            <p style="color: #2d3748; font-size: 1.1em; font-weight: 500; margin: 0;">{', '.join(coups_faibles)}</p>
-                            <p style="color: #718096; font-size: 0.85em; margin-top: 6px;">Utilisé le plus pour actions négatives</p>
-                        </div>
-                    </div>
-"""
-        
-        html += """
-                </div>
-            </div>
-"""
+        # Section Meilleurs / Pires Coups (basée sur ratios via get_shot_rankings)
+        if annotation_manager is not None:
+            html += self._generer_html_shot_rankings(annotation_manager, joueurs)
         
         html += """
             <div class="section">
@@ -2762,7 +2798,7 @@ class HTMLGenerator:
             }}
         }});
         
-        // Graphique: Momentum du match (différence de score virtuel au fil du temps)
+        // Graphique: contribution nette cumulée au fil du match
         const momentumCtx = document.getElementById('momentumChart');
         const momentumData = [];
         let momentum = {{}};
@@ -2788,7 +2824,7 @@ class HTMLGenerator:
             elif point_type == 'point_gagnant':
                 joueur = point.get('joueur', '')
                 if joueur:
-                    html += f"        momentum['{joueur}'] = (momentum['{joueur}'] || 0) + 2;\n"
+                    html += f"        momentum['{joueur}'] = (momentum['{joueur}'] || 0) + 1;\n"
             elif point_type == 'faute_provoquee':
                 attaquant = point.get('attaquant', '')
                 defenseur = point.get('defenseur', '')
@@ -2835,7 +2871,7 @@ class HTMLGenerator:
                     legend: { position: 'bottom' },
                     title: {
                         display: true,
-                        text: 'Évolution du momentum (score virtuel cumulé: +2 pts gagnants, +1 FP générées, -1 fautes)'
+                        text: 'Évolution de la contribution nette cumulée (+1 point gagnant, +1 faute provoquée, -1 faute directe, -1 faute subie)'
                     }
                 },
                 scales: {
@@ -2844,7 +2880,7 @@ class HTMLGenerator:
                         title: { display: true, text: 'Temps (secondes)' }
                     },
                     y: {
-                        title: { display: true, text: 'Momentum' }
+                        title: { display: true, text: 'Contribution nette' }
                     }
                 }
             }
