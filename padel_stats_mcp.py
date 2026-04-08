@@ -277,10 +277,30 @@ def padel_generate_html_report(output_path: str | None = None) -> dict[str, Any]
 
 @mcp.tool()
 def padel_get_stats() -> dict[str, Any]:
-    """Retourne les statistiques courantes."""
+    """Retourne les statistiques courantes avec le classement des meilleurs et pires coups par joueur."""
     return {
         "ok": True,
         "stats": SESSION.manager.get_stats(),
+        "shot_rankings": SESSION.manager.get_shot_rankings(),
+        "point_count": len(SESSION.manager.get_all_annotations()),
+    }
+
+
+@mcp.tool()
+def padel_get_shot_rankings(min_total: int = 2) -> dict[str, Any]:
+    """
+    Retourne le classement des meilleurs et pires coups par joueur.
+
+    Pour chaque joueur :
+    - meilleurs_coups : triés par score_offensif = (gagnants + fp_generees) / total
+    - pires_coups     : triés par score_erreurs  = (fautes + fp_subies) / total
+
+    Seuls les coups joués au moins min_total fois sont inclus (défaut : 2).
+    """
+    rankings = SESSION.manager.get_shot_rankings(min_total=min_total)
+    return {
+        "ok": True,
+        "rankings": rankings,
         "point_count": len(SESSION.manager.get_all_annotations()),
     }
 

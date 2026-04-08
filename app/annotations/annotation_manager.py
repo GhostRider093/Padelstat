@@ -551,7 +551,81 @@ class AnnotationManager:
                         stats[nom]["coups_techniques"][technique]["fp_subies"] += count
         
         return stats
-    
+
+    def get_shot_rankings(self, min_total: int = 2):
+        """
+        Calcule le classement des meilleurs et pires coups par joueur.
+
+        Un coup est classé selon deux scores calculés sur les occurrences
+        où ce type de coup est impliqué :
+          - score_offensif  = (gagnants + fp_generees) / total
+            → mesure l'efficacité offensive (arme redoutable)
+          - score_erreurs   = (fautes + fp_subies) / total
+            → mesure le taux d'erreur (talon d'Achille)
+
+        Seuls les coups avec total >= min_total sont inclus pour éviter
+        les artefacts statistiques sur un seul échantillon.
+
+        Returns:
+            dict[joueur, {
+                "meilleurs_coups": [{"coup", "label", "total", "gagnants",
+                                     "fp_generees", "score_offensif"}, ...],
+                "pires_coups":     [{"coup", "label", "total", "fautes",
+                                     "fp_subies", "score_erreurs"}, ...]
+            }]
+        """
+        from app.exports.type_coup_labels import COUP_LABELS_SIMPLE
+
+        stats = self.get_stats()
+        rankings = {}
+
+        for joueur, joueur_stats in stats.items():
+            coups_tech = joueur_stats.get("coups_techniques", {})
+            offensif = []
+            erreurs = []
+
+            for coup, vals in coups_tech.items():
+                total = vals.get("total", 0)
+                if total < min_total:
+                    continue
+
+                gagnants    = vals.get("gagnants", 0)
+                fp_generees = vals.get("fp_generees", 0)
+                fautes      = vals.get("fautes", 0)
+                fp_subies   = vals.get("fp_subies", 0)
+
+                label = COUP_LABELS_SIMPLE.get(coup, coup)
+
+                score_off = round((gagnants + fp_generees) / total, 3)
+                score_err = round((fautes + fp_subies) / total, 3)
+
+                offensif.append({
+                    "coup": coup,
+                    "label": label,
+                    "total": total,
+                    "gagnants": gagnants,
+                    "fp_generees": fp_generees,
+                    "score_offensif": score_off,
+                })
+                erreurs.append({
+                    "coup": coup,
+                    "label": label,
+                    "total": total,
+                    "fautes": fautes,
+                    "fp_subies": fp_subies,
+                    "score_erreurs": score_err,
+                })
+
+            offensif.sort(key=lambda x: x["score_offensif"], reverse=True)
+            erreurs.sort(key=lambda x: x["score_erreurs"], reverse=True)
+
+            rankings[joueur] = {
+                "meilleurs_coups": offensif,
+                "pires_coups": erreurs,
+            }
+
+        return rankings
+
     def get_fautes_provoquees_matrix(self):
         """Calcule la matrice des fautes provoquées : qui provoque à qui"""
         joueurs = self.match_info["joueurs"]
