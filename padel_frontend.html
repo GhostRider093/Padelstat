@@ -842,6 +842,33 @@ header {
 }
 #autosaveBadge.saved { border-color: rgba(0,230,118,.35); color: var(--accent); }
 
+/* ═══ VOICE ═══ */
+.anno-btn.voice { background: rgba(255,71,87,0.08); border-color: rgba(255,71,87,0.3); color: var(--danger); }
+.anno-btn.voice:hover { background: rgba(255,71,87,0.18); }
+.anno-btn.voice.listening {
+  background: rgba(255,71,87,0.25);
+  border-color: var(--danger);
+  box-shadow: 0 0 0 3px rgba(255,71,87,0.2);
+  animation: mic-pulse 1s ease-in-out infinite;
+}
+@keyframes mic-pulse {
+  0%,100% { box-shadow: 0 0 0 3px rgba(255,71,87,0.2); }
+  50%      { box-shadow: 0 0 0 7px rgba(255,71,87,0.05); }
+}
+#voiceOverlay {
+  position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+  background: rgba(10,14,22,0.95); border: 1px solid var(--danger);
+  border-radius: var(--radius-lg); padding: 14px 24px;
+  color: var(--text-primary); font-size: .85rem; font-weight: 600;
+  z-index: 999; pointer-events: none;
+  box-shadow: 0 4px 32px rgba(255,71,87,0.25);
+  display: none; text-align: center; min-width: 260px;
+  backdrop-filter: blur(20px);
+}
+#voiceOverlay.show { display: block; animation: slide-up .2s ease; }
+#voiceOverlay .voice-transcript { color: var(--accent-2); font-size: .75rem; margin-top: 4px; font-style: italic; }
+@keyframes slide-up { from{opacity:0;transform:translateX(-50%) translateY(10px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
+
 /* ═══ TOASTS ═══ */
 #toast-container {
   position: fixed; top: 20px; right: 20px;
@@ -1376,6 +1403,7 @@ body.sz-cinema .annotation-bar{ flex-wrap: nowrap; overflow-x: auto; }
         <button class="anno-btn clip"  onclick="openClipModal()">✂️ Clip</button>
         <button class="anno-btn purple" onclick="api.exportJson()">💾 Export JSON</button>
         <button class="anno-btn ai"    onclick="api.analyzeWithAI()">🤖 Analyse IA</button>
+        <button class="anno-btn voice" id="voiceMicBtn" onclick="voiceControl.toggle()" title="Commande vocale">🎤 Vocal</button>
       </div>
     </div>
   </div>
@@ -4082,6 +4110,211 @@ api.analyzeWithAI = async function() {
   document.getElementById('aiModal').style.display = 'flex';
   await _origAnalyze();
 };
+</script>
+
+<!-- ═══ COMMANDE VOCALE ═══ -->
+<div id="voiceOverlay">
+  <span id="voiceStatus">🎤 En écoute…</span>
+  <div class="voice-transcript" id="voiceTranscript"></div>
+</div>
+
+<script>
+/* ── Normalise une chaîne (minuscules + sans accents) ── */
+function _norm(s) {
+  return (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+}
+
+/* ── Correspondances voix → clé SHOTS ── */
+const SHOT_VOICE_MAP = [
+  [['service'],                                                'service'],
+  [['lob'],                                                    'lob'],
+  [['volee cd','volee coup droit','volee droite','volee fd'],  'volee_CD'],
+  [['volee revers','volee r'],                                 'volee_R'],
+  [['volee vibora','volee bh vibora'],                         'volee_BH_vibora'],
+  [['volee bandeja','volee bh bandeja'],                       'volee_BH_bandeja'],
+  [['volee smash','volee bh smash'],                           'volee_BH_smash'],
+  [['fond cd','fond coup droit','fond droite'],                'fond_de_court_CD'],
+  [['fond revers'],                                            'fond_de_court_R'],
+  [['fond vibora','fond bh vibora'],                           'fond_de_court_BH_vibora'],
+  [['fond bandeja','fond bh bandeja'],                         'fond_de_court_BH_bandeja'],
+  [['fond smash','fond bh smash'],                             'fond_de_court_BH_smash'],
+  [['smash'],                                                  'smash'],
+  [['amorti'],                                                 'amorti'],
+  [['vibora','vib'],                                           'vibora'],
+  [['bandeja'],                                                'bandeja'],
+];
+
+function detectShot(text) {
+  const t = _norm(text);
+  for (const [aliases, key] of SHOT_VOICE_MAP) {
+    if (aliases.some(a => t.includes(a))) return key;
+  }
+  return 'autre';
+}
+
+function detectPlayer(text) {
+  const t = _norm(text);
+  return STATE.players.find(p => t.includes(_norm(p.name))) || null;
+}
+
+function detectDefender(text, attacker) {
+  const t = _norm(text);
+  return STATE.players.find(p => p !== attacker && t.includes(_norm(p.name))) || null;
+}
+
+function parseVoiceCommand(raw) {
+  const t = _norm(raw);
+
+  if (t.includes('annul') || t.includes('retir') || t.includes('supprim') || t === 'undo') {
+    return { action: 'annuler' };
+  }
+  if (t.includes('sauvegarder') || t.includes('sauvegard')) {
+    return { action: 'sauvegarder' };
+  }
+
+  const isGagnant   = t.includes('point gagnant') || t.includes('gagnant') || t.includes('winner');
+  const isDirecte   = t.includes('faute directe') || t.includes('faute dir') || (t.includes('faute') && !t.includes('provoqu'));
+  const isProvoquee = t.includes('faute provoqu') || t.includes('provoqu');
+
+  if (!isGagnant && !isDirecte && !isProvoquee) return null;
+
+  const type   = isGagnant ? 'point_gagnant' : isDirecte ? 'faute_directe' : 'faute_provoquee';
+  const player = detectPlayer(t);
+  const shot   = detectShot(t);
+
+  let defender = null;
+  if (type === 'faute_provoquee') {
+    defender = detectDefender(t, player);
+  }
+
+  return { action: type, player, defender, shot };
+}
+
+function executeVoiceCommand(cmd) {
+  if (!cmd) return false;
+
+  if (cmd.action === 'annuler') {
+    app.undoLast();
+    toast('↩ Annulation', 'fault');
+    return true;
+  }
+
+  if (cmd.action === 'sauvegarder') {
+    autoSave();
+    toast('💾 Sauvegardé', 'win');
+    return true;
+  }
+
+  if (!cmd.player) return false;  // joueur obligatoire
+
+  /* Injecte directement l'état et confirme */
+  STATE.currentAnnotationType = cmd.action;
+  STATE.selectedPlayer  = cmd.player;
+  STATE.selectedShot    = cmd.shot || 'autre';
+  STATE.selectedDefender = cmd.defender || null;
+  confirmAnnotation();
+  return true;
+}
+
+/* ── Moteur Web Speech API ── */
+const voiceControl = (() => {
+  let recognition = null;
+  let active = false;
+  let continuous = false;
+
+  const btn      = () => document.getElementById('voiceMicBtn');
+  const overlay  = () => document.getElementById('voiceOverlay');
+  const status   = () => document.getElementById('voiceStatus');
+  const transcript = () => document.getElementById('voiceTranscript');
+
+  function supported() {
+    return !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+  }
+
+  function init() {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SR();
+    recognition.lang = 'fr-FR';
+    recognition.interimResults = true;
+    recognition.continuous = false;
+    recognition.maxAlternatives = 3;
+
+    recognition.onstart = () => {
+      active = true;
+      btn()?.classList.add('listening');
+      overlay().classList.add('show');
+      status().textContent = '🎤 En écoute…';
+      transcript().textContent = '';
+    };
+
+    recognition.onresult = (e) => {
+      let interim = '', final = '';
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        const t = e.results[i][0].transcript;
+        if (e.results[i].isFinal) final += t;
+        else interim += t;
+      }
+      transcript().textContent = final || interim;
+
+      if (final) {
+        status().textContent = '⚡ Traitement…';
+        const cmd = parseVoiceCommand(final);
+        if (cmd) {
+          const ok = executeVoiceCommand(cmd);
+          status().textContent = ok ? '✅ Commande appliquée' : '❓ Joueur introuvable';
+        } else {
+          status().textContent = '❓ Commande non reconnue';
+          toast('❓ Non reconnu : « ' + final + ' »', '');
+        }
+        setTimeout(() => stop(), 900);
+      }
+    };
+
+    recognition.onerror = (e) => {
+      const msgs = { 'no-speech':'Aucune parole détectée', 'not-allowed':'Micro non autorisé', 'network':'Erreur réseau' };
+      status().textContent = '⚠ ' + (msgs[e.error] || e.error);
+      setTimeout(() => stop(), 1400);
+    };
+
+    recognition.onend = () => {
+      if (continuous && active) {
+        try { recognition.start(); } catch(e) {}
+      } else {
+        stop();
+      }
+    };
+  }
+
+  function start() {
+    if (!supported()) { toast('⚠ Web Speech API non supportée (utilisez Chrome)', 'fault'); return; }
+    if (!recognition) init();
+    active = true;
+    try { recognition.start(); } catch(e) {}
+  }
+
+  function stop() {
+    active = false;
+    continuous = false;
+    btn()?.classList.remove('listening');
+    setTimeout(() => overlay().classList.remove('show'), 600);
+    try { recognition?.stop(); } catch(e) {}
+  }
+
+  function toggle() {
+    if (active) { stop(); }
+    else { start(); }
+  }
+
+  return { start, stop, toggle, supported };
+})();
+
+/* ── Raccourci clavier : + pavé numérique pour activer le micro ── */
+document.addEventListener('keydown', e => {
+  if (e.code === 'NumpadAdd') {
+    e.preventDefault();
+    voiceControl.toggle();
+  }
+});
 </script>
 </body>
 </html>
