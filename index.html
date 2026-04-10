@@ -3413,7 +3413,10 @@ tr:hover td{background:var(--off)}
         <div class="pc-title">${p.team}</div>
         <div class="pc-name">${p.name}</div>
         <div class="pc-team">Joueur</div>
-        <div class="sr"><span class="sr-label">Points gagnants</span><span class="sr-val g">${s.winners}</span></div>
+        <div class="sr" style="cursor:pointer" onclick="openWinnersPopup('${p.id}','${p.name}')" title="Voir la liste des points gagnants">
+          <span class="sr-label">Points gagnants <span style="font-size:.65em;opacity:.6">▶ voir</span></span>
+          <span class="sr-val g">${s.winners}</span>
+        </div>
         <div class="sr"><span class="sr-label">Fautes directes</span><span class="sr-val r">${s.fautes}</span></div>
         <div class="sr"><span class="sr-label">Efficacité</span><span class="sr-val b">${s.efficacite}%</span></div>
         <div class="pc-divider"></div>
@@ -3747,12 +3750,82 @@ tr:hover td{background:var(--off)}
   });
 })();
 <\/script>
+
+<!-- ── POPUP POINTS GAGNANTS ── -->
+<div id="winnersPopup" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:12px;padding:36px 40px;max-width:520px;width:92%;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3);position:relative">
+    <button onclick="document.getElementById('winnersPopup').style.display='none'" style="position:absolute;top:16px;right:16px;background:none;border:none;font-size:1.4rem;cursor:pointer;color:#888">✕</button>
+    <div id="winnersPopupTitle" style="font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:#888;font-family:monospace;margin-bottom:6px"></div>
+    <div style="font-size:1.3rem;font-weight:800;margin-bottom:20px">Points gagnants</div>
+    <div id="winnersPopupList"></div>
+    <div style="margin-top:18px;font-size:.72rem;color:#aaa;font-family:monospace">
+      Cliquez sur un timestamp pour aller à ce moment dans la vidéo
+    </div>
+  </div>
+</div>
+
+<script>
+const WINNERS_DATA = ${JSON.stringify(
+  STATE.players.reduce((acc, p) => {
+    acc[p.id] = {
+      name: p.name,
+      team: p.team,
+      points: STATE.annotations
+        .filter(a => a.joueurId === p.id && a.type === 'point_gagnant')
+        .map((a, i) => ({ n: i+1, t: a.timestamp || 0, shot: a.shot_label || '—' }))
+    };
+    return acc;
+  }, {})
+)};
+
+function formatTs(s) {
+  const m = Math.floor(s/60), sec = Math.floor(s%60);
+  return m+':'+(sec<10?'0':'')+sec;
+}
+
+function openWinnersPopup(pid, name) {
+  const data = WINNERS_DATA[pid];
+  if (!data) return;
+  document.getElementById('winnersPopupTitle').textContent = data.team + ' — ' + name;
+  const list = document.getElementById('winnersPopupList');
+  if (!data.points.length) {
+    list.innerHTML = '<div style="color:#888;font-style:italic">Aucun point gagnant enregistré</div>';
+  } else {
+    list.innerHTML = data.points.map(p => \`
+      <div onclick="seekToPoint(\${p.t})" style="display:flex;align-items:center;gap:14px;padding:10px 14px;border-radius:8px;cursor:pointer;border:1px solid #eee;margin-bottom:8px;transition:background .15s" onmouseover="this.style.background='#f5f5f0'" onmouseout="this.style.background='#fff'">
+        <span style="font-family:monospace;font-size:.7rem;color:#888;min-width:20px">#\${p.n}</span>
+        <span style="background:#1a6b3a;color:#fff;font-family:monospace;font-weight:700;font-size:.85rem;padding:4px 10px;border-radius:4px">\${formatTs(p.t)}</span>
+        <span style="font-size:.82rem;color:#444">\${p.shot}</span>
+        <span style="margin-left:auto;font-size:.8rem;color:#1a6b3a">▶ Voir</span>
+      </div>
+    \`).join('');
+  }
+  document.getElementById('winnersPopup').style.display = 'flex';
+}
+
+function seekToPoint(t) {
+  if (window.opener && window.opener.app) {
+    const opApp = window.opener.app;
+    opApp.seekTo(t);
+    const vid = window.opener.document.getElementById('videoPlayer');
+    if (vid && vid.paused) opApp.togglePlay();
+    window.opener.focus();
+  } else {
+    alert('Vidéo non disponible — ouvrez d\'abord une vidéo dans l\'application');
+  }
+}
+
+document.getElementById('winnersPopup').addEventListener('click', function(e) {
+  if (e.target === this) this.style.display = 'none';
+});
+<\/script>
+
 </body></html>`;
 
     const blob = new Blob([html], {type:'text/html;charset=utf-8'});
     const url  = URL.createObjectURL(blob);
     const a    = document.createElement('a');
-    a.href = url; a.target = '_blank'; a.rel = 'noopener';
+    a.href = url; a.target = '_blank';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
