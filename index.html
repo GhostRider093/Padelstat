@@ -4042,6 +4042,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('loginScreen').style.display = 'none';
 
   app.init();
+  window.app = app;
   updatePlayerCards();
   renderTimeline();
   serviceConnect();
