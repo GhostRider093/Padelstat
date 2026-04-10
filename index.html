@@ -3075,11 +3075,11 @@ RÈGLES DE RÉPONSE :
       const fautes     = STATE.annotations.filter(a=>a.joueurId===pid && a.type==='faute_directe').length;
       const provoquees = STATE.annotations.filter(a=>a.joueurId===pid && a.type==='faute_provoquee').length;
       const subies     = STATE.annotations.filter(a=>a.defenseurId===pid && a.type==='faute_provoquee').length;
-      // Efficacité = balance (positifs - négatifs)
-      const efficacite = (winners + provoquees) - (fautes + subies);
-      // Impact = pourcentage de contribution positive sur toutes les actions
+      // Impact = (PG + FP provoquées) - (FD + FP subies)
+      const impact     = (winners + provoquees) - (fautes + subies);
+      // Efficacité = % d'actions positives sur le total
       const total_actions_impact = winners + provoquees + fautes + subies;
-      const impact     = total_actions_impact > 0 ? Math.round(((winners + provoquees) / total_actions_impact) * 100) : 50;
+      const efficacite = total_actions_impact > 0 ? Math.round(((winners + provoquees) / total_actions_impact) * 100) : 50;
       const total_fp   = provoquees + subies;
       const fp_pct     = total_fp > 0 ? Math.round((provoquees / total_fp) * 100) : 0;
       const fs_pct     = 100 - fp_pct;
