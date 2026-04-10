@@ -1747,10 +1747,21 @@ class HTMLGenerator:
                 ((pg + fp_gen) / total_actions * 100) if total_actions > 0 else 0
             )
             agressivite = ((pg + fp_gen) / (pg + fp_gen + fd + 1) * 100) if (pg + fp_gen + fd) > 0 else 0
-            
+            impact = (pg + fp_gen) - (fd + fp_sub)
+            impact_color = "#51cf66" if impact > 0 else ("#ff6b6b" if impact < 0 else "#ffd43b")
+            impact_text = f"+{impact}" if impact > 0 else str(impact)
+
             html += f"""
                     <div class="stat-card">
                         <h3>🎯 {joueur}</h3>
+                        <div class="stat-item" style="background: rgba(255,255,255,0.05); border-radius: 8px; padding: 10px; margin-bottom: 8px;">
+                            <span class="stat-label" style="font-weight: bold;">💥 Impact Match</span>
+                            <span class="stat-value" style="color: {impact_color}; font-size: 1.4em; font-weight: bold;">{impact_text}</span>
+                        </div>
+                        <div class="stat-item" style="font-size: 0.8em; color: #aaa; margin-bottom: 12px;">
+                            <span>Actions + : PG ({pg}) + FP ({fp_gen}) = {pg + fp_gen}</span>
+                            <span>Actions − : FD ({fd}) + FS ({fp_sub}) = {fd + fp_sub}</span>
+                        </div>
                         <div class="stat-item">
                             <span class="stat-label">💪 Actions totales</span>
                             <span class="stat-value">{total_actions}</span>

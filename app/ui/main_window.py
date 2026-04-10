@@ -7749,7 +7749,7 @@ class MainWindow:
             if self.pending_incomplete_command:
                 completion_norm = normalized
                 completion_text = text_clean
-                m_completion = re.match(r"^stat\b\s*(.*?)\s*a\s*toi$", completion_norm)
+                m_completion = re.match(r"^(?:stat|statistique(?:s)?)\b\s*(.*?)\s*a\s*toi$", completion_norm)
                 if m_completion:
                     completion_norm = (m_completion.group(1) or "").strip()
                     completion_text = completion_norm
@@ -7781,20 +7781,28 @@ class MainWindow:
                 else:
                     command_text = "pause"
             else:
-                # 2) Stats directes: si la phrase commence par point gagnant / faute directe / faute provoquée
-                direct_stat_match = re.match(r"^(point gagnant|faute directe|faute provoquee)\b", normalized)
-                if direct_stat_match:
-                    wake_word = "DIRECT_STAT"
-                    command_text = text_clean
+                # 2a) "statistique [commande]" — mot déclencheur Wispr Flow, exécution directe sans "à toi"
+                stat_trigger_match = re.match(r"^(?:stat|statistique(?:s)?)\s+(.+)$", normalized)
+                if stat_trigger_match:
+                    wake_word = "STATISTIQUE"
+                    command_text = stat_trigger_match.group(1).strip()
+                    # Retire "à toi" si l'utilisateur l'a quand même dit
+                    command_text = re.sub(r"\s*a\s*toi\s*$", "", command_text).strip()
                 else:
-                    # 3) Protocole stat ... à toi (conservé)
-                    m = re.match(r"^stat\b\s*(.*?)\s*a\s*toi$", normalized)
+                # 2b) Stats directes: si la phrase commence par point gagnant / faute directe / faute provoquée
+                    direct_stat_match = re.match(r"^(point gagnant|faute directe|faute provoquee)\b", normalized)
+                    if direct_stat_match:
+                        wake_word = "DIRECT_STAT"
+                        command_text = text_clean
+                    else:
+                    # 3) Protocole stat/statistique ... à toi (conservé)
+                    m = re.match(r"^(?:stat|statistique(?:s)?)\b\s*(.*?)\s*a\s*toi$", normalized)
                     if not m:
-                        if normalized.startswith("stat") and not re.search(r"a\s*toi$", normalized):
+                        if re.match(r"^(?:stat|statistique(?:s)?)", normalized) and not re.search(r"a\s*toi$", normalized):
                             self._update_voice_status_label("🎤 Terminez par 'à toi'")
                             action_taken = "IGNORÉ (manque mot de validation 'à toi')"
                         else:
-                            action_taken = "IGNORÉ (format attendu: stat ... à toi ou commande directe: pause/lecture/point gagnant/faute directe)"
+                            action_taken = "IGNORÉ (format attendu: stat/statistique ... à toi ou commande directe: pause/lecture/point gagnant/faute directe)"
                         return
 
                     wake_word = "STAT"

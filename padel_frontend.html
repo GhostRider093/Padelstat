@@ -846,28 +846,57 @@ header {
 .anno-btn.voice { background: rgba(255,71,87,0.08); border-color: rgba(255,71,87,0.3); color: var(--danger); }
 .anno-btn.voice:hover { background: rgba(255,71,87,0.18); }
 .anno-btn.voice.listening {
-  background: rgba(255,71,87,0.25);
+  background: rgba(255,71,87,0.3);
   border-color: var(--danger);
-  box-shadow: 0 0 0 3px rgba(255,71,87,0.2);
-  animation: mic-pulse 1s ease-in-out infinite;
+  box-shadow: 0 0 0 3px rgba(255,71,87,0.25);
+  animation: mic-btn-pulse 1s ease-in-out infinite;
 }
-@keyframes mic-pulse {
-  0%,100% { box-shadow: 0 0 0 3px rgba(255,71,87,0.2); }
-  50%      { box-shadow: 0 0 0 7px rgba(255,71,87,0.05); }
+@keyframes mic-btn-pulse {
+  0%,100% { box-shadow: 0 0 0 3px rgba(255,71,87,0.25); }
+  50%      { box-shadow: 0 0 0 8px rgba(255,71,87,0.05); }
 }
-#voiceOverlay {
-  position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
-  background: rgba(10,14,22,0.95); border: 1px solid var(--danger);
-  border-radius: var(--radius-lg); padding: 14px 24px;
-  color: var(--text-primary); font-size: .85rem; font-weight: 600;
-  z-index: 999; pointer-events: none;
-  box-shadow: 0 4px 32px rgba(255,71,87,0.25);
-  display: none; text-align: center; min-width: 260px;
-  backdrop-filter: blur(20px);
+/* Bannière vocale — au-dessus de la vidéo */
+#voiceBanner {
+  display: none;
+  align-items: center; justify-content: center; gap: 14px;
+  width: 100%; padding: 13px 20px;
+  border-bottom: 2px solid;
+  font-size: .95rem; font-weight: 700; letter-spacing: .04em;
+  transition: background .2s, border-color .2s;
 }
-#voiceOverlay.show { display: block; animation: slide-up .2s ease; }
-#voiceOverlay .voice-transcript { color: var(--accent-2); font-size: .75rem; margin-top: 4px; font-style: italic; }
-@keyframes slide-up { from{opacity:0;transform:translateX(-50%) translateY(10px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
+#voiceBanner.listening {
+  display: flex;
+  background: rgba(255,71,87,0.14);
+  border-color: var(--danger);
+  color: var(--danger);
+  animation: banner-pulse 1.1s ease-in-out infinite;
+}
+#voiceBanner.confirmed {
+  display: flex;
+  background: rgba(0,230,118,0.11);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+#voiceBanner.error {
+  display: flex;
+  background: rgba(255,165,0,0.10);
+  border-color: rgba(255,165,0,0.5);
+  color: #ffaa00;
+}
+@keyframes banner-pulse {
+  0%,100% { opacity:1; }
+  50%      { opacity:.65; }
+}
+.voice-banner-dot {
+  width: 12px; height: 12px; border-radius: 50%;
+  background: currentColor;
+  animation: dot-blink 1.1s ease-in-out infinite;
+  flex-shrink: 0;
+}
+@keyframes dot-blink { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.7)} }
+.voice-banner-sub {
+  font-size: .72rem; font-weight: 500; opacity: .75; margin-left: 4px;
+}
 
 /* ═══ TOASTS ═══ */
 #toast-container {
@@ -1323,6 +1352,12 @@ body.sz-cinema .annotation-bar{ flex-wrap: nowrap; overflow-x: auto; }
               <button class="speed-btn" onclick="app.cancelYT()" style="opacity:.6;">✕</button>
             </div>
           </div>
+        </div>
+        <!-- Bannière commande vocale -->
+        <div id="voiceBanner">
+          <div class="voice-banner-dot"></div>
+          <span id="voiceBannerText">🎤 EN ÉCOUTE — Parlez maintenant</span>
+          <span class="voice-banner-sub" id="voiceBannerSub"></span>
         </div>
         <div class="video-wrapper" id="videoWrapper" onclick="app.togglePlay()">
           <div class="no-video" id="noVideoState">
@@ -2691,6 +2726,18 @@ function updatePlayerChart() {
   playerChart.update('active');
 }
 
+/* ═══ MONITOR (logging IA + visites) ═══ */
+const MONITOR_URL = 'http://57.129.110.251:8014';
+function _monitorLog(type, payload) {
+  fetch(`${MONITOR_URL}/log/${type}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  }).catch(() => {}); // silencieux si monitor indispo
+}
+// Log de visite au chargement
+_monitorLog('visit', { page: 'padel_frontend' });
+
 /* ═══ SERVICE LOCAL (localhost:8766) ═══ */
 const SERVICE_URL = 'http://localhost:8766';
 let _svcConnected = false;
@@ -2814,19 +2861,16 @@ const api = {
 
     // ─── Écran de configuration ───────────────────────────────────
     const AI_ENDPOINTS = [
-      { label: '� Local — qwen3:8b',     url: 'http://localhost:11434/api/generate',       model: 'qwen3:8b' },
-      { label: '💻 Local — qwen2.5:7b',   url: 'http://localhost:11434/api/generate',       model: 'qwen2.5:7b' },
-      { label: '💻 Local — llama3.2:3b',  url: 'http://localhost:11434/api/generate',       model: 'llama3.2:3b' },
-      { label: '🖥️ VPS — qwen3:8b',      url: 'http://57.129.110.251:11434/api/generate', model: 'qwen3:8b' },
-      { label: '🖥️ VPS — qwen2.5:7b',    url: 'http://57.129.110.251:11434/api/generate', model: 'qwen2.5:7b' },
-      { label: '🖥️ VPS — qwen3:14b',     url: 'http://57.129.110.251:11434/api/generate', model: 'qwen3:14b' },
-      { label: '🖥️ VPS — llama3.2:3b',   url: 'http://57.129.110.251:11434/api/generate', model: 'llama3.2:3b' },
-      { label: '⚙️ URL personnalisée…',   url: '__custom__', model: '__custom__' },
+      { label: '⚡ qwen3:8b (recommandé)',   url: 'http://57.129.110.251:11434/api/generate', model: 'qwen3:8b' },
+      { label: '🔬 qwen3:14b (plus précis)', url: 'http://57.129.110.251:11434/api/generate', model: 'qwen3:14b' },
+      { label: '🚀 qwen2.5:7b (rapide)',     url: 'http://57.129.110.251:11434/api/generate', model: 'qwen2.5:7b' },
+      { label: '💨 llama3.2:3b (léger)',     url: 'http://57.129.110.251:11434/api/generate', model: 'llama3.2:3b' },
+      { label: '⚙️ URL personnalisée…',      url: '__custom__', model: '__custom__' },
     ];
 
     const saved = JSON.parse(localStorage.getItem('ai_config') || 'null');
     // Vérifier que la config sauvegardée correspond à un endpoint connu
-    const savedIdx = saved ? AI_ENDPOINTS.findIndex(e=>e.url===saved.url&&e.model===saved.model) : 0;
+    const savedIdx = saved ? AI_ENDPOINTS.findIndex(e=>e.url===saved.url&&e.model===saved.model) : -1;
     const defaultIdx = savedIdx >= 0 ? savedIdx : 0;
     // Effacer config invalide
     if (savedIdx < 0) localStorage.removeItem('ai_config');
@@ -2951,6 +2995,7 @@ RÈGLES DE RÉPONSE :
 - Ne pas théoriser hors contexte du match
 - Pas de tableaux JSON en sortie`;
 
+    const _t0 = Date.now();
     try {
       const resp = await fetch(OLLAMA_URL, {
         method: 'POST',
@@ -2965,6 +3010,10 @@ RÈGLES DE RÉPONSE :
       });
       if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
       const data = await resp.json();
+
+      // Log succès
+      _monitorLog('ai', { model: OLLAMA_MODEL, success: true, duration_s: Math.round((Date.now()-_t0)/100)/10 });
+
       // Supprimer les balises <think>...</think> (qwen3)
       const text = (data.response || '')
         .replace(/<think>[\s\S]*?<\/think>/gi, '')
@@ -2987,6 +3036,9 @@ RÈGLES DE RÉPONSE :
           <button onclick="closeAIModal()" class="anno-btn gold" style="padding:6px 18px">Fermer</button>
         </div>`;
     } catch(e) {
+      // Log erreur
+      _monitorLog('ai', { model: OLLAMA_MODEL, success: false, duration_s: Math.round((Date.now()-_t0)/100)/10, error: e.message });
+
       document.getElementById('aiModalContent').innerHTML = `
         <div style="text-align:center;padding:32px">
           <div style="font-size:2rem;margin-bottom:12px">❌</div>
@@ -4113,11 +4165,6 @@ api.analyzeWithAI = async function() {
 </script>
 
 <!-- ═══ COMMANDE VOCALE ═══ -->
-<div id="voiceOverlay">
-  <span id="voiceStatus">🎤 En écoute…</span>
-  <div class="voice-transcript" id="voiceTranscript"></div>
-</div>
-
 <script>
 /* ── Normalise une chaîne (minuscules + sans accents) ── */
 function _norm(s) {
@@ -4220,12 +4267,20 @@ function executeVoiceCommand(cmd) {
 const voiceControl = (() => {
   let recognition = null;
   let active = false;
-  let continuous = false;
+  let hideTimer = null;
 
-  const btn      = () => document.getElementById('voiceMicBtn');
-  const overlay  = () => document.getElementById('voiceOverlay');
-  const status   = () => document.getElementById('voiceStatus');
-  const transcript = () => document.getElementById('voiceTranscript');
+  const btn    = () => document.getElementById('voiceMicBtn');
+  const banner = () => document.getElementById('voiceBanner');
+  const btext  = () => document.getElementById('voiceBannerText');
+  const bsub   = () => document.getElementById('voiceBannerSub');
+
+  function setBanner(state, main, sub) {
+    const b = banner();
+    b.className = state ? state : '';
+    b.style.display = state ? 'flex' : 'none';
+    if (main !== undefined) btext().textContent = main;
+    if (sub  !== undefined) bsub().textContent  = sub;
+  }
 
   function supported() {
     return !!(window.SpeechRecognition || window.webkitSpeechRecognition);
@@ -4242,9 +4297,8 @@ const voiceControl = (() => {
     recognition.onstart = () => {
       active = true;
       btn()?.classList.add('listening');
-      overlay().classList.add('show');
-      status().textContent = '🎤 En écoute…';
-      transcript().textContent = '';
+      clearTimeout(hideTimer);
+      setBanner('listening', '🎤  EN ÉCOUTE — Parlez maintenant', 'Appuyez sur + pour annuler');
     };
 
     recognition.onresult = (e) => {
@@ -4254,39 +4308,38 @@ const voiceControl = (() => {
         if (e.results[i].isFinal) final += t;
         else interim += t;
       }
-      transcript().textContent = final || interim;
+      if (interim) bsub().textContent = '« ' + interim + ' »';
 
       if (final) {
-        status().textContent = '⚡ Traitement…';
         const cmd = parseVoiceCommand(final);
         if (cmd) {
           const ok = executeVoiceCommand(cmd);
-          status().textContent = ok ? '✅ Commande appliquée' : '❓ Joueur introuvable';
+          if (ok) {
+            setBanner('confirmed', '✅  COMMANDE ENVOYÉE', '« ' + final + ' »');
+          } else {
+            setBanner('error', '⚠  JOUEUR INTROUVABLE', '« ' + final + ' »');
+          }
         } else {
-          status().textContent = '❓ Commande non reconnue';
-          toast('❓ Non reconnu : « ' + final + ' »', '');
+          setBanner('error', '❓  NON RECONNU', '« ' + final + ' »');
         }
-        setTimeout(() => stop(), 900);
+        hideTimer = setTimeout(() => stop(), 2200);
       }
     };
 
     recognition.onerror = (e) => {
-      const msgs = { 'no-speech':'Aucune parole détectée', 'not-allowed':'Micro non autorisé', 'network':'Erreur réseau' };
-      status().textContent = '⚠ ' + (msgs[e.error] || e.error);
-      setTimeout(() => stop(), 1400);
+      const msgs = { 'no-speech':'Aucune parole détectée', 'not-allowed':'Micro non autorisé — vérifiez les permissions', 'network':'Erreur réseau' };
+      setBanner('error', '⚠  ' + (msgs[e.error] || e.error).toUpperCase(), '');
+      hideTimer = setTimeout(() => stop(), 2000);
     };
 
     recognition.onend = () => {
-      if (continuous && active) {
-        try { recognition.start(); } catch(e) {}
-      } else {
-        stop();
-      }
+      if (!active) return;
+      // Si toujours actif mais pas de résultat → on repart en écoute
     };
   }
 
   function start() {
-    if (!supported()) { toast('⚠ Web Speech API non supportée (utilisez Chrome)', 'fault'); return; }
+    if (!supported()) { toast('⚠ Web Speech API non supportée — utilisez Chrome', 'fault'); return; }
     if (!recognition) init();
     active = true;
     try { recognition.start(); } catch(e) {}
@@ -4294,15 +4347,15 @@ const voiceControl = (() => {
 
   function stop() {
     active = false;
-    continuous = false;
     btn()?.classList.remove('listening');
-    setTimeout(() => overlay().classList.remove('show'), 600);
+    setBanner(null);
+    clearTimeout(hideTimer);
     try { recognition?.stop(); } catch(e) {}
   }
 
   function toggle() {
-    if (active) { stop(); }
-    else { start(); }
+    if (active) stop();
+    else start();
   }
 
   return { start, stop, toggle, supported };

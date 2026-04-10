@@ -184,7 +184,8 @@ Utilise des émojis pour rendre ça vivant."""
                 "points_gagnes": pg,
                 "fautes_directes": fd,
                 "fautes_provoquees": fp_generees,  # Fautes que ce joueur a PROVOQUEES
-                "fautes_subies": fp_subies  # Fautes que ce joueur a SUBIES
+                "fautes_subies": fp_subies,  # Fautes que ce joueur a SUBIES
+                "impact": (pg + fp_generees) - (fd + fp_subies)
             }
             
             stats["fautes"]["directes"] += fd
@@ -248,8 +249,8 @@ Utilise des émojis pour rendre ça vivant."""
             fp_percent = round((fp / max(total_fautes, 1)) * 100, 1)
             fs_percent = round((fs / max(total_fautes, 1)) * 100, 1)
             
-            # Impact score (provoquées - subies)
-            impact = fp - fs
+            # Impact net = points gagnants + fautes provoquées - fautes directes - fautes subies
+            impact = (pg + fp) - (fd + fs)
             impact_color = "#28a745" if impact > 0 else ("#dc3545" if impact < 0 else "#ffc107")
             impact_text = f"+{impact}" if impact > 0 else str(impact)
             

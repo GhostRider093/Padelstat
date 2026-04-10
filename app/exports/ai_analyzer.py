@@ -12,6 +12,12 @@ from datetime import datetime
 import asyncio
 import re
 
+try:
+    from openai import OpenAI
+    OPENAI_AVAILABLE = True
+except ImportError:
+    OPENAI_AVAILABLE = False
+
 # Dépendance optionnelle: l'app doit démarrer même si Edge-TTS n'est pas embarqué
 try:
     import edge_tts  # type: ignore
@@ -120,30 +126,58 @@ LOCAL_OLLAMA  = "http://localhost:11434"
 REMOTE_OLLAMA = "http://57.129.110.251:11434"
 LOCAL_MODEL   = "qwen3:8b"
 REMOTE_MODEL  = "qwen2.5:3b"
+OPENAI_MODEL  = "gpt-4.1-mini"  # Remplacer par "gpt-5.4-mini" si disponible via API
+
+# Clé API OpenAI — à définir dans la variable d'environnement OPENAI_API_KEY
+# ou directement ici (déconseillé en production)
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
+
+
+def _detect_backend() -> dict:
+    """Détecte le backend IA disponible. Priorité : OpenAI > Ollama local > Ollama distant."""
+    # 1. OpenAI si clé présente
+    if OPENAI_AVAILABLE and OPENAI_API_KEY:
+        print("[AIAnalyzer] OpenAI API détectée → gpt-4o-mini")
+        return {"type": "openai", "model": OPENAI_MODEL}
+    # 2. Ollama local
+    try:
+        requests.get(f"{LOCAL_OLLAMA}/api/tags", timeout=2).raise_for_status()
+        print("[AIAnalyzer] Ollama local détecté → GPU local")
+        return {"type": "ollama", "base_url": LOCAL_OLLAMA, "model": LOCAL_MODEL}
+    except Exception:
+        pass
+    # 3. Ollama distant (fallback)
+    print("[AIAnalyzer] Ollama local absent → serveur distant")
+    return {"type": "ollama", "base_url": REMOTE_OLLAMA, "model": REMOTE_MODEL}
 
 
 def _detect_ollama() -> tuple[str, str]:
-    """Retourne (base_url, model) selon disponibilité locale ou distante."""
-    import requests as _req
-    try:
-        _req.get(f"{LOCAL_OLLAMA}/api/tags", timeout=2).raise_for_status()
-        print("[AIAnalyzer] Ollama local détecté → GPU local")
-        return LOCAL_OLLAMA, LOCAL_MODEL
-    except Exception:
-        print("[AIAnalyzer] Ollama local absent → serveur distant")
-        return REMOTE_OLLAMA, REMOTE_MODEL
+    """Compatibilité descendante."""
+    backend = _detect_backend()
+    if backend["type"] == "ollama":
+        return backend["base_url"], backend["model"]
+    return REMOTE_OLLAMA, REMOTE_MODEL
 
 
 class AIStatsAnalyzer:
     """Analyse les statistiques de match avec l'IA"""
 
     def __init__(self, ollama_base: str = None, model: str = None):
-        if ollama_base is None or model is None:
-            base, mdl = _detect_ollama()
-            ollama_base = ollama_base or base
-            model       = model or mdl
-        self.ollama_chat_url = f"{ollama_base}/api/chat"
-        self.model = model
+        backend = _detect_backend()
+        if backend["type"] == "openai" and ollama_base is None:
+            self.backend_type = "openai"
+            self.openai_client = OpenAI(api_key=OPENAI_API_KEY)
+            self.model = model or OPENAI_MODEL
+            self.ollama_chat_url = None
+        else:
+            self.backend_type = "ollama"
+            self.openai_client = None
+            if ollama_base is None or model is None:
+                base, mdl = _detect_ollama()
+                ollama_base = ollama_base or base
+                model       = model or mdl
+            self.ollama_chat_url = f"{ollama_base}/api/chat"
+            self.model = model
         self.timeout = 300
         
         # Vérifier si RAG est disponible
@@ -175,20 +209,29 @@ class AIStatsAnalyzer:
         ]
 
         try:
-            print("Envoi de l'analyse au serveur IA...")
-            response = requests.post(
-                self.ollama_chat_url,
-                json={
-                    "model": self.model,
-                    "messages": messages,
-                    "stream": False,
-                    "format": "json",
-                    "options": {"num_ctx": 8192},
-                },
-                timeout=self.timeout,
-            )
-            response.raise_for_status()
-            raw = response.json().get("message", {}).get("content", "").strip()
+            print(f"Envoi de l'analyse au serveur IA ({self.backend_type} / {self.model})...")
+            if self.backend_type == "openai":
+                completion = self.openai_client.chat.completions.create(
+                    model=self.model,
+                    messages=messages,
+                    response_format={"type": "json_object"},
+                    temperature=0.3,
+                )
+                raw = completion.choices[0].message.content.strip()
+            else:
+                response = requests.post(
+                    self.ollama_chat_url,
+                    json={
+                        "model": self.model,
+                        "messages": messages,
+                        "stream": False,
+                        "format": "json",
+                        "options": {"num_ctx": 8192},
+                    },
+                    timeout=self.timeout,
+                )
+                response.raise_for_status()
+                raw = response.json().get("message", {}).get("content", "").strip()
             if not raw:
                 raise Exception("Réponse vide du serveur IA")
             print("Analyse IA reçue avec succès")

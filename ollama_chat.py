@@ -159,6 +159,7 @@ def analyze_match_stats(match_data: Dict) -> Dict:
             "fautes_directes": fd,
             "fautes_provoquees": fp_generees,  # Compatibilité avec LiveHTML
             "fautes_subies": fp_subies,  # Compatibilité avec LiveHTML
+            "impact": (pg + fp_generees) - (fd + fp_subies),
             "types_coups": joueur_stats.get("points_gagnants_detail", {})
         }
         
