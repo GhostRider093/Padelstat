@@ -3209,20 +3209,6 @@ RÈGLES DE RÉPONSE :
       return `<tr><td>${t}</td><td>${who}</td><td>${p?.team||'?'}</td><td>${typeLabel}</td><td>${a.shot_label||'—'}</td></tr>`;
     }).join('');
 
-    // ── Données points gagnants par joueur (pour popup) ──────────
-    const winnersDataJson = JSON.stringify(
-      STATE.players.reduce((acc, p) => {
-        acc[p.id] = {
-          name: p.name,
-          team: p.team,
-          points: STATE.annotations
-            .filter(a => a.joueurId === p.id && a.type === 'point_gagnant')
-            .map((a, i) => ({ n: i+1, t: a.timestamp || 0, shot: a.shot_label || '—' }))
-        };
-        return acc;
-      }, {})
-    );
-
     // ── HTML ──────────────────────────────────────────────────────
     const html = `<!DOCTYPE html>
 <html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -3427,10 +3413,7 @@ tr:hover td{background:var(--off)}
         <div class="pc-title">${p.team}</div>
         <div class="pc-name">${p.name}</div>
         <div class="pc-team">Joueur</div>
-        <div class="sr" style="cursor:pointer" onclick="openWinnersPopup('${p.id}')" title="Voir la liste des points gagnants">
-          <span class="sr-label">Points gagnants <span style="font-size:.65em;opacity:.6">▶ voir</span></span>
-          <span class="sr-val g">${s.winners}</span>
-        </div>
+        <div class="sr"><span class="sr-label">Points gagnants</span><span class="sr-val g">${s.winners}</span></div>
         <div class="sr"><span class="sr-label">Fautes directes</span><span class="sr-val r">${s.fautes}</span></div>
         <div class="sr"><span class="sr-label">Efficacité</span><span class="sr-val b">${s.efficacite}%</span></div>
         <div class="pc-divider"></div>
@@ -3669,7 +3652,12 @@ tr:hover td{background:var(--off)}
           const cls = a.type==='point_gagnant'?'td-win':a.type==='faute_directe'?'td-fault':'td-prov';
           const typeLabel = a.type==='point_gagnant'?'Point gagnant':a.type==='faute_directe'?'Faute directe':'Faute provoquée';
           const who = a.type==='faute_provoquee'?`${p?.name||'?'} → ${d?.name||'?'}`:(p?.name||'?');
-          return `<tr><td style="color:var(--muted)">${n}</td><td>${t}</td><td>${who}</td><td style="color:var(--muted)">${p?.team||'?'}</td><td class="${cls}">${typeLabel}</td><td>${a.shot_label||'—'}</td></tr>`;
+          const ts = a.timestamp || 0;
+          const isWin = a.type === 'point_gagnant';
+          const rowStyle = isWin ? 'cursor:pointer;' : '';
+          const rowClick = isWin ? 'onclick="seekToPoint(' + ts + ')"' : '';
+          const tsCell = isWin ? `<td style="color:var(--green);font-weight:700" title="Cliquer pour voir">${t} ▶</td>` : `<td>${t}</td>`;
+          return `<tr style="${rowStyle}" ${rowClick}>${'<td style="color:var(--muted)">' + n + '</td>'}${tsCell}<td>${who}</td><td style="color:var(--muted)">${p?.team||'?'}</td><td class="${cls}">${typeLabel}</td><td>${a.shot_label||'—'}</td></tr>`;
         }).join('')}</tbody>
       </table>
     </div>
@@ -3765,73 +3753,15 @@ tr:hover td{background:var(--off)}
 })();
 <\/script>
 
-<!-- ── POPUP POINTS GAGNANTS ── -->
-<style>
-.wp-row{display:flex;align-items:center;gap:14px;padding:10px 14px;border-radius:8px;cursor:pointer;border:1px solid #eee;margin-bottom:8px;transition:background .15s}
-.wp-row:hover{background:#f5f5f0}
-.wp-num{font-family:monospace;font-size:.7rem;color:#888;min-width:20px}
-.wp-ts{background:#1a6b3a;color:#fff;font-family:monospace;font-weight:700;font-size:.85rem;padding:4px 10px;border-radius:4px}
-.wp-shot{font-size:.82rem;color:#444}
-.wp-cta{margin-left:auto;font-size:.8rem;color:#1a6b3a}
-</style>
-<div id="winnersPopup" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;align-items:center;justify-content:center;">
-  <div style="background:#fff;border-radius:12px;padding:36px 40px;max-width:520px;width:92%;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3);position:relative">
-    <button onclick="document.getElementById('winnersPopup').style.display='none'" style="position:absolute;top:16px;right:16px;background:none;border:none;font-size:1.4rem;cursor:pointer;color:#888">✕</button>
-    <div id="winnersPopupTitle" style="font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:#888;font-family:monospace;margin-bottom:6px"></div>
-    <div style="font-size:1.3rem;font-weight:800;margin-bottom:20px">Points gagnants</div>
-    <div id="winnersPopupList"></div>
-    <div style="margin-top:18px;font-size:.72rem;color:#aaa;font-family:monospace">
-      Cliquez sur un timestamp pour aller à ce moment dans la vidéo
-    </div>
-  </div>
-</div>
-
 <script>
-var WINNERS_DATA = ${winnersDataJson};
-
-function fmtTs(s) {
-  var m = Math.floor(s/60), sec = Math.floor(s%60);
-  return m + ':' + (sec < 10 ? '0' : '') + sec;
-}
-
-function openWinnersPopup(pid) {
-  var data = WINNERS_DATA[pid];
-  if (!data) return;
-  document.getElementById('winnersPopupTitle').textContent = data.team + ' \u2014 ' + data.name;
-  var list = document.getElementById('winnersPopupList');
-  var html = '';
-  if (!data.points.length) {
-    html = '<div style="color:#888;font-style:italic">Aucun point gagnant enregistr\u00e9</div>';
-  } else {
-    for (var i = 0; i < data.points.length; i++) {
-      var p = data.points[i];
-      var shot = p.shot.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-      html += '<div class="wp-row" onclick="seekToPoint(' + p.t + ')">'
-        + '<span class="wp-num">#' + p.n + '</span>'
-        + '<span class="wp-ts">' + fmtTs(p.t) + '</span>'
-        + '<span class="wp-shot">' + shot + '</span>'
-        + '<span class="wp-cta">\u25ba Voir</span>'
-        + '</div>';
-    }
-  }
-  list.innerHTML = html;
-  document.getElementById('winnersPopup').style.display = 'flex';
-}
-
 function seekToPoint(t) {
   if (window.opener && window.opener.app) {
     window.opener.app.seekTo(t);
     var vid = window.opener.document.getElementById('videoPlayer');
     if (vid && vid.paused) window.opener.app.togglePlay();
     window.opener.focus();
-  } else {
-    alert('Vid\u00e9o non disponible \u2014 ouvrez d\'abord une vid\u00e9o dans l\'application');
   }
 }
-
-document.getElementById('winnersPopup').addEventListener('click', function(e) {
-  if (e.target === this) this.style.display = 'none';
-});
 <\/script>
 
 </body></html>`;
