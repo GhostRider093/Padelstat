@@ -3209,6 +3209,20 @@ RÈGLES DE RÉPONSE :
       return `<tr><td>${t}</td><td>${who}</td><td>${p?.team||'?'}</td><td>${typeLabel}</td><td>${a.shot_label||'—'}</td></tr>`;
     }).join('');
 
+    // ── Données points gagnants par joueur (pour popup) ──────────
+    const winnersDataJson = JSON.stringify(
+      STATE.players.reduce((acc, p) => {
+        acc[p.id] = {
+          name: p.name,
+          team: p.team,
+          points: STATE.annotations
+            .filter(a => a.joueurId === p.id && a.type === 'point_gagnant')
+            .map((a, i) => ({ n: i+1, t: a.timestamp || 0, shot: a.shot_label || '—' }))
+        };
+        return acc;
+      }, {})
+    ).replace(/`/g, '\\`').replace(/\$\{/g, '\\${');
+
     // ── HTML ──────────────────────────────────────────────────────
     const html = `<!DOCTYPE html>
 <html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -3413,7 +3427,7 @@ tr:hover td{background:var(--off)}
         <div class="pc-title">${p.team}</div>
         <div class="pc-name">${p.name}</div>
         <div class="pc-team">Joueur</div>
-        <div class="sr" style="cursor:pointer" onclick="openWinnersPopup('${p.id}','${p.name}')" title="Voir la liste des points gagnants">
+        <div class="sr" style="cursor:pointer" onclick="openWinnersPopup('${p.id}')" title="Voir la liste des points gagnants">
           <span class="sr-label">Points gagnants <span style="font-size:.65em;opacity:.6">▶ voir</span></span>
           <span class="sr-val g">${s.winners}</span>
         </div>
@@ -3765,28 +3779,17 @@ tr:hover td{background:var(--off)}
 </div>
 
 <script>
-const WINNERS_DATA = ${JSON.stringify(
-  STATE.players.reduce((acc, p) => {
-    acc[p.id] = {
-      name: p.name,
-      team: p.team,
-      points: STATE.annotations
-        .filter(a => a.joueurId === p.id && a.type === 'point_gagnant')
-        .map((a, i) => ({ n: i+1, t: a.timestamp || 0, shot: a.shot_label || '—' }))
-    };
-    return acc;
-  }, {})
-)};
+const WINNERS_DATA = ${winnersDataJson};
 
 function formatTs(s) {
   const m = Math.floor(s/60), sec = Math.floor(s%60);
   return m+':'+(sec<10?'0':'')+sec;
 }
 
-function openWinnersPopup(pid, name) {
+function openWinnersPopup(pid) {
   const data = WINNERS_DATA[pid];
   if (!data) return;
-  document.getElementById('winnersPopupTitle').textContent = data.team + ' — ' + name;
+  document.getElementById('winnersPopupTitle').textContent = data.team + ' — ' + data.name;
   const list = document.getElementById('winnersPopupList');
   if (!data.points.length) {
     list.innerHTML = '<div style="color:#888;font-style:italic">Aucun point gagnant enregistré</div>';
