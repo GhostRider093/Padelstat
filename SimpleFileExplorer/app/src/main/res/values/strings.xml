@@ -8,4 +8,31 @@
     <string name="permission_refusee">Permission refusée. L\'application ne peut pas afficher les fichiers.</string>
     <string name="ouvrir_avec">Ouvrir avec</string>
     <string name="erreur_ouverture">Impossible d\'ouvrir le fichier : %1$s</string>
+
+    <string name="recherche_placeholder">Rechercher dans ce dossier…</string>
+    <string name="coller">Coller</string>
+    <string name="copier">Copier</string>
+    <string name="couper">Couper</string>
+    <string name="supprimer">Supprimer</string>
+    <string name="renommer">Renommer</string>
+    <string name="partager">Partager</string>
+    <string name="ouvrir">Ouvrir</string>
+
+    <string name="nouveau_dossier">Nouveau dossier</string>
+    <string name="nom">Nom</string>
+    <string name="ok">OK</string>
+    <string name="annuler">Annuler</string>
+
+    <string name="confirmer_suppression">Confirmer la suppression</string>
+    <string name="supprimer_message">Supprimer « %1$s » ?\nCette action est irréversible.</string>
+
+    <string name="erreur_generique">Erreur : %1$s</string>
+    <string name="copie_terminee">Copié</string>
+    <string name="deplacement_termine">Déplacé</string>
+    <string name="suppression_terminee">Supprimé</string>
+    <string name="dossier_cree">Dossier créé</string>
+    <string name="renommage_termine">Renommé</string>
+    <string name="rien_a_coller">Rien dans le presse-papiers</string>
+    <string name="impossible_coller_dans_soi_meme">Impossible de coller un dossier dans lui-même</string>
+    <string name="action_pour">Action pour « %1$s »</string>
 </resources>

@@ -10,7 +10,13 @@ Indépendant du reste du dépôt Padelstat (peut être déplacé tel quel).
 
 - Liste les fichiers et dossiers (dossiers en haut, triés A→Z).
 - Tap sur un dossier : entre dedans. Tap sur un fichier : ouvre via une autre app.
-- Bouton retour : remonte au dossier parent.
+- Appui long sur un élément : menu **Ouvrir / Renommer / Copier / Couper /
+  Partager / Supprimer**.
+- Bouton **+** : créer un nouveau dossier.
+- Bouton **Coller** (apparaît après Copier ou Couper) : colle dans le dossier
+  courant. Si un fichier du même nom existe, suffixe `(1)`, `(2)`, etc.
+- Champ de recherche en haut : filtre par sous-chaîne sur le dossier courant.
+- Bouton retour : efface la recherche, sinon remonte au dossier parent.
 - Affiche le chemin courant et la taille des fichiers.
 - Demande la permission « Tous les fichiers » (Android 11+) ou
   `READ_EXTERNAL_STORAGE` (Android ≤ 10).
@@ -47,6 +53,9 @@ elle ne pourra pas lister la mémoire interne.
 
 ## Limites volontaires (resté simple)
 
-- Pas de copier/coller, pas de suppression, pas de création de dossier.
-- Pas de recherche, pas de tri configurable.
-- Pas d'aperçu intégré : on délègue l'ouverture aux apps installées.
+- Recherche limitée au dossier courant (pas récursive).
+- Pas de tri configurable (toujours dossiers d'abord, A→Z).
+- Pas d'aperçu intégré : on délègue l'ouverture aux apps installées via
+  `Intent.ACTION_VIEW`.
+- Copie/déplacement synchrones sur le thread UI : peut figer brièvement
+  l'interface pour de gros transferts.
