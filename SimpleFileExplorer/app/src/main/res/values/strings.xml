@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Explorateur</string>
+    <string name="dossier_vide">Dossier vide</string>
+    <string name="permission_titre">Accès aux fichiers</string>
+    <string name="permission_message">L\'application a besoin d\'accéder à tous les fichiers pour les afficher.</string>
+    <string name="ouvrir_reglages">Ouvrir les réglages</string>
+    <string name="permission_refusee">Permission refusée. L\'application ne peut pas afficher les fichiers.</string>
+    <string name="ouvrir_avec">Ouvrir avec</string>
+    <string name="erreur_ouverture">Impossible d\'ouvrir le fichier : %1$s</string>
+</resources>
