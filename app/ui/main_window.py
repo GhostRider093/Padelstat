@@ -144,6 +144,29 @@ else:
         print("[WARN] Module vocal non disponible (installer: pip install "
               "faster-whisper pyaudio webrtcvad)")
 
+# Module vocal V2 : push-to-talk, arbre de domaine, slot filling.
+# Cohabite avec l'ancien tant que les criteres d'acceptation de
+# SPEC_MODULE_VOCAL_PTT_V2.md ne sont pas tous verts. Activer avec
+# NANOAPPSTAT_VOICE_V2=1, ou features.voice_v2 dans config.json.
+if SAFE_MODE:
+    VOICE_V2_AVAILABLE = False
+else:
+    try:
+        from app.voice.controller import (
+            ERROR as VOICE_ERROR,
+            FINALIZING as VOICE_FINALIZING,
+            IDLE as VOICE_IDLE,
+            PARTIAL as VOICE_PARTIAL,
+            RECORDING as VOICE_RECORDING,
+            VoiceController,
+        )
+        from app.voice.apercu_arbre import ApercuArbre
+        from app.voice.integration import AnnotateurVocal, question
+        VOICE_V2_AVAILABLE = True
+    except ImportError as _erreur_v2:
+        VOICE_V2_AVAILABLE = False
+        print(f"[WARN] Module vocal V2 indisponible : {_erreur_v2}")
+
 
 class ModernButton(tk.Canvas):
     """Bouton personnalisé avec effet hover (placeholder stub)."""
@@ -708,11 +731,19 @@ class MainWindow:
         
         # Charger config
         self._load_players_config()
-        
+
         # Mettre à jour le parser avec les joueurs chargés
         if self.command_parser:
             player_names = [p.get("nom") if isinstance(p, dict) else p for p in self.players]
             self.command_parser.set_joueurs(player_names)
+
+        # Module vocal V2
+        self.voice2 = None
+        self.voice2_annotateur = None
+        self.voice2_en_attente = None      # intention proposee, non validee
+        # Suppression proposee par Suppr/R, en attente d'ENTREE.
+        self.suppression_en_attente = None
+        self._init_voice2()
         
         # Interface
         self._create_ui()
@@ -738,11 +769,18 @@ class MainWindow:
         self.root.bind_all("<Down>", lambda _e: self.skip_backward(10))  # -10s
         
         # Push-to-talk avec touche V (comme Vocal)
-        self.root.bind_all("<KeyPress-v>", self._on_voice_key_toggle)
-        try:
-            self.root.unbind("<KeyRelease-v>")
-        except Exception:
-            pass
+        if self.voice2 is not None:
+            # V2 : vrai push-to-talk, on enregistre tant que V est maintenue.
+            self.root.bind_all("<KeyPress-v>", lambda _e: self.voice2.start_recording())
+            self.root.bind_all("<KeyRelease-v>", lambda _e: self.voice2.stop_recording())
+            # A comme Arbre : affiche ou masque l'encart de rappel.
+            self.root.bind_all("<a>", lambda _e: self._voice2_basculer_apercu())
+        else:
+            self.root.bind_all("<KeyPress-v>", self._on_voice_key_toggle)
+            try:
+                self.root.unbind("<KeyRelease-v>")
+            except Exception:
+                pass
         self.root.bind_all("<r>", lambda _e: self.remove_last_point())  # Annuler
         self.root.bind_all("<Delete>", lambda _e: self.remove_last_point())  # Annuler (touche Suppr)
         self.root.bind_all("<s>", lambda _e: self.quick_save())  # Sauvegarder
@@ -752,7 +790,7 @@ class MainWindow:
         self.root.bind_all("<b>", lambda _e: self.previous_point())  # Point précédent
         self.root.bind_all("<f>", lambda _e: self.toggle_maximized_video())
         self.root.bind_all("<F11>", lambda _e: self.toggle_maximized_video())
-        self.root.bind_all("<Escape>", lambda _e: self._set_immersive_video_mode(False))
+        self.root.bind_all("<Escape>", self._on_escape)
         self.root.bind_all("<m>", self.toggle_audio_mute)  # Mute/Unmute audio
 
         # Boucle de rafraichissement vidéo/timeline
@@ -1151,6 +1189,11 @@ class MainWindow:
                 with open(config_path, 'r', encoding='utf-8') as f:
                     data = json.load(f)
                     joueurs_data = data.get("joueurs", self.players)
+                    # Conserver la forme brute : elle porte l'equipe et la
+                    # position, que l'aplatissement ci-dessous perd. Le
+                    # module vocal en a besoin pour la contrainte
+                    # « defenseur dans l'equipe adverse ».
+                    self.players_raw = joueurs_data
                     # Extraire juste les noms si c'est un dict
                     if joueurs_data and isinstance(joueurs_data[0], dict):
                         self.players = [j.get("nom", j) if isinstance(j, dict) else j for j in joueurs_data]
@@ -1159,11 +1202,354 @@ class MainWindow:
             except:
                 pass
         self.annotation_manager.set_players(self.players)
-        
+
         # Mettre à jour le parser vocal avec les nouveaux noms
         if self.command_parser:
             self.command_parser.set_joueurs(self.players)
+
+        roster = getattr(self, "players_raw", None) or self.players
+        if getattr(self, "voice2", None) is not None:
+            self.voice2.set_roster(roster)
+            self.voice2_annotateur.set_roster(roster)
     
+    # ------------------------------------------------------------------
+    # Module vocal V2
+    #
+    # Cette fenetre ne connait pas l'arbre du domaine : elle relaie des
+    # touches, affiche des messages et delegue l'ecriture a AnnotateurVocal.
+    # Voir SPEC_MODULE_VOCAL_PTT_V2.md, critere d'acceptation 10.
+    # ------------------------------------------------------------------
+
+    def _voice2_actif(self) -> bool:
+        if self.safe_mode or not VOICE_V2_AVAILABLE:
+            return False
+        if _env_truthy("NANOAPPSTAT_VOICE_V2"):
+            return True
+        return bool(self.config.get("features", {}).get("voice_v2", False))
+
+    def _voice2_pause_video_active(self) -> bool:
+        """La vidéo se met-elle en pause pendant l'annotation vocale ?
+
+        Par défaut oui : sinon on rate l'action suivante pendant qu'on
+        annote la précédente. Mettre features.voice_pause_video à false
+        (ou NANOAPPSTAT_VOICE_NO_PAUSE=1) pour laisser tourner.
+        """
+        if _env_truthy("NANOAPPSTAT_VOICE_NO_PAUSE"):
+            return False
+        return bool(self.config.get("features", {}).get(
+            "voice_pause_video", True))
+
+    def _init_voice2(self):
+        if not self._voice2_actif():
+            return
+
+        # Position figée à l'appui sur V, et non à l'écriture : entre les
+        # deux il y a la durée de l'énoncé plus la transcription, soit
+        # 2 à 3 secondes de décalage sur chaque annotation.
+        self._voice2_position = None
+        self._voice2_video_a_reprendre = False
+
+        try:
+            roster = getattr(self, "players_raw", None) or self.players
+            self.voice2 = VoiceController(
+                roster=roster,
+                on_result=self._voice2_resultat,
+                on_partial=self._voice2_partiel,
+                on_control=self._voice2_commande,
+                on_state_change=self._voice2_etat,
+                on_error=self._voice2_erreur,
+                on_motcle=self._voice2_motcle,
+            )
+            self.voice2_annotateur = AnnotateurVocal(
+                self.annotation_manager, self._voice2_horodatage, roster)
+
+            # Le modele se charge hors du thread principal : l'interface ne
+            # doit jamais se figer, et la premiere commande ne doit pas etre
+            # plus lente que les suivantes.
+            self.voice2.warmup_en_arriere_plan()
+            self.root.after(30, self._voice2_poll)
+            # L'écoute permanente attend que le modèle soit chargé : sans
+            # lui, chaque segment détecté déclencherait un chargement.
+            if self._voice2_ecoute_active():
+                self.root.after(1500, self._voice2_demarrer_ecoute)
+            # L'encart de rappel attend que la fenetre principale soit
+            # placee, sinon il se positionne sur une geometrie fantome.
+            self.root.after(800, self._voice2_ouvrir_apercu)
+            print("[OK] Module vocal V2 (push-to-talk) en chargement")
+        except Exception as e:
+            self.voice2 = None
+            self.voice2_annotateur = None
+            print(f"[WARN] Erreur init vocal V2 : {e}")
+
+    def _voice2_ecoute_active(self) -> bool:
+        """Écoute permanente avec mot-clé « OK STAT ».
+
+        Désactivée par défaut : elle garde le micro ouvert, ce que le
+        push-to-talk évite précisément. Activer avec
+        NANOAPPSTAT_VOICE_ECOUTE=1 ou features.voice_ecoute.
+        """
+        if _env_truthy("NANOAPPSTAT_VOICE_ECOUTE"):
+            return True
+        return bool(self.config.get("features", {}).get(
+            "voice_ecoute", False))
+
+    def _voice2_demarrer_ecoute(self):
+        if self.voice2 is None or not self.voice2.pret:
+            # Le modèle n'est pas encore prêt : on retente.
+            self.root.after(1000, self._voice2_demarrer_ecoute)
+            return
+        if self.voice2.demarrer_ecoute():
+            self._voice2_afficher("écoute permanente active — dis « OK STAT »")
+
+    def _voice2_motcle(self, commande):
+        """Commande d'écoute permanente.
+
+        Les commandes sont idempotentes plutôt que des bascules : mettre en
+        pause une vidéo déjà en pause ne fait rien. Un déclenchement
+        parasite reste ainsi sans conséquence, au lieu de laisser dans un
+        état imprévisible.
+        """
+        if commande in ("pause", "reprise"):
+            self._voice2_lecture(commande)
+            return
+
+        deplacements = {
+            "avance_3": (3, self.skip_forward, "▶▶ +3 s"),
+            "avance_5": (5, self.skip_forward, "▶▶ +5 s"),
+            "recul_3": (3, self.skip_backward, "◀◀ −3 s"),
+            "recul_5": (5, self.skip_backward, "◀◀ −5 s"),
+        }
+        if commande in deplacements:
+            secondes, action, libelle = deplacements[commande]
+            print(f"[ECOUTE] {commande} -> {libelle}")
+            try:
+                action(secondes)
+            except Exception as e:
+                print(f"[WARN] déplacement vidéo : {e}")
+                return
+            self._voice2_afficher(libelle)
+            return
+
+        print(f"[ECOUTE] commande inconnue : {commande!r}")
+
+    def _voice2_lecture(self, commande):
+        voulu_en_lecture = (commande == "reprise")
+        if self.playing == voulu_en_lecture:
+            print(f"[ECOUTE] {commande} — déjà dans cet état, sans effet")
+            return
+
+        print(f"[ECOUTE] {commande} -> "
+              f"{'lecture' if voulu_en_lecture else 'pause'}")
+        try:
+            self.toggle_play_pause()
+        except Exception as e:
+            print(f"[WARN] bascule lecture : {e}")
+            return
+
+        self._voice2_afficher(
+            "▶ lecture (reprise)" if voulu_en_lecture else "⏸ pause (OK STAT)")
+
+    def _voice2_ouvrir_apercu(self):
+        """Encart de rappel des commandes, à côté de la fenêtre."""
+        try:
+            self.voice2_apercu = ApercuArbre(self.root)
+            self.voice2_apercu.maj(message="Modèle en chargement…")
+        except Exception as e:
+            self.voice2_apercu = None
+            print(f"[WARN] Aperçu vocal indisponible : {e}")
+
+    def _voice2_basculer_apercu(self):
+        apercu = getattr(self, "voice2_apercu", None)
+        if apercu is None:
+            self._voice2_ouvrir_apercu()
+        else:
+            apercu.basculer()
+
+    def _voice2_apercu_maj(self, intention=None, slot=None, message="",
+                           couleur=None):
+        apercu = getattr(self, "voice2_apercu", None)
+        if apercu is None:
+            return
+        try:
+            apercu.maj(intention, slot, message, couleur)
+        except Exception:
+            pass
+
+    def _voice2_poll(self):
+        """Depile les resultats dans le thread principal, seul autorise a
+        toucher a Tkinter."""
+        try:
+            self.voice2.poll()
+        except Exception as e:
+            print(f"[WARN] poll vocal V2 : {e}")
+        finally:
+            self.root.after(30, self._voice2_poll)
+
+    def _voice2_position_courante(self):
+        try:
+            return (self.video_player.get_current_timestamp(),
+                    self.video_player.current_frame)
+        except Exception:
+            return (0.0, 0)
+
+    def _voice2_horodatage(self):
+        """Position retenue pour l'annotation.
+
+        Celle de l'appui sur V, pas celle de l'écriture : l'énoncé et la
+        transcription prennent 2 à 3 secondes, pendant lesquelles la vidéo
+        a avancé si elle n'est pas en pause. On annote le moment où
+        l'utilisateur a réagi, pas celui où le parseur a fini.
+        """
+        return self._voice2_position or self._voice2_position_courante()
+
+    def _voice2_pause_video(self):
+        """Fige la vidéo le temps de l'annotation."""
+        self._voice2_position = self._voice2_position_courante()
+        if not self._voice2_pause_video_active():
+            return
+        try:
+            if self.playing:
+                self.toggle_play_pause()
+                self._voice2_video_a_reprendre = True
+        except Exception:
+            pass
+
+    def _voice2_reprendre_video(self):
+        """Relance la vidéo si c'est nous qui l'avions arrêtée."""
+        self._voice2_position = None
+        if not self._voice2_video_a_reprendre:
+            return
+        self._voice2_video_a_reprendre = False
+        try:
+            if not self.playing:
+                self.toggle_play_pause()
+        except Exception:
+            pass
+
+    # --- rappels du controleur ---
+
+    def _voice2_resultat(self, intention):
+        """Intention complete. Sous le seuil de confiance, on propose au
+        lieu d'ecrire : une erreur silencieuse dans un match annote coute
+        plus cher qu'une confirmation de trop."""
+        description = self.voice2_annotateur.decrire(intention)
+
+        if intention.confiance < self.voice2.config.seuil_confiance_auto:
+            self.voice2_en_attente = intention
+            self._voice2_afficher(
+                f"{description}   —   ENTRÉE pour valider, ÉCHAP pour jeter",
+                "#f59e0b")
+            return
+
+        self._voice2_ecrire(intention, description)
+
+    def _voice2_ecrire(self, intention, description=None):
+        description = description or self.voice2_annotateur.decrire(intention)
+        annotation = self.voice2_annotateur.appliquer(intention)
+        self.voice2_en_attente = None
+
+        if annotation is None:
+            self._voice2_afficher("annotation refusée", "#ef4444")
+            self._voice2_reprendre_video()
+            return
+
+        # L'annotation est écrite : la vidéo peut repartir.
+        print(f"[VOCAL] ECRIT     : {annotation}")
+        self._voice2_reprendre_video()
+
+        # « VALIDÉ » en rouge : c'est le seul retour qui confirme qu'un point
+        # est réellement écrit. Sans lui, il faut aller vérifier dans la
+        # liste — impossible en pleine annotation, les mains prises.
+        self._voice2_afficher(f"VALIDÉ   {description}", "#ef4444")
+        try:
+            self._update_stats()
+        except Exception:
+            pass
+
+    def _on_escape(self, _event=None):
+        """ÉCHAP : renonce à ce qui est en attente, puis sort du mode
+        immersif. L'ordre compte — on jette avant tout."""
+        if self._annuler_suppression():
+            return "break"
+
+        if self.voice2 is not None:
+            try:
+                self.voice2.cancel()
+            except Exception:
+                pass
+            if self.voice2_en_attente is not None:
+                self.voice2_en_attente = None
+                self._voice2_afficher("annotation jetée", "#f59e0b")
+            self._voice2_reprendre_video()
+        self._set_immersive_video_mode(False)
+
+    def _voice2_valider_en_attente(self) -> bool:
+        """ENTRÉE sur une annotation proposée. Vrai si quelque chose a ete
+        ecrit — l'appelant sait alors qu'il ne doit pas traiter la touche."""
+        if self.voice2_en_attente is None:
+            return False
+        self._voice2_ecrire(self.voice2_en_attente)
+        return True
+
+    def _voice2_partiel(self, intention, slot):
+        """Une seule question a la fois : celle du noeud courant."""
+        resume = self.voice2_annotateur.decrire(intention)
+        self._voice2_afficher(f"{resume}   —   {question(slot)}", "#22d3ee")
+
+    def _voice2_commande(self, nom):
+        if nom == "annuler":
+            supprime = self.voice2_annotateur.annuler()
+            self._voice2_afficher(
+                "↶ dernier point supprimé" if supprime else "rien à annuler",
+                "#f59e0b")
+            try:
+                self._refresh_annotations_display()
+            except Exception:
+                pass
+
+    def _voice2_etat(self, etat):
+        if etat == VOICE_RECORDING:
+            self._voice2_pause_video()
+            self._voice2_afficher("● enregistrement…", "#ef4444")
+        elif etat in (VOICE_ERROR, VOICE_IDLE):
+            # Rien ne sera annoté — erreur, ÉCHAP, ou « annuler » prononcé
+            # en cours de saisie. On ne laisse pas la vidéo figée.
+            self._voice2_reprendre_video()
+        # FINALIZING et PARTIAL gardent la vidéo en pause : l'annotation
+        # n'est pas terminée.
+        modes = {
+            VOICE_RECORDING: "recording",
+            VOICE_FINALIZING: "transcribing",
+            VOICE_ERROR: "error",
+        }
+        try:
+            self._set_rec_indicator_mode(modes.get(etat, "idle"))
+        except Exception:
+            pass
+
+    def _voice2_erreur(self, message):
+        self._voice2_afficher(message, "#ef4444")
+
+    def _voice2_afficher(self, texte, couleur="#e5e7eb"):
+        """Retour visuel : journal vocal, et encart de rappel.
+
+        L'encart suit l'intention en cours du contrôleur — c'est lui qui
+        sait quel niveau de l'arbre est attendu, pas cette fenêtre.
+        """
+        intention = getattr(self.voice2, "intention", None)
+        slot = None
+        if intention is not None:
+            try:
+                slot = intention.slot_attendu(self.voice2.roster)
+            except Exception:
+                pass
+        self._voice2_apercu_maj(intention, slot, texte, couleur)
+
+        try:
+            self._append_voice_log(texte)
+        except Exception:
+            print(f"[VOCAL] {texte}")
+
     def _save_players_config(self):
         """Sauvegarde la config des joueurs"""
         import json
@@ -3795,6 +4181,17 @@ class MainWindow:
         if (now - self._last_enter_shortcut_ts) < 0.20:
             return "break"
         self._last_enter_shortcut_ts = now
+
+        # Une suppression proposée passe avant tout : elle vient d'être
+        # demandée explicitement par Suppr, la confirmer est le geste attendu.
+        if self._confirmer_suppression():
+            return "break"
+
+        # Une annotation vocale proposée attend d'être validée : ENTRÉE la
+        # confirme au lieu d'ouvrir le menu.
+        if self._voice2_valider_en_attente():
+            return "break"
+
         self.show_annotation_menu()
         return "break"
 
@@ -5795,8 +6192,92 @@ class MainWindow:
             messagebox.showwarning("Attention", "Aucune annotation à supprimer")
     
     def remove_last_point(self):
-        """Raccourci clavier pour supprimer le dernier point"""
-        self.remove_last()
+        """Raccourci clavier : PROPOSE la suppression, ne l'exécute pas.
+
+        Supprimer était instantané sur une simple frappe de `Suppr` ou `R`.
+        Une annotation perdue par erreur en pleine séance ne se retrouve
+        pas : on demande confirmation par ENTRÉE, et ÉCHAP renonce.
+        """
+        derniere = (self.annotation_manager.annotations[-1]
+                    if self.annotation_manager.annotations else None)
+        if derniere is None:
+            self.suppression_en_attente = None
+            self._afficher_statut("aucune annotation à supprimer", "#f59e0b")
+            return
+
+        self.suppression_en_attente = derniere
+        self._afficher_statut(
+            f"Supprimer {self._decrire_annotation(derniere)} ?"
+            "   ENTRÉE pour confirmer, ÉCHAP pour renoncer",
+            "#f59e0b")
+
+    def _decrire_annotation(self, annotation) -> str:
+        """Libellé court d'une annotation, pour la confirmation."""
+        libelles = {
+            "faute_directe": "Faute directe",
+            "point_gagnant": "Point gagnant",
+            "faute_provoquee": "Faute provoquée",
+            "coup_coeur": "Coup de cœur",
+        }
+        morceaux = [libelles.get(annotation.get("type", ""), "Point")]
+
+        joueur = annotation.get("joueur") or annotation.get("attaquant")
+        if joueur:
+            morceaux.append(str(joueur))
+
+        coup = (annotation.get("type_coup")
+                or annotation.get("type_coup_attaquant"))
+        if coup:
+            try:
+                from app.exports.type_coup_labels import get_coup_label
+                morceaux.append(get_coup_label(coup))
+            except Exception:
+                morceaux.append(str(coup))
+
+        horodatage = annotation.get("timestamp")
+        if horodatage is not None:
+            morceaux.append(f"à {float(horodatage):.0f} s")
+
+        return " · ".join(morceaux)
+
+    def _confirmer_suppression(self) -> bool:
+        """ENTRÉE sur une suppression proposée. Vrai si quelque chose a été
+        supprimé — l'appelant sait alors qu'il ne doit pas traiter la touche."""
+        if getattr(self, "suppression_en_attente", None) is None:
+            return False
+
+        description = self._decrire_annotation(self.suppression_en_attente)
+        self.suppression_en_attente = None
+
+        supprime = self.annotation_manager.remove_last_annotation()
+        if supprime is None:
+            self._afficher_statut("plus rien à supprimer", "#f59e0b")
+            return True
+
+        try:
+            self._update_stats()
+        except Exception:
+            pass
+        self._afficher_statut(f"↶ supprimé — {description}", "#ef4444")
+        return True
+
+    def _annuler_suppression(self) -> bool:
+        """ÉCHAP : renonce à la suppression proposée."""
+        if getattr(self, "suppression_en_attente", None) is None:
+            return False
+        self.suppression_en_attente = None
+        self._afficher_statut("suppression annulée", "#22c55e")
+        return True
+
+    def _afficher_statut(self, texte, couleur="#e5e7eb"):
+        """Message à l'utilisateur, quel que soit ce qui est disponible."""
+        if getattr(self, "voice2", None) is not None:
+            self._voice2_afficher(texte, couleur)
+            return
+        try:
+            self._append_voice_log(texte)
+        except Exception:
+            print(f"[STATUT] {texte}")
     
     def quick_save(self):
         """Sauvegarde rapide sans dialog"""
@@ -7795,23 +8276,23 @@ class MainWindow:
                         wake_word = "DIRECT_STAT"
                         command_text = text_clean
                     else:
-                    # 3) Protocole stat/statistique ... à toi (conservé)
-                    m = re.match(r"^(?:stat|statistique(?:s)?)\b\s*(.*?)\s*a\s*toi$", normalized)
-                    if not m:
-                        if re.match(r"^(?:stat|statistique(?:s)?)", normalized) and not re.search(r"a\s*toi$", normalized):
-                            self._update_voice_status_label("🎤 Terminez par 'à toi'")
-                            action_taken = "IGNORÉ (manque mot de validation 'à toi')"
-                        else:
-                            action_taken = "IGNORÉ (format attendu: stat/statistique ... à toi ou commande directe: pause/lecture/point gagnant/faute directe)"
-                        return
+                        # 3) Protocole stat/statistique ... à toi (conservé)
+                        m = re.match(r"^(?:stat|statistique(?:s)?)\b\s*(.*?)\s*a\s*toi$", normalized)
+                        if not m:
+                            if re.match(r"^(?:stat|statistique(?:s)?)", normalized) and not re.search(r"a\s*toi$", normalized):
+                                self._update_voice_status_label("🎤 Terminez par 'à toi'")
+                                action_taken = "IGNORÉ (manque mot de validation 'à toi')"
+                            else:
+                                action_taken = "IGNORÉ (format attendu: stat/statistique ... à toi ou commande directe: pause/lecture/point gagnant/faute directe)"
+                            return
 
-                    wake_word = "STAT"
-                    command_text = (m.group(1) or "").strip()
+                        wake_word = "STAT"
+                        command_text = (m.group(1) or "").strip()
 
-                    if not command_text:
-                        self._update_voice_status_label("🎤 Dire la commande entre 'stat' et 'à toi'")
-                        action_taken = "⏳ STAT seul (en attente)"
-                        return
+                        if not command_text:
+                            self._update_voice_status_label("🎤 Dire la commande entre 'stat' et 'à toi'")
+                            action_taken = "⏳ STAT seul (en attente)"
+                            return
             
             # === COMMANDES SIMPLES (pas besoin de parser) ===
             

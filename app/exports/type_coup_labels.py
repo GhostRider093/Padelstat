@@ -7,7 +7,10 @@ Centralise tous les labels d'affichage pour les rapports HTML
 TYPE_COUP_LABELS_V2 = {
     # Service
     'service': '🎾 Service',
-    
+
+    # Lob
+    'lob': '🌙 Lob',
+
     # Fond de court - Coup Droit
     'fond_de_court_CD': '⚡ Fond de court CD',
     
@@ -18,6 +21,7 @@ TYPE_COUP_LABELS_V2 = {
     'fond_de_court_BH_vibora': '⚡ Fond BH → 🐍 Víbora',
     'fond_de_court_BH_bandeja': '⚡ Fond BH → 🔥 Bandeja',
     'fond_de_court_BH_smash': '⚡ Fond BH → 💥 Smash',
+    'fond_de_court_BH_bajada': '⚡ Fond BH → ⬇️ Bajada',
     
     # Volée - Coup Droit
     'volee_CD': '🏐 Volée CD',
@@ -48,9 +52,11 @@ TYPE_COUP_LABELS_V2 = {
 # Regroupements pour graphiques
 COUP_CATEGORIES = {
     'service': ['service'],
+    'lob': ['lob'],
     'fond_de_court': [
         'fond_de_court_CD', 'fond_de_court_R',
-        'fond_de_court_BH_vibora', 'fond_de_court_BH_bandeja', 'fond_de_court_BH_smash',
+        'fond_de_court_BH_vibora', 'fond_de_court_BH_bandeja',
+        'fond_de_court_BH_smash', 'fond_de_court_BH_bajada',
         'fond_de_court_coup_droit', 'fond_de_court_revers', 
         'fond_de_court_balle_haute',
         'fond_de_court'
@@ -63,17 +69,20 @@ COUP_CATEGORIES = {
     'smash': ['smash', 'fond_de_court_BH_smash', 'volee_BH_smash'],
     'vibora': ['vibora', 'fond_de_court_BH_vibora', 'volee_BH_vibora'],
     'bandeja': ['bandeja', 'fond_de_court_BH_bandeja', 'volee_BH_bandeja'],
+    'bajada': ['fond_de_court_BH_bajada'],
     'amorti': ['amorti']
 }
 
 # Labels simplifiés pour graphiques
 COUP_LABELS_SIMPLE = {
     'service': '🎾 Service',
+    'lob': '🌙 Lob',
     'fond_de_court': '⚡ Fond de court',
     'volee': '🏐 Volée',
     'smash': '💥 Smash',
     'vibora': '🐍 Víbora',
     'bandeja': '🔥 Bandeja',
+    'bajada': '⬇️ Bajada',
     'amorti': '🎯 Amorti'
 }
 

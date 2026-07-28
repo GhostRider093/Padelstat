@@ -357,6 +357,22 @@ class AnnotationManager:
                     "amorti": 0,
                     "bandeja": 0,
                     "vibora": 0,
+                    # Identifiants du module vocal V2 (app/voice/arbre.py).
+                    # Sans eux, un type_coup inconnu tombe dans "autre" en
+                    # silence : l'annotation est ecrite mais n'apparait dans
+                    # aucune statistique.
+                    "lob": 0,
+                    "volee_CD": 0,
+                    "volee_R": 0,
+                    "volee_BH_smash": 0,
+                    "volee_BH_vibora": 0,
+                    "volee_BH_bandeja": 0,
+                    "fond_de_court_CD": 0,
+                    "fond_de_court_R": 0,
+                    "fond_de_court_BH_smash": 0,
+                    "fond_de_court_BH_vibora": 0,
+                    "fond_de_court_BH_bandeja": 0,
+                    "fond_de_court_BH_bajada": 0,
                     "autre": 0
                 },
                 "points_gagnants": 0,
@@ -373,6 +389,22 @@ class AnnotationManager:
                     "amorti": 0,
                     "bandeja": 0,
                     "vibora": 0,
+                    # Identifiants du module vocal V2 (app/voice/arbre.py).
+                    # Sans eux, un type_coup inconnu tombe dans "autre" en
+                    # silence : l'annotation est ecrite mais n'apparait dans
+                    # aucune statistique.
+                    "lob": 0,
+                    "volee_CD": 0,
+                    "volee_R": 0,
+                    "volee_BH_smash": 0,
+                    "volee_BH_vibora": 0,
+                    "volee_BH_bandeja": 0,
+                    "fond_de_court_CD": 0,
+                    "fond_de_court_R": 0,
+                    "fond_de_court_BH_smash": 0,
+                    "fond_de_court_BH_vibora": 0,
+                    "fond_de_court_BH_bandeja": 0,
+                    "fond_de_court_BH_bajada": 0,
                     "autre": 0
                 },
                 "fautes_provoquees_subies": 0,
@@ -389,6 +421,22 @@ class AnnotationManager:
                     "amorti": 0,
                     "bandeja": 0,
                     "vibora": 0,
+                    # Identifiants du module vocal V2 (app/voice/arbre.py).
+                    # Sans eux, un type_coup inconnu tombe dans "autre" en
+                    # silence : l'annotation est ecrite mais n'apparait dans
+                    # aucune statistique.
+                    "lob": 0,
+                    "volee_CD": 0,
+                    "volee_R": 0,
+                    "volee_BH_smash": 0,
+                    "volee_BH_vibora": 0,
+                    "volee_BH_bandeja": 0,
+                    "fond_de_court_CD": 0,
+                    "fond_de_court_R": 0,
+                    "fond_de_court_BH_smash": 0,
+                    "fond_de_court_BH_vibora": 0,
+                    "fond_de_court_BH_bandeja": 0,
+                    "fond_de_court_BH_bajada": 0,
                     "autre": 0
                 },
                 "fautes_provoquees_generees": 0,
@@ -405,6 +453,22 @@ class AnnotationManager:
                     "amorti": 0,
                     "bandeja": 0,
                     "vibora": 0,
+                    # Identifiants du module vocal V2 (app/voice/arbre.py).
+                    # Sans eux, un type_coup inconnu tombe dans "autre" en
+                    # silence : l'annotation est ecrite mais n'apparait dans
+                    # aucune statistique.
+                    "lob": 0,
+                    "volee_CD": 0,
+                    "volee_R": 0,
+                    "volee_BH_smash": 0,
+                    "volee_BH_vibora": 0,
+                    "volee_BH_bandeja": 0,
+                    "fond_de_court_CD": 0,
+                    "fond_de_court_R": 0,
+                    "fond_de_court_BH_smash": 0,
+                    "fond_de_court_BH_vibora": 0,
+                    "fond_de_court_BH_bandeja": 0,
+                    "fond_de_court_BH_bajada": 0,
                     "autre": 0
                 },
                 "coups_coeur": {
@@ -503,9 +567,10 @@ class AnnotationManager:
                 "bandeja": {"total": 0, "fautes": 0, "gagnants": 0, "fp_generees": 0, "fp_subies": 0},
                 "vibora": {"total": 0, "fautes": 0, "gagnants": 0, "fp_generees": 0, "fp_subies": 0},
                 "volee": {"total": 0, "fautes": 0, "gagnants": 0, "fp_generees": 0, "fp_subies": 0},
-                "fond_de_court": {"total": 0, "fautes": 0, "gagnants": 0, "fp_generees": 0, "fp_subies": 0}
+                "fond_de_court": {"total": 0, "fautes": 0, "gagnants": 0, "fp_generees": 0, "fp_subies": 0},
+                "bajada": {"total": 0, "fautes": 0, "gagnants": 0, "fp_generees": 0, "fp_subies": 0}
             }
-            
+
             # Mapping des types de coups détaillés vers les catégories techniques
             coup_mapping = {
                 "service": ["service"],
@@ -519,7 +584,24 @@ class AnnotationManager:
                 "lobe": ["lobe"],
                 "amorti": ["amorti"],
                 "bandeja": ["bandeja"],
-                "vibora": ["vibora"]
+                "vibora": ["vibora"],
+
+                # Identifiants du module vocal V2. Ils portent une
+                # information que les anciennes cles n'avaient pas : le coup
+                # de balle haute est rattache a sa zone, donc une bandeja au
+                # filet et une bandeja au fond comptent dans les deux.
+                "lob": ["lobe"],
+                "volee_CD": ["coup_droit", "volee"],
+                "volee_R": ["revers", "volee"],
+                "volee_BH_smash": ["balle_haute", "volee", "smash"],
+                "volee_BH_vibora": ["balle_haute", "volee", "vibora"],
+                "volee_BH_bandeja": ["balle_haute", "volee", "bandeja"],
+                "fond_de_court_CD": ["coup_droit", "fond_de_court"],
+                "fond_de_court_R": ["revers", "fond_de_court"],
+                "fond_de_court_BH_smash": ["balle_haute", "fond_de_court", "smash"],
+                "fond_de_court_BH_vibora": ["balle_haute", "fond_de_court", "vibora"],
+                "fond_de_court_BH_bandeja": ["balle_haute", "fond_de_court", "bandeja"],
+                "fond_de_court_BH_bajada": ["balle_haute", "fond_de_court", "bajada"],
             }
             
             # Agréger les fautes directes
