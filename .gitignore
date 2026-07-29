@@ -65,3 +65,6 @@ dist/
 # Journaux de session
 logs/
 *.log
+
+# Secrets de deploiement
+.env
