@@ -27,9 +27,29 @@ if [ -z "$PADELSTAT_SSH_PASSWORD" ]; then
   exit 1
 fi
 
-echo ">>> Commit & push GitHub..."
-git add -A
-git commit -m "$MSG" || echo "(rien à committer)"
+# Un « git add -A » aveugle emportait tout ce qui trainait dans l'arbre de
+# travail, y compris des fichiers sans rapport avec le deploiement. On montre
+# desormais ce qui partirait, et on demande confirmation.
+if [ -n "$(git status --porcelain)" ]; then
+  echo ">>> Fichiers qui seraient commites :"
+  git status --short
+  echo
+  read -r -p ">>> Commiter ces fichiers ? [o/N] " REPONSE
+  case "$REPONSE" in
+    o|O|oui|OUI)
+      git add -A
+      git commit -m "$MSG"
+      ;;
+    *)
+      echo "Commit annule. Commitez ce que vous voulez deployer, puis relancez." >&2
+      exit 1
+      ;;
+  esac
+else
+  echo ">>> Arbre de travail propre, rien a commiter."
+fi
+
+echo ">>> Push GitHub..."
 git push origin main
 
 echo ">>> Git pull sur le VPS..."
