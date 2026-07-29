@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=DM+Mono:wght@300;400;500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="http://57.129.110.251:8014/tracker.js" data-site="padelstat" defer></script>
 <style>
 :root {
   --bg-deep:       #cdd3da;
@@ -312,7 +313,7 @@ header {
   font-size: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
 .ctrl-btn.primary:hover { background: #333; }
-.time-display { font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-secondary); min-width: 90px; }
+.time-display { font-family: var(--font-mono); font-size: 1rem; color: #fff; min-width: 110px; font-weight: 600; text-shadow: 0 1px 4px rgba(0,0,0,0.5); }
 .speed-btn {
   background: rgba(0,0,0,0.06); border: 1px solid var(--border);
   border-radius: 6px; color: var(--text-primary);
@@ -518,11 +519,84 @@ header {
 /* ═══ MODALS ═══ */
 .modal-overlay {
   position: fixed; inset: 0;
-  background: rgba(0,0,0,.75); backdrop-filter: blur(10px);
+  background: rgba(0,0,0,.75);
   z-index: 600; display: flex; align-items: center; justify-content: center;
   opacity: 0; pointer-events: none; transition: opacity .2s;
 }
 .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+/* Pavé numérique : déplaçable + redimensionnable 8 côtés */
+#playerModal {
+  background: transparent;
+  pointer-events: none;
+}
+#playerModal.open { pointer-events: none; }
+#playerModal .modal {
+  position: fixed;
+  right: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: all;
+  min-width: 180px;
+  max-width: none;
+  width: 360px;
+  transition: none;
+  cursor: default;
+  user-select: none;
+  overflow: hidden;
+  padding-bottom: 8px;
+}
+#playerModal.open .modal { transform: translateY(-50%); }
+#playerModal .modal.numpad-dragged { transform: none; right: auto; top: auto; }
+/* Masquer tout sauf la grille */
+#playerModal .modal-head,
+#playerModal .modal-steps,
+#playerModal .modal-foot,
+#playerModal .numpad-title,
+#playerModal .numpad-subtitle,
+#playerModal .kbd-hint,
+#playerModal .player-summary { display: none !important; }
+#playerModal .modal-body { padding: 6px 6px 2px; min-height: 0; }
+#playerModal .modal-panel { animation: none !important; }
+#playerModal .numpad-grid { gap: 6px; margin-bottom: 0; }
+.numpad-label-bar {
+  text-align: center; font-size: .75rem; font-weight: 900; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--text-primary); opacity: .75;
+  padding: 5px 0 2px;
+}
+.numpad-num-ghost {
+  position: absolute; top: 6px; left: 8px;
+  font-size: .75rem; font-weight: 900; font-family: var(--font-mono);
+  background: rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.06);
+  border-radius: 5px; padding: 2px 6px; color: rgba(0,0,0,0.2); line-height: 1.4;
+}
+/* Barre de drag */
+.numpad-drag-handle {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 4px 0;
+  background: rgba(0,0,0,0.07);
+  cursor: grab;
+  font-size: .62rem; font-weight: 700; color: var(--text-muted);
+  letter-spacing: .08em; text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+  user-select: none;
+}
+.numpad-drag-handle:active,
+#playerModal.dragging .numpad-drag-handle { cursor: grabbing; background: rgba(0,0,0,0.12); }
+/* 8 poignées de redimensionnement */
+.numpad-edge {
+  position: absolute; z-index: 20; background: transparent;
+}
+.numpad-edge.n  { top: 0;    left: 10px;  right: 10px;  height: 5px;  cursor: n-resize; }
+.numpad-edge.s  { bottom: 0; left: 10px;  right: 10px;  height: 5px;  cursor: s-resize; }
+.numpad-edge.w  { left: 0;   top: 10px;   bottom: 10px; width: 5px;   cursor: w-resize; }
+.numpad-edge.e  { right: 0;  top: 10px;   bottom: 10px; width: 5px;   cursor: e-resize; }
+.numpad-edge.nw { top: 0; left: 0;   width: 12px; height: 12px; cursor: nw-resize; }
+.numpad-edge.ne { top: 0; right: 0;  width: 12px; height: 12px; cursor: ne-resize; }
+.numpad-edge.sw { bottom: 0; left: 0;  width: 12px; height: 12px; cursor: sw-resize; }
+.numpad-edge.se { bottom: 0; right: 0; width: 12px; height: 12px; cursor: se-resize; }
+#playerModal.resizing,
+#playerModal.resizing * { cursor: inherit !important; user-select: none; }
 .modal {
   background: rgba(240,243,246,0.98); border: 1px solid var(--border-bright);
   border-radius: 0; padding: 0;
@@ -602,9 +676,10 @@ header {
   position: relative;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   gap: 6px; padding: 20px 8px 16px;
-  background: rgba(255,255,255,0.75); border: 1px solid var(--border);
+  background: rgba(255,255,255,0.75); border: 2px solid #1a1a1a;
   border-radius: var(--radius-md); color: var(--text-primary);
   cursor: pointer; transition: all .15s; text-align: center; min-height: 96px;
+  box-shadow: 0 2px 0 #1a1a1a;
 }
 .numpad-cell:hover  { border-color: var(--accent); background: rgba(26,26,26,0.06); transform: scale(1.04); }
 .numpad-cell:active { transform: scale(.97); }
@@ -723,67 +798,6 @@ header {
 }
 .name-input:focus { border-color: var(--accent); }
 .team-sep { grid-column: 1/-1; height: 1px; background: var(--border); margin: 4px 0; }
-
-/* ═══ LOGIN SCREEN ═══ */
-#loginScreen {
-  position: fixed; inset: 0; z-index: 9999;
-  background: var(--bg-deep);
-  display: flex; align-items: center; justify-content: center;
-}
-#loginScreen::before {
-  content: '';
-  position: fixed; inset: 0;
-  background:
-    radial-gradient(ellipse 80% 50% at 20% 10%, rgba(200,208,216,0.25) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(155,163,174,0.18) 0%, transparent 60%);
-  pointer-events: none;
-}
-.login-box {
-  position: relative; z-index: 1;
-  background: rgba(250,250,247,0.97); border: 1px solid var(--border-bright);
-  border-radius: var(--radius-xl); padding: 44px 48px;
-  width: 380px; max-width: 94vw;
-  box-shadow: 0 8px 40px rgba(0,0,0,.12);
-}
-.login-logo {
-  display: flex; align-items: center; gap: 12px;
-  justify-content: center; margin-bottom: 32px;
-}
-.login-logo-icon {
-  width: 48px; height: 48px;
-  background: var(--alum-shine);
-  border-radius: 14px; display: flex; align-items: center; justify-content: center;
-  font-size: 1.5rem; box-shadow: 0 2px 12px rgba(0,0,0,0.12);
-}
-.login-logo-text { font-size: 1.5rem; font-weight: 900; letter-spacing: -0.5px; }
-.login-logo-text span { color: var(--accent); }
-.login-title { font-size: .8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; color: var(--text-muted); text-align: center; margin-bottom: 28px; }
-.login-field { margin-bottom: 16px; }
-.login-field label { display: block; font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text-secondary); margin-bottom: 7px; }
-.login-field input {
-  width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--border);
-  border-radius: var(--radius-md); padding: 12px 14px;
-  color: var(--text-primary); font-size: .88rem; font-family: var(--font);
-  outline: none; transition: border-color .2s;
-}
-.login-field input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,230,118,.1); }
-.login-error {
-  display: none; margin-bottom: 14px;
-  background: rgba(255,71,87,.12); border: 1px solid rgba(255,71,87,.4);
-  border-radius: var(--radius-sm); padding: 9px 13px;
-  font-size: .78rem; color: var(--danger);
-}
-.login-error.show { display: block; }
-.login-btn {
-  width: 100%; padding: 13px;
-  background: var(--accent);
-  border: none; border-radius: var(--radius-md);
-  color: #fff; font-size: .9rem; font-weight: 800;
-  cursor: pointer; transition: transform .15s, box-shadow .15s;
-  box-shadow: 0 2px 12px rgba(0,0,0,.15); margin-top: 6px;
-}
-.login-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(0,0,0,.22); }
-.login-btn:active { transform: translateY(0); }
 
 /* ═══ MODAL PARTIES ═══ */
 #matchesModal .modal { max-width: 520px; width: 95%; max-height: 80vh; overflow-y: auto; }
@@ -1013,22 +1027,6 @@ body.sz-cinema .annotation-bar{ flex-wrap: nowrap; overflow-x: auto; }
 <body tabindex="-1">
 
 <!-- ═══ LOGIN SCREEN ═══ -->
-<div id="loginScreen">
-  <div class="login-box">
-    <div class="login-logo">
-      <div class="login-logo-icon">🎾</div>
-      <div class="login-logo-text">Padel<span>Stat</span></div>
-    </div>
-    <div class="login-title">Code d'accès</div>
-    <div class="login-field">
-      <label>Code PIN</label>
-      <input type="password" id="loginPin" placeholder="····" maxlength="10" autocomplete="current-password" inputmode="numeric" style="letter-spacing:.3em;font-size:1.4rem;text-align:center">
-    </div>
-    <div class="login-error" id="loginError">Code incorrect. Réessayez.</div>
-    <button class="login-btn" onclick="doLogin()">Accéder →</button>
-  </div>
-</div>
-
 <!-- ═══ AUTOSAVE BADGE ═══ -->
 <div id="autosaveBadge">💾 Sauvegarde auto</div>
 
@@ -1048,6 +1046,12 @@ body.sz-cinema .annotation-bar{ flex-wrap: nowrap; overflow-x: auto; }
       <div id="activeMatchBanner" style="display:none;background:rgba(0,230,118,.08);border:1px solid rgba(0,230,118,.3);padding:8px 12px;margin-bottom:14px;font-size:.8rem;">
         <span style="color:var(--accent);font-family:var(--font-mono);font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;">▶ Partie active :</span><br>
         <span id="activeMatchName" style="font-family:var(--font-title);font-size:1rem;">—</span>
+      </div>
+      <!-- Sauvegarder la partie active -->
+      <div id="saveCurrentMatchRow" style="display:none;margin-bottom:14px;">
+        <button onclick="saveCurrentMatchNow()" style="width:100%;padding:10px;background:rgba(0,230,118,.12);border:1px solid rgba(0,230,118,.4);border-radius:0;color:var(--accent);font-family:var(--font-mono);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+          ☁️ Sauvegarder la partie en cours
+        </button>
       </div>
       <!-- Nouvelle partie -->
       <div style="font-family:var(--font-mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;">Nouvelle partie</div>
@@ -1129,6 +1133,17 @@ body.sz-cinema .annotation-bar{ flex-wrap: nowrap; overflow-x: auto; }
 <!-- ═══ MODAL ANNOTATION (multi-étapes) ═══ -->
 <div class="modal-overlay" id="playerModal">
   <div class="modal">
+    <!-- Drag handle -->
+    <div class="numpad-drag-handle" id="numpadDragHandle">⠿ déplacer</div>
+    <!-- 8 poignées de resize -->
+    <div class="numpad-edge n"  data-dir="n"></div>
+    <div class="numpad-edge s"  data-dir="s"></div>
+    <div class="numpad-edge w"  data-dir="w"></div>
+    <div class="numpad-edge e"  data-dir="e"></div>
+    <div class="numpad-edge nw" data-dir="nw"></div>
+    <div class="numpad-edge ne" data-dir="ne"></div>
+    <div class="numpad-edge sw" data-dir="sw"></div>
+    <div class="numpad-edge se" data-dir="se"></div>
     <!-- Header -->
     <div class="modal-head">
       <div class="modal-head-icon" id="modalHeadIcon">⚡</div>
@@ -1181,18 +1196,34 @@ body.sz-cinema .annotation-bar{ flex-wrap: nowrap; overflow-x: auto; }
         <div class="name-group">
           <div class="name-label team-a">Joueur 1</div>
           <input class="name-input" id="p1name" placeholder="Prénom Nom">
+          <select class="name-input" id="p1side" style="margin-top:5px;font-size:.75rem;">
+            <option value="gauche">◀ Gauche</option>
+            <option value="droite">Droite ▶</option>
+          </select>
         </div>
         <div class="name-group">
           <div class="name-label team-a">Joueur 2</div>
           <input class="name-input" id="p2name" placeholder="Prénom Nom">
+          <select class="name-input" id="p2side" style="margin-top:5px;font-size:.75rem;">
+            <option value="gauche">◀ Gauche</option>
+            <option value="droite" selected>Droite ▶</option>
+          </select>
         </div>
         <div class="name-group">
           <div class="name-label team-b">Joueur 3</div>
           <input class="name-input" id="p3name" placeholder="Prénom Nom">
+          <select class="name-input" id="p3side" style="margin-top:5px;font-size:.75rem;">
+            <option value="gauche">◀ Gauche</option>
+            <option value="droite">Droite ▶</option>
+          </select>
         </div>
         <div class="name-group">
           <div class="name-label team-b">Joueur 4</div>
           <input class="name-input" id="p4name" placeholder="Prénom Nom">
+          <select class="name-input" id="p4side" style="margin-top:5px;font-size:.75rem;">
+            <option value="gauche">◀ Gauche</option>
+            <option value="droite" selected>Droite ▶</option>
+          </select>
         </div>
       </div>
     </div>
@@ -1294,13 +1325,14 @@ body.sz-cinema .annotation-bar{ flex-wrap: nowrap; overflow-x: auto; }
   </div>
 
   <div class="header-actions">
+    <div id="ps-auth-widget" style="margin-right:4px;"></div>
     <div class="live-badge">LIVE</div>
     <div class="conn-status" id="serviceStatus" title="Service local PadelStat" onclick="serviceToggleConnect()" style="cursor:pointer">
       <div class="conn-dot" id="serviceStatusDot"></div>
       <span id="serviceStatusLabel">Service déconnecté</span>
     </div>
     <button class="hdr-btn" onclick="openMatchesModal()" title="Gérer les parties" style="display:flex;align-items:center;gap:5px;">
-      🏆 <span id="hdrMatchName" style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--font-mono);font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;">Aucune partie</span>
+      🏆 <span id="hdrMatchName" style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--font-mono);font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;">Compte</span>
     </button>
     <button class="hdr-btn accent" onclick="openPlayersModal()">👥 Joueurs</button>
     <button class="hdr-btn fullscreen-btn" onclick="enterFullscreen()" title="Plein écran">⛶</button>
@@ -1340,7 +1372,7 @@ body.sz-cinema .annotation-bar{ flex-wrap: nowrap; overflow-x: auto; }
           <div class="card-title"><div class="dot" style="background:var(--accent);box-shadow:0 0 8px var(--accent);"></div> Lecteur Vidéo</div>
           <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
             <button class="speed-btn" onclick="app.rotateVideo()">↻ Rotation</button>
-            <button class="speed-btn" onclick="document.getElementById('fileInput').click()">📂 Fichier</button>
+            <button class="speed-btn" onclick="app.openVideoFile()">📂 Fichier</button>
             <input type="file" id="fileInput" accept="video/*" style="display:none" onchange="app.loadLocalVideo(this)">
             <button class="speed-btn" onclick="app.toggleYTInput()" id="ytBtn" style="background:rgba(255,0,0,.15);border-color:rgba(255,80,80,.4);color:#ff6060;">▶ YouTube</button>
           </div>
@@ -1363,7 +1395,7 @@ body.sz-cinema .annotation-bar{ flex-wrap: nowrap; overflow-x: auto; }
           <div class="no-video" id="noVideoState">
             <div class="no-video-icon">🎬</div>
             <p>Aucune vidéo chargée</p>
-            <button class="open-file-btn" onclick="event.stopPropagation();document.getElementById('fileInput').click()">Ouvrir une vidéo</button>
+            <button class="open-file-btn" onclick="event.stopPropagation();app.openVideoFile()">Ouvrir une vidéo</button>
           </div>
           <video id="videoPlayer" style="display:none;" preload="metadata"></video>
           <div class="video-overlay-bottom" id="videoOverlay" style="display:none;"></div>
@@ -1440,6 +1472,20 @@ body.sz-cinema .annotation-bar{ flex-wrap: nowrap; overflow-x: auto; }
         <button class="anno-btn ai"    onclick="api.analyzeWithAI()">🤖 Analyse IA</button>
         <button class="anno-btn voice" id="voiceMicBtn" onclick="voiceControl.toggle()" title="Commande vocale">🎤 Vocal</button>
       </div>
+      <!-- ═══ HISTORIQUE POINTS SOUS VIDÉO ═══ -->
+      <div id="pointsHistoryPanel" style="display:none;margin-top:2px;">
+        <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:0 0 var(--radius-lg) var(--radius-lg);padding:16px 20px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+            <div style="font-size:1.3rem;font-weight:700;color:var(--ink);">📋 Historique des points</div>
+            <button onclick="document.getElementById('pointsHistoryPanel').style.display='none'" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--text-muted);">✕</button>
+          </div>
+          <div style="background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.2);border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:1rem;color:var(--text-secondary);line-height:1.5;">
+            ⏱️ <b style="color:var(--ink);">Le timestamp correspond à la position vidéo au moment de l'annotation.</b><br>
+            Pour plus de précision, mettez en pause la vidéo <b>sur l'action</b> avant d'annoter.
+          </div>
+          <div id="pointsHistoryContent"></div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1477,10 +1523,10 @@ body.sz-cinema .annotation-bar{ flex-wrap: nowrap; overflow-x: auto; }
 /* ═══ STATE ═══ */
 const STATE = {
   players: [
-    { id:'p1', name:'Joueur 1', team:'Équipe A', avatar:'🟢', color:'#00e676' },
-    { id:'p2', name:'Joueur 2', team:'Équipe A', avatar:'🟩', color:'#a3e635' },
-    { id:'p3', name:'Joueur 3', team:'Équipe B', avatar:'🔵', color:'#00b0ff' },
-    { id:'p4', name:'Joueur 4', team:'Équipe B', avatar:'🟣', color:'#818cf8' },
+    { id:'p1', name:'Joueur 1', team:'Équipe A', avatar:'🟢', color:'#00e676', side:'gauche' },
+    { id:'p2', name:'Joueur 2', team:'Équipe A', avatar:'🟩', color:'#a3e635', side:'droite' },
+    { id:'p3', name:'Joueur 3', team:'Équipe B', avatar:'🔵', color:'#00b0ff', side:'gauche' },
+    { id:'p4', name:'Joueur 4', team:'Équipe B', avatar:'🟣', color:'#818cf8', side:'droite' },
   ],
   annotations: [],
   selectedShot: 'service',
@@ -1773,6 +1819,38 @@ const app = {
     document.getElementById('videoOverlay').style.display = 'block';
     document.getElementById('videoControls').style.display = 'block';
     toast('📂 ' + file.name, 'win');
+    if (typeof PadelSync !== 'undefined') PadelSync.saveLastVideoPath(file.name);
+  },
+
+  _lastVideoDir: null,
+
+  async openVideoFile() {
+    // File System Access API : rouvre dans le dernier dossier utilisé
+    if (window.showOpenFilePicker) {
+      try {
+        const opts = {
+          types: [{ description: 'Vidéos', accept: { 'video/*': ['.mp4','.webm','.mkv','.avi','.mov','.m4v','.ts','.mts'] } }],
+          multiple: false,
+        };
+        if (this._lastVideoDir) opts.startIn = this._lastVideoDir;
+        const [handle] = await window.showOpenFilePicker(opts);
+        // Mémoriser le handle pour rouvrir au même endroit
+        this._lastVideoDir = handle;
+        const file = await handle.getFile();
+        // Simuler l'input file pour réutiliser loadLocalVideo
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        const inp = document.getElementById('fileInput');
+        inp.files = dt.files;
+        app.loadLocalVideo(inp);
+        return;
+      } catch (e) {
+        if (e.name !== 'AbortError') document.getElementById('fileInput').click();
+        return;
+      }
+    }
+    // Fallback navigateur sans File System Access API
+    document.getElementById('fileInput').click();
   },
 
   onLoaded() {
@@ -1948,6 +2026,10 @@ function openPlayersModal() {
   document.getElementById('p2name').value   = STATE.players[1].name !== 'Joueur 2' ? STATE.players[1].name : '';
   document.getElementById('p3name').value   = STATE.players[2].name !== 'Joueur 3' ? STATE.players[2].name : '';
   document.getElementById('p4name').value   = STATE.players[3].name !== 'Joueur 4' ? STATE.players[3].name : '';
+  document.getElementById('p1side').value   = STATE.players[0].side || 'gauche';
+  document.getElementById('p2side').value   = STATE.players[1].side || 'droite';
+  document.getElementById('p3side').value   = STATE.players[2].side || 'gauche';
+  document.getElementById('p4side').value   = STATE.players[3].side || 'droite';
   document.getElementById('teamAName').value = document.getElementById('team1Names').textContent !== 'ÉQUIPE A'
     ? document.getElementById('team1Names').textContent : '';
   document.getElementById('teamBName').value = document.getElementById('team2Names').textContent !== 'ÉQUIPE B'
@@ -1966,13 +2048,19 @@ function confirmPlayers() {
     document.getElementById('p3name').value.trim() || 'Joueur 3',
     document.getElementById('p4name').value.trim() || 'Joueur 4',
   ];
+  const sides = [
+    document.getElementById('p1side').value,
+    document.getElementById('p2side').value,
+    document.getElementById('p3side').value,
+    document.getElementById('p4side').value,
+  ];
   const teamA = document.getElementById('teamAName').value.trim() || names[0] + ' / ' + names[1];
   const teamB = document.getElementById('teamBName').value.trim() || names[2] + ' / ' + names[3];
 
-  STATE.players[0].name = names[0];
-  STATE.players[1].name = names[1];
-  STATE.players[2].name = names[2];
-  STATE.players[3].name = names[3];
+  STATE.players[0].name = names[0]; STATE.players[0].side = sides[0];
+  STATE.players[1].name = names[1]; STATE.players[1].side = sides[1];
+  STATE.players[2].name = names[2]; STATE.players[2].side = sides[2];
+  STATE.players[3].name = names[3]; STATE.players[3].side = sides[3];
   STATE.players[0].team = teamA;
   STATE.players[1].team = teamA;
   STATE.players[2].team = teamB;
@@ -2073,7 +2161,7 @@ function renderAnnotationModal() {
 
   const itemHtml = NUMPAD_POSITIONS.map(pos => {
     const item = itemMap[String(pos)];
-    if (!item) return `<div class="numpad-cell numpad-empty"></div>`;
+    if (!item) return `<div class="numpad-cell numpad-empty"><span class="numpad-num numpad-num-ghost">${pos}</span></div>`;
     const data = `data-key="${item.key}" data-value="${item.value || item.next || item.leaf || ''}"`;
     return `<button class="numpad-cell" ${data} onclick="handleModalChoice('${item.key}')">
       <span class="numpad-num">${item.key}</span>
@@ -2084,10 +2172,11 @@ function renderAnnotationModal() {
   }).join('');
 
   body.innerHTML = `<div class="${panelClass}">
-    <div style="font-size:.95rem;font-weight:700;margin-bottom:4px;">${config.title}</div>
-    <div style="font-size:.73rem;color:var(--text-muted);margin-bottom:12px;">${config.subtitle}</div>
-    ${playerSummary}
+    <div class="numpad-title" style="font-size:.95rem;font-weight:700;margin-bottom:4px;">${config.title}</div>
+    <div class="numpad-subtitle" style="font-size:.73rem;color:var(--text-muted);margin-bottom:12px;">${config.subtitle}</div>
+    <div class="player-summary">${playerSummary}</div>
     <div class="numpad-grid">${itemHtml}</div>
+    <div class="numpad-label-bar">Pavé numérique</div>
     <div class="kbd-hint" style="margin-top:10px">
       <span class="kbd"><kbd>1–9</kbd> Sélection rapide</span>
       <span class="kbd"><kbd>⌫</kbd> Retour</span>
@@ -2173,6 +2262,7 @@ function confirmAnnotation() {
 
 function refreshAll() {
   renderTimeline();
+  renderPointsHistory();
   updateStatsBar();
   updatePlayerCards();
   app.renderProgressMarkers();
@@ -2190,31 +2280,6 @@ const USERS = {
   'fabrice': 'Padel34',
   'ben':     'Padel34',
 };
-
-const PIN = '1234';
-
-function doLogin() {
-  const val = document.getElementById('loginPin').value;
-  const err = document.getElementById('loginError');
-  if (val === PIN) {
-    sessionStorage.setItem('ps_auth', '1');
-    document.getElementById('loginScreen').style.display = 'none';
-    err.classList.remove('show');
-    toast('Bienvenue !', 'win');
-    tryRestoreState();
-  } else {
-    err.classList.add('show');
-    document.getElementById('loginPin').value = '';
-    document.getElementById('loginPin').focus();
-  }
-}
-
-document.addEventListener('keydown', e => {
-  if (e.key === 'Enter' && document.getElementById('loginScreen')?.style.display !== 'none'
-      && !sessionStorage.getItem('ps_auth')) {
-    doLogin();
-  }
-});
 
 /* ═══ AUTOSAVE / GESTION DES PARTIES ═══ */
 const SAVE_KEY       = 'padelstat_save';       // clé de la partie active (rétrocompat)
@@ -2276,23 +2341,28 @@ function getActiveMatchName() {
 function autoSave() {
   try {
     const payload = buildAutosavePayload();
-    // Sauvegarde dans la clé de la partie active
-    const key = ACTIVE_MATCH_ID ? MATCH_PREFIX + ACTIVE_MATCH_ID : SAVE_KEY;
-    localStorage.setItem(key, JSON.stringify(payload));
-    // Mise à jour de l'index
+    const name = getActiveMatchName() || 'Partie sans nom';
+    // Sync cloud + local via PadelSync
+    if (typeof PadelSync !== 'undefined' && ACTIVE_MATCH_ID) {
+      // Récupérer le chemin vidéo actuel si disponible
+      const videoPath = document.getElementById('videoPlayer')?.src?.startsWith('blob:') ? null
+        : (document.getElementById('videoPlayer')?.src || null);
+      PadelSync.saveMatch(ACTIVE_MATCH_ID, name, STATE.annotations.length, payload, videoPath);
+    } else {
+      const key = ACTIVE_MATCH_ID ? MATCH_PREFIX + ACTIVE_MATCH_ID : SAVE_KEY;
+      localStorage.setItem(key, JSON.stringify(payload));
+    }
+    // Mise à jour de l'index local
     if (ACTIVE_MATCH_ID) {
-      const idx = getMatchesIndex();
+      const idx = JSON.parse(localStorage.getItem(MATCHES_INDEX) || '[]');
       const entry = idx.find(m => m.id === ACTIVE_MATCH_ID);
-      if (entry) {
-        entry.savedAt = new Date().toISOString();
-        entry.pointCount = STATE.annotations.length;
-        saveMatchesIndex(idx);
-      }
+      if (entry) { entry.savedAt = new Date().toISOString(); entry.pointCount = STATE.annotations.length; }
+      localStorage.setItem(MATCHES_INDEX, JSON.stringify(idx));
     }
     const badge = document.getElementById('autosaveBadge');
     if (badge) {
-      const name = getActiveMatchName();
-      badge.textContent = '💾 ' + (name ? name.slice(0,20) + ' — ' : '') + new Date().toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'});
+      const name2 = getActiveMatchName();
+      badge.textContent = '💾 ' + (name2 ? name2.slice(0,20) + ' — ' : '') + new Date().toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'});
       badge.classList.add('saved');
       setTimeout(() => badge.classList.remove('saved'), 2500);
     }
@@ -2324,13 +2394,15 @@ function createNewMatch(nameOverride) {
 }
 
 /* --- Chargement d'une partie --- */
-function loadMatch(id) {
+async function loadMatch(id) {
   if (STATE.annotations.length > 0 && ACTIVE_MATCH_ID !== id) {
     if (!confirm('Charger cette partie ? La partie en cours sera sauvegardée.')) return;
     autoSave();
   }
   try {
-    const snap = JSON.parse(localStorage.getItem(MATCH_PREFIX + id) || 'null');
+    const snap = (typeof PadelSync !== 'undefined')
+      ? await PadelSync.loadMatch(id)
+      : JSON.parse(localStorage.getItem(MATCH_PREFIX + id) || 'null');
     if (!snap) { toast('❌ Partie introuvable', 'fault'); return; }
     ACTIVE_MATCH_ID = id;
     restoreFromSnap(snap);
@@ -2344,11 +2416,15 @@ function loadMatch(id) {
 /* --- Suppression d'une partie --- */
 function deleteMatch(id, e) {
   e.stopPropagation();
-  const idx = getMatchesIndex();
+  const idx = JSON.parse(localStorage.getItem(MATCHES_INDEX) || '[]');
   const entry = idx.find(m => m.id === id);
   if (!confirm('Supprimer la partie « ' + (entry?.name || id) + ' » ?')) return;
-  localStorage.removeItem(MATCH_PREFIX + id);
-  saveMatchesIndex(idx.filter(m => m.id !== id));
+  if (typeof PadelSync !== 'undefined') {
+    PadelSync.deleteMatch(id);
+  } else {
+    localStorage.removeItem(MATCH_PREFIX + id);
+  }
+  localStorage.setItem(MATCHES_INDEX, JSON.stringify(idx.filter(m => m.id !== id)));
   if (ACTIVE_MATCH_ID === id) { ACTIVE_MATCH_ID = null; updateActiveMatchBanner(); }
   renderMatchesList();
   toast('🗑️ Partie supprimée', 'fault');
@@ -2408,11 +2484,28 @@ function restoreFromSnap(snap) {
 function openMatchesModal() {
   renderMatchesList();
   updateActiveMatchBanner();
+  // Afficher le bouton de sauvegarde uniquement si une partie est active
+  const saveRow = document.getElementById('saveCurrentMatchRow');
+  if (saveRow) saveRow.style.display = ACTIVE_MATCH_ID ? 'block' : 'none';
   document.getElementById('matchesModal').classList.add('open');
   setTimeout(() => document.getElementById('newMatchNameInput')?.focus(), 80);
 }
 function closeMatchesModal() {
   document.getElementById('matchesModal').classList.remove('open');
+}
+async function saveCurrentMatchNow() {
+  if (!ACTIVE_MATCH_ID) return;
+  const name = getActiveMatchName() || 'Partie sans nom';
+  const payload = buildAutosavePayload();
+  // Sauvegarder en localStorage
+  localStorage.setItem(MATCH_PREFIX + ACTIVE_MATCH_ID, JSON.stringify(payload));
+  // Sauvegarder dans le cloud si connecté
+  if (typeof PadelSync !== 'undefined' && PadelSync.connected()) {
+    await PadelSync.saveMatch(ACTIVE_MATCH_ID, name, STATE.annotations.length, payload, null);
+    toast('☁️ Partie sauvegardée dans le cloud', 'win');
+  } else {
+    toast('💾 Partie sauvegardée en local', 'win');
+  }
 }
 function updateActiveMatchBanner() {
   const banner = document.getElementById('activeMatchBanner');
@@ -2426,24 +2519,33 @@ function updateActiveMatchBanner() {
   }
   // Mise à jour du badge header
   const hdrName = document.getElementById('hdrMatchName');
-  if (hdrName) hdrName.textContent = ACTIVE_MATCH_ID ? (getActiveMatchName()?.slice(0,22) || '') : 'Aucune partie';
+  if (hdrName) hdrName.textContent = ACTIVE_MATCH_ID ? (getActiveMatchName()?.slice(0,22) || '') : 'Compte';
 }
 function renderMatchesList() {
   const el = document.getElementById('matchesList');
   if (!el) return;
-  const idx = getMatchesIndex();
-  if (!idx.length) { el.innerHTML = '<div class="matches-empty">Aucune partie sauvegardée</div>'; return; }
-  el.innerHTML = idx.map(m => {
-    const date = new Date(m.savedAt).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});
-    const active = m.id === ACTIVE_MATCH_ID ? ' style="border-color:var(--accent)"' : '';
-    return `<div class="match-row"${active} onclick="loadMatch('${m.id}')">
-      <div class="match-row-info">
-        <div class="match-row-name">${m.id === ACTIVE_MATCH_ID ? '▶ ' : ''}${m.name}</div>
-        <div class="match-row-meta">${m.pointCount} point(s) · Sauvegardé le ${date}</div>
-      </div>
-      <button class="match-row-del" onclick="deleteMatch('${m.id}',event)">🗑️</button>
-    </div>`;
-  }).join('');
+  // Charge l'index (async si connecté, sync sinon)
+  const doRender = (idx) => {
+    if (!idx.length) { el.innerHTML = '<div class="matches-empty">Aucune partie sauvegardée</div>'; return; }
+    el.innerHTML = idx.map(m => {
+      const date = new Date(m.savedAt).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});
+      const active = m.id === ACTIVE_MATCH_ID ? ' style="border-color:var(--accent)"' : '';
+      const cloud = (typeof PadelSync !== 'undefined' && PadelSync.connected()) ? ' ☁️' : '';
+      return `<div class="match-row"${active} onclick="loadMatch('${m.id}')">
+        <div class="match-row-info">
+          <div class="match-row-name">${m.id === ACTIVE_MATCH_ID ? '▶ ' : ''}${m.name}${cloud}</div>
+          <div class="match-row-meta">${m.pointCount} point(s) · Sauvegardé le ${date}</div>
+        </div>
+        <button class="match-row-del" onclick="deleteMatch('${m.id}',event)">🗑️</button>
+      </div>`;
+    }).join('');
+  };
+  if (typeof PadelSync !== 'undefined' && PadelSync.connected()) {
+    el.innerHTML = '<div class="matches-empty">⏳ Chargement…</div>';
+    PadelSync.getMatchesIndex().then(doRender);
+  } else {
+    doRender(JSON.parse(localStorage.getItem(MATCHES_INDEX) || '[]'));
+  }
 }
 
 function tryRestoreState() {
@@ -2463,11 +2565,7 @@ function tryRestoreState() {
       }
     } catch {}
   }
-  // Si parties existantes, afficher la modal de sélection
-  const freshIdx = getMatchesIndex();
-  if (freshIdx.length) {
-    openMatchesModal();
-  }
+  // L'utilisateur ouvre la modal manuellement via le bouton
 }
 
 
@@ -2530,6 +2628,66 @@ function renderTimeline() {
   }).join('');
 }
 
+/* ═══ HISTORIQUE POINTS SOUS VIDÉO ═══ */
+function renderPointsHistory() {
+  const panel = document.getElementById('pointsHistoryPanel');
+  const content = document.getElementById('pointsHistoryContent');
+  if (!panel || !content) return;
+  const A = STATE.annotations;
+  if (!A.length) { panel.style.display = 'none'; return; }
+  panel.style.display = '';
+
+  // Parse en arborescence : type → joueur → [points]
+  const tree = {};
+  const typeOrder = ['point_gagnant', 'faute_directe', 'faute_provoquee'];
+  const typeLabels = { point_gagnant: '⚡ Points Gagnants', faute_directe: '💥 Fautes Directes', faute_provoquee: '🎯 Fautes Provoquées' };
+  const typeCls = { point_gagnant: '#00e676', faute_directe: '#f87171', faute_provoquee: '#fbbf24' };
+
+  A.forEach(a => {
+    const t = a.type || 'autre';
+    if (!tree[t]) tree[t] = {};
+    const joueur = a.joueur || '?';
+    if (!tree[t][joueur]) tree[t][joueur] = [];
+    tree[t][joueur].push(a);
+  });
+
+  let html = '';
+  typeOrder.forEach(type => {
+    const joueurs = tree[type];
+    if (!joueurs) return;
+    const totalType = Object.values(joueurs).reduce((s, arr) => s + arr.length, 0);
+    html += `<div style="margin-bottom:14px;">`;
+    html += `<div onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'':'none'" style="cursor:pointer;display:flex;align-items:center;gap:8px;padding:8px 12px;background:rgba(255,255,255,0.03);border-radius:8px;border-left:3px solid ${typeCls[type]};user-select:none;">`;
+    html += `<span style="font-weight:700;font-size:1.1rem;color:${typeCls[type]}">${typeLabels[type]}</span>`;
+    html += `<span style="font-size:.9rem;color:var(--text-muted);margin-left:auto;">${totalType} point${totalType>1?'s':''} ▾</span>`;
+    html += `</div>`;
+    html += `<div style="padding-left:12px;">`;
+    Object.entries(joueurs).sort((a,b) => b[1].length - a[1].length).forEach(([joueur, points]) => {
+      const p = STATE.players.find(p => p.name === joueur);
+      const color = p ? p.color : '#94a3b8';
+      const avatar = p ? p.avatar : '👤';
+      html += `<div style="margin-top:8px;">`;
+      html += `<div onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'':'none'" style="cursor:pointer;display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:6px;background:rgba(255,255,255,0.02);user-select:none;">`;
+      html += `<span>${avatar}</span><span style="font-weight:600;font-size:1.05rem;color:${color}">${joueur}</span>`;
+      html += `<span style="font-size:.85rem;color:var(--text-muted);margin-left:auto;">${points.length} ▾</span>`;
+      html += `</div>`;
+      html += `<div style="padding-left:16px;">`;
+      points.sort((a,b) => a.timestamp - b.timestamp).forEach(pt => {
+        html += `<div onclick="app.seekTo(${pt.timestamp});app.ytMode&&app.ytPlayer?app.ytPlayer.playVideo():app.video.play()" `;
+        html += `style="cursor:pointer;display:flex;align-items:center;gap:10px;padding:6px 10px;margin-top:4px;border-radius:6px;font-size:1rem;transition:background .15s;" `;
+        html += `onmouseenter="this.style.background='rgba(167,139,250,0.12)'" onmouseleave="this.style.background='none'">`;
+        html += `<span style="color:var(--text-muted);font-size:.9rem;font-family:var(--font-mono);min-width:50px;">▶ ${formatTime(pt.timestamp)}</span>`;
+        html += `<span style="font-size:1rem;">${pt.shot_emoji || '🎾'} ${pt.shot_label || pt.type_coup || ''}</span>`;
+        if (pt.defenseur) html += `<span style="color:var(--text-muted);font-size:.85rem;">→ ${pt.defenseur}</span>`;
+        html += `</div>`;
+      });
+      html += `</div></div>`;
+    });
+    html += `</div></div>`;
+  });
+  content.innerHTML = html;
+}
+
 /* ═══ STATS BAR ═══ */
 function updateStatsBar() {
   const A = STATE.annotations;
@@ -2561,7 +2719,7 @@ function updatePlayerCards() {
     return `<div class="player-card ${cols[i]}">
       <div class="player-avatar">${p.avatar}</div>
       <div class="player-name">${p.name}</div>
-      <div class="player-team">${p.team}</div>
+      <div class="player-team">${p.team} · ${p.side === 'gauche' ? '◀ Gauche' : 'Droite ▶'}</div>
       <div class="stat-row"><span class="stat-label">Winners</span><span class="stat-val green">${wins}</span></div>
       <div class="stat-row"><span class="stat-label">Fautes directes</span><span class="stat-val red">${faults}</span></div>
       <div class="stat-row"><span class="stat-label">Fautes provoquées</span><span class="stat-val blue">${provs}</span></div>
@@ -2727,16 +2885,15 @@ function updatePlayerChart() {
 }
 
 /* ═══ MONITOR (logging IA + visites) ═══ */
-const MONITOR_URL = 'http://57.129.110.251:8014';
+/* Tracker centralisé chargé via <script> dans <head>, data-site="padelstat" */
 function _monitorLog(type, payload) {
-  fetch(`${MONITOR_URL}/log/${type}`, {
+  if (window.__vpsMonitor) { window.__vpsMonitor(type, payload); return; }
+  fetch('http://57.129.110.251:8014/log/' + type, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  }).catch(() => {}); // silencieux si monitor indispo
+    body: JSON.stringify(Object.assign({ site: 'padelstat' }, payload))
+  }).catch(function() {});
 }
-// Log de visite au chargement
-_monitorLog('visit', { page: 'padel_frontend' });
 
 /* ═══ SERVICE LOCAL (localhost:8766) ═══ */
 const SERVICE_URL = 'http://localhost:8766';
@@ -3466,12 +3623,17 @@ tr:hover td{background:var(--off)}
 
   <!-- CONFRONTATIONS DIAGONALES -->
   ${(() => {
-    // p1/p2 = Équipe A (gauche/droite), p3/p4 = Équipe B (gauche/droite)
-    // Diagonale gauche : p1 (A-gauche) vs p4 (B-droite)
-    // Diagonale droite : p2 (A-droite) vs p3 (B-gauche)
-    const pA1 = STATE.players[0], pA2 = STATE.players[1];
-    const pB1 = STATE.players[2], pB2 = STATE.players[3];
-    if (!pA1||!pA2||!pB1||!pB2) return '';
+    // Diagonale gauche : joueur gauche équipe A vs joueur gauche équipe B
+    // Diagonale droite : joueur droite équipe A vs joueur droite équipe B
+    const pA  = STATE.players.filter(p=>p.team===STATE.players[0].team);
+    const pB  = STATE.players.filter(p=>p.team===STATE.players[2].team);
+    const pA_G = pA.find(p=>p.side==='gauche') || pA[0];
+    const pA_D = pA.find(p=>p.side==='droite') || pA[1];
+    const pB_G = pB.find(p=>p.side==='gauche') || pB[0];
+    const pB_D = pB.find(p=>p.side==='droite') || pB[1];
+    if (!pA_G||!pA_D||!pB_G||!pB_D) return '';
+    // Diagonale gauche : pA_G ↔ pB_G
+    // Diagonale droite : pA_D ↔ pB_D
 
     const diagStats = (px, py) => {
       const wx  = STATE.annotations.filter(a=>a.joueurId===px.id&&a.type==='point_gagnant').length;
@@ -3488,14 +3650,14 @@ tr:hover td{background:var(--off)}
       return { wx, wy, fdx, fdy, fpxy, fpyx, scoreX, scoreY, winner, winnerColor };
     };
 
-    const dG = diagStats(pA1, pB2); // gauche : pA1 vs pB2
-    const dD = diagStats(pA2, pB1); // droite : pA2 vs pB1
+    const dG = diagStats(pA_G, pB_G); // diagonale gauche
+    const dD = diagStats(pA_D, pB_D); // diagonale droite
 
     const diagRow = (label, px, py, d) => `
       <tr style="border-bottom:1px solid var(--off)">
         <td style="padding:12px 14px;font-weight:700;font-size:.8rem">${label}</td>
-        <td style="padding:12px 10px;text-align:center">${px.avatar} ${px.name}<br><span style="font-size:.62rem;color:var(--muted)">${px.team} — gauche</span></td>
-        <td style="padding:12px 10px;text-align:center">${py.avatar} ${py.name}<br><span style="font-size:.62rem;color:var(--muted)">${py.team} — droite</span></td>
+        <td style="padding:12px 10px;text-align:center">${px.avatar} ${px.name}<br><span style="font-size:.62rem;color:var(--muted)">${px.team} — ${px.side}</span></td>
+        <td style="padding:12px 10px;text-align:center">${py.avatar} ${py.name}<br><span style="font-size:.62rem;color:var(--muted)">${py.team} — ${py.side}</span></td>
         <td style="padding:12px 8px;text-align:center;color:var(--green);font-weight:800">${d.wx}</td>
         <td style="padding:12px 8px;text-align:center;color:var(--green);font-weight:800">${d.wy}</td>
         <td style="padding:12px 8px;text-align:center;color:var(--red)">${d.fdx}</td>
@@ -3508,8 +3670,8 @@ tr:hover td{background:var(--off)}
     return `<section>
     <div class="sec-label">05 — Confrontations diagonales</div>
     <p style="font-size:.72rem;color:var(--muted);margin-bottom:14px;font-family:var(--mono)">
-      Diagonale gauche : ${pA1.name} (A-gauche) ↔ ${pB2.name} (B-droite) &nbsp;|&nbsp;
-      Diagonale droite : ${pA2.name} (A-droite) ↔ ${pB1.name} (B-gauche)
+      Diagonale gauche : ${pA_G.name} (A) ↔ ${pB_G.name} (B) &nbsp;|&nbsp;
+      Diagonale droite : ${pA_D.name} (A) ↔ ${pB_D.name} (B)
     </p>
     <div style="overflow-x:auto">
     <table style="width:100%;border-collapse:collapse;font-size:.78rem;font-family:var(--mono)">
@@ -3526,8 +3688,8 @@ tr:hover td{background:var(--off)}
         </tr>
       </thead>
       <tbody>
-        ${diagRow('↖ Gauche', pA1, pB2, dG)}
-        ${diagRow('↗ Droite', pA2, pB1, dD)}
+        ${diagRow('↖ Gauche', pA_G, pB_G, dG)}
+        ${diagRow('↗ Droite', pA_D, pB_D, dD)}
       </tbody>
     </table>
     </div>
@@ -4037,10 +4199,6 @@ function onYouTubeIframeAPIReady() {
 
 /* ═══ INIT ═══ */
 document.addEventListener('DOMContentLoaded', () => {
-  // Auth désactivée — accès direct
-  sessionStorage.setItem('ps_auth', '1');
-  document.getElementById('loginScreen').style.display = 'none';
-
   app.init();
   window.app = app;
   updatePlayerCards();
@@ -4054,6 +4212,104 @@ document.addEventListener('DOMContentLoaded', () => {
 document.addEventListener('fullscreenchange', () => {
   if (!document.fullscreenElement) exitFullscreen();
 });
+
+/* ─── Pavé numérique draggable + resizable 8 directions ─── */
+(function() {
+  const overlay = document.getElementById('playerModal');
+  const handle  = document.getElementById('numpadDragHandle');
+  const panel   = overlay ? overlay.querySelector('.modal') : null;
+  if (!handle || !panel) return;
+
+  const MIN_W = 160, MIN_H = 120;
+
+  function ensurePinned() {
+    if (!panel.classList.contains('numpad-dragged')) {
+      const r = panel.getBoundingClientRect();
+      panel.style.left = r.left + 'px';
+      panel.style.top  = r.top  + 'px';
+      panel.classList.add('numpad-dragged');
+    }
+  }
+
+  function cx(e) { return e.touches ? e.touches[0].clientX : e.clientX; }
+  function cy(e) { return e.touches ? e.touches[0].clientY : e.clientY; }
+
+  /* ─ Drag ─ */
+  let dragging = false, ox = 0, oy = 0;
+  handle.addEventListener('mousedown', startDrag);
+  handle.addEventListener('touchstart', startDrag, { passive: false });
+
+  function startDrag(e) {
+    e.preventDefault();
+    ensurePinned();
+    const r = panel.getBoundingClientRect();
+    ox = cx(e) - r.left; oy = cy(e) - r.top;
+    dragging = true;
+    overlay.classList.add('dragging');
+    document.addEventListener('mousemove', onDrag);
+    document.addEventListener('touchmove', onDrag, { passive: false });
+    document.addEventListener('mouseup',   stopDrag);
+    document.addEventListener('touchend',  stopDrag);
+  }
+  function onDrag(e) {
+    if (!dragging) return; e.preventDefault();
+    let nx = Math.max(0, Math.min(window.innerWidth  - panel.offsetWidth,  cx(e) - ox));
+    let ny = Math.max(0, Math.min(window.innerHeight - panel.offsetHeight, cy(e) - oy));
+    panel.style.left = nx + 'px'; panel.style.top = ny + 'px';
+  }
+  function stopDrag() {
+    dragging = false; overlay.classList.remove('dragging');
+    document.removeEventListener('mousemove', onDrag);
+    document.removeEventListener('touchmove', onDrag);
+    document.removeEventListener('mouseup',   stopDrag);
+    document.removeEventListener('touchend',  stopDrag);
+  }
+
+  /* ─ Resize 8 directions ─ */
+  let resizing = false, rDir = '', rsx = 0, rsy = 0, rLeft = 0, rTop = 0, rW = 0, rH = 0;
+
+  panel.querySelectorAll('.numpad-edge').forEach(el => {
+    el.addEventListener('mousedown', startResize);
+    el.addEventListener('touchstart', startResize, { passive: false });
+  });
+
+  function startResize(e) {
+    e.preventDefault(); e.stopPropagation();
+    ensurePinned();
+    rDir = e.currentTarget.dataset.dir;
+    rsx = cx(e); rsy = cy(e);
+    const r = panel.getBoundingClientRect();
+    rLeft = r.left; rTop = r.top; rW = r.width; rH = r.height;
+    resizing = true;
+    overlay.classList.add('resizing');
+    document.addEventListener('mousemove', onResize);
+    document.addEventListener('touchmove', onResize, { passive: false });
+    document.addEventListener('mouseup',   stopResize);
+    document.addEventListener('touchend',  stopResize);
+  }
+
+  function onResize(e) {
+    if (!resizing) return; e.preventDefault();
+    const dx = cx(e) - rsx, dy = cy(e) - rsy;
+    let l = rLeft, t = rTop, w = rW, h = rH;
+    if (rDir.includes('e')) w = Math.max(MIN_W, rW + dx);
+    if (rDir.includes('s')) h = Math.max(MIN_H, rH + dy);
+    if (rDir.includes('w')) { w = Math.max(MIN_W, rW - dx); l = rLeft + rW - w; }
+    if (rDir.includes('n')) { h = Math.max(MIN_H, rH - dy); t = rTop  + rH - h; }
+    panel.style.left   = l + 'px';
+    panel.style.top    = t + 'px';
+    panel.style.width  = w + 'px';
+    panel.style.height = h + 'px';
+  }
+
+  function stopResize() {
+    resizing = false; overlay.classList.remove('resizing');
+    document.removeEventListener('mousemove', onResize);
+    document.removeEventListener('touchmove', onResize);
+    document.removeEventListener('mouseup',   stopResize);
+    document.removeEventListener('touchend',  stopResize);
+  }
+})();
 
 /* ═══ RACCOURCIS CLAVIER GLOBAUX ═══ */
 document.addEventListener('keydown', e => {
@@ -4393,6 +4649,150 @@ document.addEventListener('keydown', e => {
     voiceControl.toggle();
   }
 });
+</script>
+
+<!-- ═══ AUTH + SYNC CLOUD ═══ -->
+<script>
+window.AuthConfig = {
+  container: '#ps-auth-widget',
+  onLogin: function(user) { PadelSync.onLogin(user); },
+  onLogout: function() { PadelSync.onLogout(); },
+};
+</script>
+<script src="https://auth.crea-doc.fr/widget.js"></script>
+
+<script>
+/* ═══ PADELSTAT CLOUD SYNC ═══
+ * Si connecté  : lectures/écritures → API auth-service
+ * Si anonyme   : fallback localStorage (comportement actuel)
+ */
+const PadelSync = (() => {
+  'use strict';
+  const AUTH_BASE = 'https://auth.crea-doc.fr';
+  const TOKEN_KEY = 'creadoc_auth_token';
+
+  let _user = null;
+
+  function token() { return localStorage.getItem(TOKEN_KEY); }
+  function connected() { return !!_user && !!token(); }
+
+  /* ── HEADERS ── */
+  function authHeaders() {
+    return { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token() };
+  }
+
+  /* ── INDEX DES PARTIES ── */
+  async function getMatchesIndex() {
+    if (!connected()) {
+      try { return JSON.parse(localStorage.getItem(MATCHES_INDEX) || '[]'); } catch { return []; }
+    }
+    try {
+      const r = await fetch(AUTH_BASE + '/api/matches', { headers: authHeaders() });
+      if (!r.ok) throw new Error();
+      const { matches } = await r.json();
+      return matches.map(m => ({ id: m.id, name: m.name, savedAt: m.saved_at, pointCount: m.point_count, videoPath: m.video_path || null }));
+    } catch { return []; }
+  }
+
+  /* ── CHARGER UNE PARTIE ── */
+  async function loadMatch(id) {
+    if (!connected()) {
+      try { return JSON.parse(localStorage.getItem(MATCH_PREFIX + id) || 'null'); } catch { return null; }
+    }
+    try {
+      const r = await fetch(AUTH_BASE + '/api/matches/' + id, { headers: authHeaders() });
+      if (!r.ok) return null;
+      const { data } = await r.json();
+      return data;
+    } catch { return null; }
+  }
+
+  /* ── SAUVEGARDER ── */
+  async function saveMatch(id, name, pointCount, data, videoPath) {
+    // Toujours sauvegarder localement (rétrocompat + offline)
+    const key = id ? MATCH_PREFIX + id : SAVE_KEY;
+    try { localStorage.setItem(key, JSON.stringify(data)); } catch {}
+    if (!connected()) return;
+    try {
+      await fetch(AUTH_BASE + '/api/matches/' + id, {
+        method: 'PUT',
+        headers: authHeaders(),
+        body: JSON.stringify({ name, point_count: pointCount, data, video_path: videoPath || null }),
+      });
+    } catch {}
+  }
+
+  /* ── SUPPRIMER ── */
+  async function deleteMatch(id) {
+    try { localStorage.removeItem(MATCH_PREFIX + id); } catch {}
+    if (!connected()) return;
+    try {
+      await fetch(AUTH_BASE + '/api/matches/' + id, {
+        method: 'DELETE',
+        headers: authHeaders(),
+      });
+    } catch {}
+  }
+
+  /* ── DERNIÈRE VIDÉO ── */
+  async function getLastVideoPath() {
+    if (!connected()) return null;
+    try {
+      const r = await fetch(AUTH_BASE + '/api/matches/settings/all', { headers: authHeaders() });
+      if (!r.ok) return null;
+      const { settings } = await r.json();
+      return settings.last_video_path || null;
+    } catch { return null; }
+  }
+
+  async function saveLastVideoPath(path) {
+    if (!connected() || !path) return;
+    try {
+      await fetch(AUTH_BASE + '/api/matches/settings/last_video_path', {
+        method: 'PUT',
+        headers: authHeaders(),
+        body: JSON.stringify({ value: path }),
+      });
+    } catch {}
+  }
+
+  /* ── MIGRATION localStorage → cloud ── */
+  async function migrateLocalToCloud() {
+    const idx = JSON.parse(localStorage.getItem(MATCHES_INDEX) || '[]');
+    if (!idx.length) return;
+    toast('☁️ Migration des parties vers votre compte…', 'win');
+    for (const m of idx) {
+      try {
+        const raw = localStorage.getItem(MATCH_PREFIX + m.id);
+        if (!raw) continue;
+        const data = JSON.parse(raw);
+        await saveMatch(m.id, m.name, m.pointCount || 0, data, data?.match?.video || null);
+      } catch {}
+    }
+    toast('✅ Parties synchronisées', 'win');
+  }
+
+  /* ── CONNEXION ── */
+  async function onLogin(user) {
+    _user = user;
+    // Proposer migration si parties locales existent
+    const localIdx = JSON.parse(localStorage.getItem(MATCHES_INDEX) || '[]');
+    if (localIdx.length > 0) await migrateLocalToCloud();
+    // Mettre à jour la liste si la modal est déjà ouverte
+    if (document.getElementById('matchesModal')?.classList.contains('open') && typeof renderMatchesList === 'function') renderMatchesList();
+    // Proposer de recharger la dernière vidéo
+    const lv = await getLastVideoPath();
+    if (lv) toast('📹 Dernière vidéo : ' + lv.split(/[\\/]/).pop(), 'win');
+    toast('👤 Connecté : ' + (user.name || user.email), 'win');
+  }
+
+  function onLogout() {
+    _user = null;
+    if (typeof renderMatchesList === 'function') renderMatchesList();
+  }
+
+  return { connected, getMatchesIndex, loadMatch, saveMatch, deleteMatch, getLastVideoPath, saveLastVideoPath, onLogin, onLogout };
+})();
 </script>
 </body>
 </html>
