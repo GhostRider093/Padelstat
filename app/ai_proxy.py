@@ -5,13 +5,20 @@ Détecte automatiquement si Ollama local est disponible, sinon bascule sur le se
 """
 
 import json
+import os
 import threading
 import requests
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
 LOCAL_OLLAMA  = "http://localhost:11434"
 REMOTE_OLLAMA = "http://57.129.110.251:11434"
-PROXY_PORT = 5050
+
+# 5051 et non 5050 : le port 5050 est celui du serveur XTTS de DJARVIS
+# (C:\Users\icc34\Projet\mcp-agent). Les deux applications tournant sur la
+# meme machine, ce proxy le lui volait — Jarvis devenait muet des que
+# Padelstat demarrait, et son /health repondait 501 puisque c'etait ce
+# proxy-ci qui repondait a sa place.
+PROXY_PORT = int(os.environ.get("PADELSTAT_PROXY_PORT", "5051"))
 
 _server_instance = None
 _server_lock = threading.Lock()

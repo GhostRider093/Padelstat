@@ -9,10 +9,11 @@ chromadb>=0.4.22
 PyPDF2>=3.0.1
 requests>=2.31.0
 
-# Commandes vocales (optionnel)
-# Installer avec: pip install SpeechRecognition pyaudio
+# Commandes vocales
 SpeechRecognition>=3.10.0  # Windows Speech Recognition (léger, instantané)
 pyaudio>=0.2.14  # Capture audio microphone
+faster-whisper>=0.10.0  # Moteur Whisper (app/voice/engines/whisper_engine.py)
+webrtcvad>=2.0.10  # Détection d'activité vocale
 
 # UI (Tkinter modernisé)
 ttkbootstrap>=1.10.1

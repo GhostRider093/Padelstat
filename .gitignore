@@ -61,3 +61,7 @@ dist/
 *.egg-info/
 *.exe
 *.spec
+
+# Journaux de session
+logs/
+*.log

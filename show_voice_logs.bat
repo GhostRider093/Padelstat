@@ -1,4 +1,7 @@
 @echo off
+rem enabledelayedexpansion : sans lui, %search% du menu 4 est developpe au
+rem parsing du bloc if(...) donc toujours vide. Voir !search! plus bas.
+setlocal enabledelayedexpansion
 chcp 65001 > nul
 echo ================================================================================
 echo 📋 VISUALISEUR DE LOGS VOCAUX - PADEL STAT
@@ -36,7 +39,7 @@ if "%choice%"=="3" (
 
 if "%choice%"=="4" (
     set /p search="Mot à rechercher: "
-    python show_voice_logs.py -s "%search%"
+    python show_voice_logs.py -s "!search!"
     goto menu
 )
 

@@ -414,6 +414,9 @@ class AIStatsAnalyzer:
         # ── Sérialisation pour le chatbot JS ────────────────────────────────
         chat_history_json = json.dumps(chat_history, ensure_ascii=False)
         model_js = self.model
+        # Le port du proxy vient de app/ai_proxy.py : il a du quitter 5050,
+        # occupe par le serveur XTTS de DJARVIS sur cette machine.
+        from app.ai_proxy import PROXY_PORT as proxy_port
 
         return f"""<!DOCTYPE html>
 <html lang="fr">
@@ -496,7 +499,7 @@ class AIStatsAnalyzer:
 </div>
 
 <script>
-const PROXY = 'http://localhost:5050/api/chat';
+const PROXY = 'http://localhost:{proxy_port}/api/chat';
 const MODEL = '{model_js}';
 let messages = {chat_history_json};
 

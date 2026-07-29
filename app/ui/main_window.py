@@ -1365,6 +1365,50 @@ class MainWindow:
         else:
             apercu.basculer()
 
+    def _flash_validation(self, texte, couleur="#16a34a", duree_ms=2600):
+        """Bandeau plein écran dans la fenêtre principale.
+
+        L'encart de rappel est une fenêtre à côté : en pleine annotation on
+        regarde la vidéo, pas lui. Une annotation écrite doit se voir là où
+        les yeux sont, sans avoir à chercher.
+        """
+        try:
+            bandeau = getattr(self, "_bandeau_validation", None)
+            if bandeau is None or not bandeau.winfo_exists():
+                bandeau = tk.Label(
+                    self.root, text="", bg=couleur, fg="#ffffff",
+                    font=("Segoe UI", 15, "bold"), pady=10, anchor="center")
+                self._bandeau_validation = bandeau
+
+            bandeau.config(text=texte, bg=couleur)
+
+            # Au-dessus de la vidéo quand on sait où elle est, en haut sinon.
+            try:
+                bandeau.pack(fill="x", side="top",
+                             before=self.vlc_frame.master)
+            except Exception:
+                bandeau.pack(fill="x", side="top")
+
+            identifiant = getattr(self, "_bandeau_validation_after", None)
+            if identifiant:
+                try:
+                    self.root.after_cancel(identifiant)
+                except Exception:
+                    pass
+            self._bandeau_validation_after = self.root.after(
+                duree_ms, self._cacher_validation)
+        except Exception as e:
+            print(f"[WARN] bandeau de validation : {e}")
+
+    def _cacher_validation(self):
+        self._bandeau_validation_after = None
+        bandeau = getattr(self, "_bandeau_validation", None)
+        if bandeau is not None:
+            try:
+                bandeau.pack_forget()
+            except Exception:
+                pass
+
     def _voice2_apercu_maj(self, intention=None, slot=None, message="",
                            couleur=None):
         apercu = getattr(self, "voice2_apercu", None)
@@ -1450,6 +1494,8 @@ class MainWindow:
 
         if annotation is None:
             self._voice2_afficher("annotation refusée", "#ef4444")
+            self._flash_validation("✗  REFUSÉE   —   rien n'a été écrit",
+                                   "#b91c1c")
             self._voice2_reprendre_video()
             return
 
@@ -1457,10 +1503,11 @@ class MainWindow:
         print(f"[VOCAL] ECRIT     : {annotation}")
         self._voice2_reprendre_video()
 
-        # « VALIDÉ » en rouge : c'est le seul retour qui confirme qu'un point
-        # est réellement écrit. Sans lui, il faut aller vérifier dans la
-        # liste — impossible en pleine annotation, les mains prises.
+        # « VALIDÉ » : c'est le seul retour qui confirme qu'un point est
+        # réellement écrit. Sans lui, il faut aller vérifier dans la liste —
+        # impossible en pleine annotation, les mains prises.
         self._voice2_afficher(f"VALIDÉ   {description}", "#ef4444")
+        self._flash_validation(f"✓  VALIDÉ   —   {description}")
         try:
             self._update_stats()
         except Exception:
@@ -6259,6 +6306,7 @@ class MainWindow:
         except Exception:
             pass
         self._afficher_statut(f"↶ supprimé — {description}", "#ef4444")
+        self._flash_validation(f"↶  SUPPRIMÉ   —   {description}", "#b91c1c")
         return True
 
     def _annuler_suppression(self) -> bool:

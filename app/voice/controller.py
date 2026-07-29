@@ -26,7 +26,7 @@ from app.voice import arbre, vocabulaire
 from app.voice.config import VoiceConfig
 from app.voice.engines import creer_moteur
 from app.voice.parser import Commande, Intention, parser
-from app.voice.recorder import ErreurMicro, PTTRecorder
+from app.voice.recorder import SEUIL_SILENCE_RMS, ErreurMicro, PTTRecorder
 
 logger = logging.getLogger(__name__)
 
@@ -163,9 +163,14 @@ class VoiceController:
             self.ecoute = EcoutePermanente(
                 self.config, self.moteur, self._segment_entendu)
             self.ecoute.demarrer()
+            from app.voice.ecoute import COMMANDES
+            print("[ECOUTE] ACTIVE    : micro ouvert, commandes = "
+                  + ", ".join(f"« {formes[0]} »"
+                              for formes in COMMANDES.values()), flush=True)
             return True
         except Exception as erreur:
             self.ecoute = None
+            print(f"[ECOUTE] INDISPO   : {erreur}", flush=True)
             logger.warning("ecoute permanente indisponible : %s", erreur)
             self.on_error(f"écoute permanente indisponible : {erreur}")
             return False
@@ -217,6 +222,7 @@ class VoiceController:
                 self.ecoute.reprendre()
             return
 
+        print("[VOCAL] ECOUTE... (relache pour transcrire)", flush=True)
         self._changer_etat(RECORDING)
 
     def stop_recording(self) -> None:
@@ -269,13 +275,24 @@ class VoiceController:
         capture = self.recorder.arreter()
 
         if not coupe and capture.duree_appui_s < self.config.duree_min_appui_ms / 1000:
-            # Anti-rebond : ignore silencieusement, sans perdre le PARTIAL.
+            # Anti-rebond : ignore, sans perdre le PARTIAL. Trace console —
+            # c'est le premier suspect quand « la touche V ne fait rien »,
+            # et il ne laissait aucune trace hors de l'interface.
+            print(f"[VOCAL] TROP COURT: {capture.duree_appui_s * 1000:.0f} ms "
+                  f"(minimum {self.config.duree_min_appui_ms} ms) — ignore",
+                  flush=True)
             self._changer_etat(PARTIAL if self._intention else IDLE)
             return
 
         if capture.vide or capture.silencieuse:
+            print(f"[VOCAL] SILENCE   : {capture.duree_s:.2f} s captees, "
+                  f"RMS {capture.niveau_rms:.5f} < seuil {SEUIL_SILENCE_RMS} — "
+                  f"micro muet ou mauvais peripherique ?", flush=True)
             self._erreur("rien entendu")
             return
+
+        print(f"[VOCAL] CAPTURE   : {capture.duree_s:.2f} s, "
+              f"RMS {capture.niveau_rms:.4f}", flush=True)
 
         self._occupe = True
         self._changer_etat(FINALIZING)
@@ -332,11 +349,18 @@ class VoiceController:
         """Thread principal uniquement."""
         if genre == "pret":
             self._pret = True
-            logger.info("moteur pret en %.1f s", charge)
+            # Trace console : sans elle, on ne sait pas si le module est
+            # pret tant qu'on n'a pas parle — et un echec de warmup reste
+            # invisible, le journal de l'interface ne sortant pas de
+            # l'interface.
+            print(f"[VOCAL] PRET      : moteur charge en {charge:.1f} s — "
+                  f"maintiens {self.config.touche_ptt.upper()} pour annoter",
+                  flush=True)
             self._changer_etat(IDLE)
             return
 
         if genre == "indisponible":
+            print(f"[VOCAL] INDISPO   : {charge}", flush=True)
             self._desactiver(str(charge))
             return
 
@@ -414,6 +438,7 @@ class VoiceController:
         """Le module se retire, l'application reste utilisable au clavier."""
         self._disponible = False
         self._pret = False
+        print(f"[VOCAL] DESACTIVE : {message}", flush=True)
         logger.error("module vocal desactive : %s", message)
         self._changer_etat(ERROR)
         self.on_error(message)

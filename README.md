@@ -161,7 +161,7 @@ L'utilisateur final n'a besoin que de :
 
 ### Lancement rapide (développement)
 
-Double-cliquez sur `PFPADEL.bat` pour lancer avec vérification automatique des dépendances.
+Double-cliquez sur `LANCER_APPLICATION.bat` pour lancer l'application avec le module vocal.
 
 ## 📦 Dépendances
 

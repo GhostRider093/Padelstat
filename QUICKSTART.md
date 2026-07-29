@@ -14,13 +14,16 @@
 
 ### 2️⃣ Lancement (1 clic)
 
-Double-cliquez sur : **`PFPADEL.bat`**
+Double-cliquez sur : **`LANCER_APPLICATION.bat`**
 
 Le script va automatiquement :
-- ✅ Vérifier Python
-- ✅ Installer les dépendances
-- ✅ Télécharger FFmpeg (~90 MB)
+- ✅ Configurer le module vocal (push-to-talk + écoute permanente)
+- ✅ Rediriger le cache Hugging Face si le lecteur F: est absent
 - ✅ Lancer l'application
+- ✅ Journaliser la session dans `logs/vocal.log`
+
+> Prérequis : dépendances installées (`pip install -r requirements.txt`) et FFmpeg
+> téléchargé (`python download_ffmpeg.py`, ~90 MB) au premier usage.
 
 ---
 
@@ -191,7 +194,7 @@ Cliquez **Oui** pour reprendre là où vous vous êtes arrêté.
 ## 🏆 Vous êtes Prêt !
 
 **Workflow complet en 3 clics** :
-1. Double-clic sur `PFPADEL.bat`
+1. Double-clic sur `LANCER_APPLICATION.bat`
 2. Chargez votre vidéo
 3. **ESPACE** → Annotez → **ENTRÉE**
 
