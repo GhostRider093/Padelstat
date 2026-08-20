@@ -140,6 +140,10 @@ header {
 .hdr-btn.accent { border-color: var(--alum-lt); color: var(--alum-lt); }
 .hdr-btn.accent:hover { background: rgba(255,255,255,0.08); }
 .hdr-btn.fullscreen-btn { font-size: 1rem; padding: 7px 10px; }
+/* Le lien vers les questions au juge-arbitre est un <a>, pas un <button> :
+   il quitte le site. Sans ces deux lignes il porterait le soulignement et
+   le bleu du navigateur au milieu des boutons. */
+a.hdr-btn { text-decoration: none; }
 
 /* ═══ TABS ═══ */
 .tab-bar {
@@ -1334,6 +1338,12 @@ body.sz-cinema .annotation-bar{ flex-wrap: nowrap; overflow-x: auto; }
     <button class="hdr-btn" onclick="openMatchesModal()" title="Gérer les parties" style="display:flex;align-items:center;gap:5px;">
       🏆 <span id="hdrMatchName" style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--font-mono);font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;">Compte</span>
     </button>
+    <!-- Questions au juge-arbitre — Padel Flow (20/08/2026). La page est
+         ouverte sans mot de passe ; `rel="noopener"` parce que `target="_blank"`
+         donnerait sinon a la page ouverte une prise sur celle-ci. -->
+    <a class="hdr-btn" href="https://visio.nanauhapp.fr/questions/"
+       target="_blank" rel="noopener"
+       title="Questions au juge-arbitre — Padel Flow">❓ Questions arbitre</a>
     <button class="hdr-btn accent" onclick="openPlayersModal()">👥 Joueurs</button>
     <button class="hdr-btn fullscreen-btn" onclick="enterFullscreen()" title="Plein écran">⛶</button>
   </div>
